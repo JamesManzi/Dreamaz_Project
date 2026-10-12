@@ -1,0 +1,159 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Header */
+header {
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+/* Navbar */
+.navbar {
+    width: 100%;
+    height: 80px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+
+    padding: 0 60px;
+
+    background: #ffffff;
+    border-bottom: 1px solid #eeeeee;
+}
+
+/* Logo */
+.logo h1 {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    color: #111;
+}
+
+.logo1 {
+    color: #e85d04;
+}
+
+/* Navigation */
+.nav-links ul {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    gap: 35px;
+}
+
+/* Links */
+.nav-links a {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    text-decoration: none;
+    color: #222;
+
+    font-size: 15px;
+    font-weight: 500;
+
+    transition: 0.3s;
+}
+
+/* Icons */
+.nav-links svg {
+    font-size: 14px;
+}
+
+/* Hover */
+.nav-links a:hover {
+    color: #e85d04;
+}
+
+/* Icon hover */
+.nav-links a:hover svg {
+    transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+
+    .navbar {
+        padding: 0 20px;
+    }
+
+    .logo h1 {
+        font-size: 24px;
+    }
+
+    .nav-links ul {
+        gap: 15px;
+    }
+
+    .nav-links a {
+        font-size: 13px;
+    }
+}
+
+.home_btns {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.home_btns a {
+  text-decoration: none;
+}
+
+.home_btns button {
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Register button */
+.home-btn1 {
+  background-color: #27ae60;
+  color: white;
+}
+
+.home-btn1:hover {
+  background-color: #219150;
+  transform: translateY(-2px);
+}
+
+/* Login button */
+.home-btn2 {
+  background-color: transparent;
+  color: #27ae60;
+  border: 2px solid #27ae60 !important;
+}
+
+.home-btn2:hover {
+  background-color: #27ae60;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .home_btns {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 250px;
+  }
+
+  .home_btns button {
+    width: 100%;
+  }
+}

@@ -1,0 +1,882 @@
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f5f7fb;
+    color: #172033;
+}
+
+.manage-users-page {
+    min-height: 100vh;
+    width: 100%;
+    background: #f5f7fb;
+}
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.admin-navbar {
+    width: 260px;
+    height: 100vh;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    background: #111827;
+    color: white;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 20px 0;
+
+    z-index: 1000;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.08);
+}
+
+
+/* LOGO */
+
+.adminlogo {
+    padding: 0 22px 22px;
+
+    border-bottom: 1px solid #263244;
+}
+
+.adminlogo h1 {
+    margin: 0;
+
+    color: #ffffff;
+
+    font-size: 24px;
+    font-weight: 800;
+
+    letter-spacing: -0.5px;
+}
+
+.adminlogo .logo1 {
+    font-weight: 400;
+}
+
+.adminlogo h2 {
+    margin: 6px 0 0;
+
+    color: #94a3b8;
+
+    font-size: 11px;
+    font-weight: 500;
+
+    letter-spacing: 0.3px;
+}
+
+
+/* =========================================================
+   SIDEBAR NAVIGATION
+========================================================= */
+
+.admin-navlinks {
+    flex: 1;
+
+    padding: 18px 12px;
+}
+
+.admin-navlinks ul {
+    list-style: none;
+
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+.admin-navlinks li {
+    width: 100%;
+}
+
+.admin-navlinks a {
+    width: 100%;
+
+    min-height: 44px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 11px 14px;
+
+    border-radius: 8px;
+
+    color: #cbd5e1;
+
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: 500;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.admin-navlinks a svg {
+    width: 16px;
+    min-width: 16px;
+
+    font-size: 15px;
+}
+
+.admin-navlinks a:hover {
+    background: #1f2937;
+    color: #ffffff;
+
+    transform: translateX(2px);
+}
+
+
+/* ACTIVE PAGE */
+
+.admin-navlinks a.active {
+    background: #6366f1;
+    color: #ffffff;
+
+    box-shadow: 0 4px 10px rgba(99, 102, 241, 0.20);
+}
+
+
+/* =========================================================
+   TOP HEADER (Shifted right to avoid sidebar overlap)
+========================================================= */
+
+.manage-users-header {
+    margin-left: 260px;
+    width: calc(100% - 260px);
+
+    min-height: 78px;
+
+    padding: 0 40px;
+
+    background: #ffffff;
+
+    border-bottom: 1px solid #e8ebf1;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+
+/* BRAND AREA */
+
+.brand-area {
+    display: flex;
+    align-items: center;
+
+    gap: 18px;
+}
+
+.brand-logo {
+    margin: 0;
+
+    color: #111827;
+
+    font-size: 23px;
+    font-weight: 800;
+
+    letter-spacing: -0.5px;
+}
+
+.brand-logo span {
+    font-weight: 400;
+}
+
+.brand-area p {
+    margin: 0;
+
+    padding-left: 18px;
+
+    border-left: 1px solid #dfe3ea;
+
+    color: #7b8494;
+
+    font-size: 13px;
+}
+
+
+/* BACK BUTTON */
+
+.back-dashboard {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 10px 15px;
+
+    background: #ffffff;
+
+    border: 1px solid #dce1e8;
+    border-radius: 7px;
+
+    color: #414b5d;
+
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    transition: 0.2s ease;
+}
+
+.back-dashboard:hover {
+    background: #f5f7fb;
+
+    border-color: #c9ced8;
+
+    color: #111827;
+}
+
+
+/* =========================================================
+   PAGE CONTAINER (Shifted right to avoid sidebar overlap)
+========================================================= */
+
+.manage-users-container {
+    margin-left: 260px;
+    width: calc(100% - 260px);
+
+    max-width: 1140px;
+    padding: 38px 40px 60px;
+}
+
+
+/* =========================================================
+   PAGE TITLE
+========================================================= */
+
+.page-heading {
+    width: 100%;
+
+    margin-bottom: 30px;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 25px;
+}
+
+.heading-label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: #7b8494;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1.4px;
+}
+
+.page-heading h1 {
+    margin: 0 0 8px;
+
+    color: #111827;
+
+    font-size: 34px;
+    font-weight: 750;
+
+    letter-spacing: -0.7px;
+}
+
+.page-heading p {
+    margin: 0;
+
+    color: #727d90;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   CREATE USER BUTTON
+========================================================= */
+
+.add-user-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 9px;
+
+    padding: 12px 18px;
+
+    background: #111827;
+    color: #ffffff;
+
+    border: none;
+    border-radius: 8px;
+
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    white-space: nowrap;
+
+    transition: all 0.2s ease;
+}
+
+.add-user-btn:hover {
+    background: #252d3d;
+
+    transform: translateY(-1px);
+
+    box-shadow: 0 5px 12px rgba(17, 24, 39, 0.15);
+}
+
+.add-user-btn svg {
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   STATISTICS
+========================================================= */
+
+.user-statistics {
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 18px;
+
+    margin-bottom: 25px;
+}
+
+
+/* STAT CARD */
+
+.stat-card {
+    min-height: 105px;
+
+    padding: 20px;
+
+    background: #ffffff;
+
+    border: 1px solid #e7eaf0;
+
+    border-radius: 10px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 16px;
+
+    transition: 0.2s ease;
+}
+
+.stat-card:hover {
+    border-color: #d9dde5;
+
+    box-shadow: 0 5px 15px rgba(15, 23, 42, 0.05);
+}
+
+
+/* STAT ICON */
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: #f1f3f7;
+
+    color: #465064;
+
+    font-size: 18px;
+}
+
+
+/* STAT TEXT */
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+.stat-card span {
+    color: #7d8798;
+
+    font-size: 12px;
+}
+
+.stat-card strong {
+    color: #151c2c;
+
+    font-size: 25px;
+    font-weight: 750;
+}
+
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+.users-message {
+    width: 100%;
+
+    margin-bottom: 20px;
+
+    padding: 13px 16px;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   USERS CARD
+========================================================= */
+
+.users-card {
+    width: 100%;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e9ef;
+
+    border-radius: 10px;
+
+    overflow: hidden;
+
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.02);
+}
+
+
+/* =========================================================
+   USERS CARD HEADER
+========================================================= */
+
+.users-card-header {
+    min-height: 80px;
+
+    padding: 20px 24px;
+
+    border-bottom: 1px solid #edf0f4;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.users-card-title {
+    flex: 1;
+}
+
+.users-card-header h2 {
+    margin: 0 0 5px;
+
+    color: #182033;
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.users-card-header p {
+    margin: 0;
+
+    color: #858e9e;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   SEARCH BOX
+========================================================= */
+
+.search-box {
+    width: 270px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 0 13px;
+
+    background: #f8f9fb;
+
+    border: 1px solid #e0e4eb;
+
+    border-radius: 7px;
+
+    color: #8a93a2;
+
+    transition: 0.2s ease;
+}
+
+.search-box:focus-within {
+    background: #ffffff;
+
+    border-color: #aeb5c2;
+
+    box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.08);
+}
+
+.search-box svg {
+    flex-shrink: 0;
+
+    font-size: 13px;
+}
+
+.search-box input {
+    width: 100%;
+
+    height: 100%;
+
+    padding: 0;
+
+    border: none;
+    outline: none;
+
+    background: transparent;
+
+    color: #20283a;
+
+    font-family: inherit;
+
+    font-size: 13px;
+}
+
+.search-box input::placeholder {
+    color: #9aa2b0;
+}
+
+
+/* =========================================================
+   TABLE WRAPPER
+========================================================= */
+
+.users-table-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.users-table {
+    width: 100%;
+
+    min-width: 700px;
+
+    border-collapse: collapse;
+
+    table-layout: auto;
+}
+
+.users-table thead {
+    background: #fafbfc;
+}
+
+.users-table th {
+    padding: 14px 22px;
+
+    border-bottom: 1px solid #e9ecf1;
+
+    color: #707a8d;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    text-align: left;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.8px;
+
+    white-space: nowrap;
+}
+
+.users-table td {
+    padding: 16px 22px;
+
+    border-bottom: 1px solid #edf0f4;
+
+    color: #424c5f;
+
+    font-size: 13px;
+
+    vertical-align: middle;
+}
+
+.users-table tbody tr {
+    transition: background 0.15s ease;
+}
+
+.users-table tbody tr:hover {
+    background: #fafbfc;
+}
+
+.users-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* =========================================================
+   USER INFORMATION
+========================================================= */
+
+.user-info {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    min-width: 190px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #eef1f5;
+
+    color: #3d4657;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.user-details {
+    min-width: 0;
+}
+
+.user-info strong {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #1b2333;
+
+    font-size: 13px;
+    font-weight: 650;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-info span {
+    color: #9199a8;
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   EMAIL
+========================================================= */
+
+.email-cell {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    color: #596477;
+
+    white-space: nowrap;
+}
+
+.email-cell svg {
+    color: #8992a2;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   ROLE BADGE
+========================================================= */
+
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 5px 10px;
+
+    border-radius: 5px;
+
+    font-size: 10px;
+    font-weight: 700;
+
+    text-transform: capitalize;
+
+    white-space: nowrap;
+}
+
+.admin-role {
+    background: #eef1f5;
+
+    color: #313a4c;
+}
+
+.user-role {
+    background: #f4f5f7;
+
+    color: #626c7c;
+}
+
+
+/* =========================================================
+   DELETE BUTTON
+========================================================= */
+
+.delete-user-btn {
+    min-width: 75px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 7px;
+
+    padding: 8px 12px;
+
+    border: 1px solid #f0caca;
+
+    border-radius: 6px;
+
+    background: #fff5f5;
+
+    color: #c33b3b;
+
+    font-family: inherit;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.delete-user-btn:hover {
+    background: #c33b3b;
+
+    border-color: #c33b3b;
+
+    color: #ffffff;
+
+    transform: translateY(-1px);
+}
+
+.delete-user-btn:active {
+    transform: translateY(0);
+}
+
+.delete-user-btn svg {
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.users-loading {
+    min-height: 300px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    color: #7c8697;
+}
+
+.loading-spinner {
+    width: 32px;
+    height: 32px;
+
+    margin-bottom: 13px;
+
+    border: 3px solid #e5e8ed;
+
+    border-top-color: #4b5563;
+
+    border-radius: 50%;
+
+    animation: usersSpin 0.8s linear infinite;
+}
+
+@keyframes usersSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+.manage-users-page .admin-navlinks li:nth-child(7) a {
+    background: #6366f1;
+    color: #ffffff;
+}
+
+

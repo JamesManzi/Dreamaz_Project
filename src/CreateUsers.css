@@ -1,0 +1,583 @@
+/* =========================================
+   CREATE USERS PAGE
+========================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+.create-users {
+    width: 100%;
+    min-height: 100vh;
+
+    display: flex;
+
+    background: #f8fafc;
+
+    font-family:
+        'Inter',
+        -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        Roboto,
+        sans-serif;
+
+    color: #1e293b;
+}
+
+
+/* =========================================
+   ADMIN NAVBAR / SIDEBAR
+========================================= */
+
+.create-users .admin-navbar {
+    width: 280px;
+    min-width: 280px;
+    height: 100vh;
+
+    background: #111827;
+    color: #ffffff;
+
+    display: flex;
+    flex-direction: column;
+
+    position: sticky;
+    top: 0;
+
+    overflow-y: auto;
+}
+
+
+/* =========================================
+   ADMIN LOGO
+========================================= */
+
+.create-users .adminlogo {
+    width: 100%;
+
+    padding: 28px 22px;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.create-users .adminlogo h1 {
+    margin: 0;
+
+    font-size: 24px;
+    font-weight: 700;
+
+    color: #ffffff;
+}
+
+.create-users .adminlogo .logo1 {
+    color: #6366f1;
+}
+
+.create-users .adminlogo h2 {
+    margin: 6px 0 0;
+
+    font-size: 13px;
+    font-weight: 400;
+
+    color: #94a3b8;
+}
+
+
+/* =========================================
+   NAVIGATION
+========================================= */
+
+.create-users .admin-navlinks {
+    width: 100%;
+
+    flex: 1;
+
+    padding: 20px 14px;
+}
+
+.create-users .admin-navlinks ul {
+    list-style: none;
+
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+.create-users .admin-navlinks li {
+    width: 100%;
+}
+
+.create-users .admin-navlinks a {
+    width: 100%;
+
+    min-height: 44px;
+
+    padding: 11px 13px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 13px;
+
+    color: #cbd5e1;
+
+    text-decoration: none;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.create-users .admin-navlinks a svg {
+    width: 18px;
+    min-width: 18px;
+
+    font-size: 16px;
+}
+
+.create-users .admin-navlinks a:hover {
+    background: #1e293b;
+    color: #ffffff;
+}
+
+
+/* =========================================
+   ACTIVE PAGE
+========================================= */
+
+.create-users .admin-navlinks li:nth-child(5) a {
+    background: #6366f1;
+    color: #ffffff;
+}
+
+
+/* =========================================
+   RIGHT SIDE / FORM AREA
+========================================= */
+
+.create-users > .form-container {
+    flex: 1;
+
+    width: calc(100% - 280px);
+
+    min-width: 0;
+    min-height: 100vh;
+
+    background: #f8fafc;
+
+    padding: 50px;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+}
+
+
+/* =========================================
+   FORM CARD
+========================================= */
+
+.create-users > .form-container {
+    position: relative;
+}
+
+.create-users > .form-container form,
+.create-users > .form-container .form-header {
+    width: 100%;
+    max-width: 700px;
+
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.create-users > .form-container .form-header {
+    margin-bottom: 25px;
+}
+
+
+/* =========================================
+   FORM HEADER
+========================================= */
+
+.create-users .form-header h2 {
+    margin: 0 0 8px;
+
+    font-size: 28px;
+    font-weight: 700;
+
+    color: #0f172a;
+}
+
+.create-users .form-header p {
+    margin: 0;
+
+    color: #64748b;
+
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+
+/* =========================================
+   FORM
+========================================= */
+
+.create-users > .form-container form {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+    background: #ffffff;
+
+    padding: 35px;
+
+    border-radius: 14px;
+
+    border: 1px solid #e2e8f0;
+
+    box-shadow:
+        0 4px 20px rgba(15, 23, 42, 0.06);
+}
+
+
+/* =========================================
+   LABELS
+========================================= */
+
+.create-users > .form-container form label {
+    display: block;
+
+    margin: 5px 0 2px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    color: #334155;
+}
+
+
+/* =========================================
+   INPUTS
+========================================= */
+
+.create-users > .form-container form input {
+    width: 100%;
+
+    height: 48px;
+
+    padding: 0 15px;
+
+    border: 1px solid #cbd5e1;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #1e293b;
+
+    font-size: 15px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.create-users > .form-container form input::placeholder {
+    color: #94a3b8;
+}
+
+.create-users > .form-container form input:focus {
+    border-color: #6366f1;
+
+    box-shadow:
+        0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+
+/* =========================================
+   PASSWORD
+========================================= */
+
+.create-users .password-container {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+.create-users .password-input {
+    width: 100%;
+
+    position: relative;
+
+    display: flex;
+    align-items: center;
+}
+
+.create-users .password-input input {
+    width: 100%;
+
+    padding-right: 50px;
+}
+
+
+/* =========================================
+   PASSWORD TOGGLE
+========================================= */
+
+.create-users .password-toggle {
+    position: absolute;
+
+    right: 8px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    width: 38px;
+    height: 38px;
+
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+
+    background: transparent;
+
+    color: #64748b;
+
+    cursor: pointer;
+
+    font-size: 16px;
+}
+
+.create-users .password-toggle:hover {
+    color: #1e293b;
+}
+
+
+/* =========================================
+   CREATE USER BUTTON
+========================================= */
+
+.create-users .createUser-btn {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+
+    margin-top: 15px;
+}
+
+.create-users .user-btn {
+    width: 100%;
+    height: 48px;
+
+    padding: 0 20px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #6366f1;
+
+    color: #ffffff;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        transform 0.1s ease;
+}
+
+.create-users .user-btn:hover:not(:disabled) {
+    background: #4f46e5;
+}
+
+.create-users .user-btn:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.create-users .user-btn:disabled {
+    background: #94a3b8;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================
+   MESSAGE
+========================================= */
+
+.create-users .setting-message {
+    width: 100%;
+
+    margin: 15px 0 0;
+
+    padding: 12px 15px;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    line-height: 1.4;
+}
+
+
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 1000px) {
+
+    .create-users .admin-navbar {
+        width: 240px;
+        min-width: 240px;
+    }
+
+    .create-users > .form-container {
+        width: calc(100% - 240px);
+
+        padding: 35px;
+    }
+
+    .create-users > .form-container form,
+    .create-users > .form-container .form-header {
+        max-width: 650px;
+    }
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 768px) {
+
+    .create-users {
+        flex-direction: column;
+    }
+
+    .create-users .admin-navbar {
+        width: 100%;
+        min-width: 100%;
+
+        height: auto;
+
+        position: relative;
+    }
+
+    .create-users .admin-navlinks {
+        padding: 12px;
+    }
+
+    .create-users .admin-navlinks ul {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .create-users .admin-navlinks li {
+        width: auto;
+    }
+
+    .create-users .admin-navlinks a {
+        width: auto;
+    }
+
+    .create-users > .form-container {
+        width: 100%;
+
+        min-height: auto;
+
+        padding: 25px 15px;
+
+        justify-content: flex-start;
+    }
+
+    .create-users > .form-container form {
+        padding: 25px 20px;
+    }
+}
+
+
+/* =========================================
+   SMALL MOBILE
+========================================= */
+
+@media (max-width: 500px) {
+
+    .create-users .admin-navlinks ul {
+        flex-direction: column;
+    }
+
+    .create-users .admin-navlinks li {
+        width: 100%;
+    }
+
+    .create-users .admin-navlinks a {
+        width: 100%;
+    }
+
+    .create-users .adminlogo {
+        padding: 20px;
+    }
+
+    .create-users > .form-container {
+        padding: 20px 10px;
+    }
+
+    .create-users > .form-container form {
+        padding: 20px 15px;
+    }
+
+    .create-users .form-header h2 {
+        font-size: 24px;
+    }
+}
+
+.role {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #fff;
+    color: #333;
+    font-size: 16px;
+    outline: none;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.role:focus {
+    border-color: #27ae60;
+    box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.15);
+}
+
+.role:hover {
+    border-color: #27ae60;
+}
+
+.role option {
+    padding: 10px;
+}

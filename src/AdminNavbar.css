@@ -1,0 +1,232 @@
+
+.admin-dashboard {
+    width: 100%;
+    min-height: 100vh;
+}
+
+.admin-dashboard .admin-navlinks li:nth-child(1) a {
+    background: #6366f1;
+    color: #ffffff;
+}
+
+
+/* ================================
+   SIDEBAR
+================================ */
+
+.admin-navbar {
+    width: 260px;
+    height: 100vh;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    background-color: #1e293b;
+    color: #ffffff;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 20px 0;
+
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05);
+
+    z-index: 1000;
+
+    /* Sidebar itself can scroll if necessary */
+    overflow: hidden;
+}
+
+
+/* ================================
+   LOGO
+================================ */
+
+.adminlogo {
+    width: 100%;
+
+    padding: 0 20px 25px 20px;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    flex-shrink: 0;
+}
+
+.adminlogo h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+
+    color: #ffffff;
+
+    letter-spacing: 0.5px;
+}
+
+.adminlogo .logo1 {
+    color: #38bdf8;
+}
+
+.adminlogo h2 {
+    font-size: 0.85rem;
+    font-weight: 400;
+
+    color: #94a3b8;
+
+    margin-top: 5px;
+
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+
+/* ================================
+   NAVIGATION CONTAINER
+================================ */
+
+.admin-navlinks {
+    width: 100%;
+
+    margin-top: 20px;
+
+    /*
+       This makes ONLY the navigation
+       area scroll vertically.
+    */
+    flex: 1;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    min-height: 0;
+}
+
+
+/* ================================
+   NAVIGATION SCROLLBAR
+================================ */
+
+.admin-navlinks::-webkit-scrollbar {
+    width: 6px;
+}
+
+.admin-navlinks::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.admin-navlinks::-webkit-scrollbar-thumb {
+    background-color: #475569;
+    border-radius: 10px;
+}
+
+.admin-navlinks::-webkit-scrollbar-thumb:hover {
+    background-color: #64748b;
+}
+
+
+/* Firefox scrollbar */
+
+.admin-navlinks {
+    scrollbar-width: thin;
+    scrollbar-color: #475569 transparent;
+}
+
+
+/* ================================
+   NAVIGATION LIST
+================================ */
+
+.admin-navlinks ul {
+    width: 100%;
+
+    list-style: none;
+
+    padding: 0;
+    margin: 0;
+}
+
+.admin-navlinks li {
+    width: 100%;
+
+    margin: 0 0 4px 0;
+    padding: 0;
+}
+
+
+/* ================================
+   NAVIGATION LINKS
+================================ */
+
+.admin-navlinks li a {
+    width: 100%;
+
+    min-height: 48px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 12px 20px;
+
+    color: #cbd5e1;
+
+    text-decoration: none;
+
+    font-size: 0.95rem;
+    font-weight: 500;
+
+    /*
+       Transparent border prevents
+       the link from moving when hovered.
+    */
+    border-left: 4px solid transparent;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+
+    white-space: nowrap;
+
+    box-sizing: border-box;
+}
+
+
+/* ================================
+   NAVIGATION ICONS
+================================ */
+
+.admin-navlinks li a svg {
+    width: 20px;
+    min-width: 20px;
+
+    margin-right: 12px;
+
+    font-size: 1.1rem;
+
+    text-align: center;
+}
+
+
+/* ================================
+   HOVER
+================================ */
+
+.admin-navlinks li a:hover {
+    background-color: #334155;
+
+    color: #ffffff;
+
+    border-left-color: #38bdf8;
+}
+
+
+/* ================================
+   ACTIVE LINK
+================================ */
+
+.admin-navlinks li a.active {
+    background-color: #334155;
+
+    color: #ffffff;
+
+    border-left-color: #38bdf8;
+}
