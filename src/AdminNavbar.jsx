@@ -1,4 +1,4 @@
-import { Link,useNavigate } from "react-router-dom";
+import {NavLink,useNavigate } from "react-router-dom";
 import { useState } from "react";
 import "./AdminNavbar.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -32,70 +32,64 @@ function AdminNavbar(){
                     <div className="admin-navlinks">
     <ul>
         <li>
-            <Link to="/admin-dashboard">
+            <NavLink to="/admin-dashboard">
                 <FontAwesomeIcon icon={faGauge} />
                 Dashboard
-            </Link>
-        </li>
-
-
-        <li>
-            <Link to="/messages">
-                <FontAwesomeIcon icon={faEnvelope} />
-                Customer Messages
-            </Link>
+            </NavLink>
         </li>
 
         <li>
-            <Link to="/create-product">
+            <NavLink to="/createTrending">
+                <FontAwesomeIcon icon={faLayerGroup}/>
+                Create Trendings
+            </NavLink>
+        </li>
+
+        <li>
+            <NavLink to="#">
+                <FontAwesomeIcon icon={faLayerGroup}/>
+                Manage Trendings
+            </NavLink>
+        </li>
+
+        <li>
+            <NavLink to="/create-product">
                 <FontAwesomeIcon icon={faLayerGroup} />
                 Create Product
-            </Link>
+            </NavLink>
         </li>
         <li>
-            <Link to="/manage-products">
+            <NavLink to="/manage-products">
             <FontAwesomeIcon icon={faLayerGroup} />
             Manage Products
-            </Link>
-        </li>
-        <li>
-            <Link to="#">
-            <FontAwesomeIcon icon={faLayerGroup}/>
-             Create Content
-            </Link>
-        </li>
-        <li>
-            <Link to="#">
-            <FontAwesomeIcon icon={faLayerGroup}/>
-            Manage Contents
-            </Link>
+            </NavLink>
         </li>
 
         <li>
-            <Link to="/create-users">
+            <NavLink to="/create-users">
                 <FontAwesomeIcon icon={faUsersGear} />
                 Create User
-            </Link>
+            </NavLink>
         </li>
 
         <li>
-            <Link to="/Setting">
+            <NavLink to="/Setting">
                 <FontAwesomeIcon icon={faGear} />
                 Settings
-            </Link>
+            </NavLink>
         </li>
         <li>
-            <Link to="/manage-users">
+            <NavLink to="/manage-users">
             <FontAwesomeIcon icon={faUsersGear}/>
             Manage Users
-            </Link>
+            </NavLink>
         </li>
 
         <li>
-            <Link onClick={handleLogout} to="/login">
+            <NavLink onClick={handleLogout} to="/login">
                 <FontAwesomeIcon icon={faRightFromBracket} />
                 Logout
-            </Link>
+            </NavLink>
         </li>
     </ul>
 </div>

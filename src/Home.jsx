@@ -8,9 +8,7 @@ function Home(){
             <div className="navbar">
                 <Navbar/>
                 <div className="home_btns">
-                    <Link to="/register">
-                    <button type="button" className="home-btn1">Register</button>
-                    </Link>
+                    
                     <Link to="/login">
                     <button type="button" className="home-btn2">Login </button>
                     </Link>

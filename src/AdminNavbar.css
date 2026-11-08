@@ -4,9 +4,10 @@
     min-height: 100vh;
 }
 
-.admin-dashboard .admin-navlinks li:nth-child(1) a {
-    background: #6366f1;
+.admin-navlinks li a.active {
+    background-color:green;
     color: #ffffff;
+    border-left-color: #38bdf8;
 }
 
 

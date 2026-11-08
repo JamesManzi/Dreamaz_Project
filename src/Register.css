@@ -1,231 +1,475 @@
-/* =========================
-   REGISTER PAGE
-========================= */
 
-.register-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 80px;
-  padding: 60px 8%;
-  background: #f8f9fa;
-  box-sizing: border-box;
+/* =====================================
+   DREAMAZ INK - PROFESSIONAL REGISTER
+===================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
+.register-page {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 60px;
+    padding: 110px 8% 60px;
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 10% 20%, rgba(124, 58, 237, 0.18), transparent 35%),
+        radial-gradient(circle at 90% 80%, rgba(219, 39, 119, 0.13), transparent 35%),
+        #0f1020;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    color: #ffffff;
+}
 
-/* =========================
-   LEFT / WELCOME SECTION
-========================= */
+/* Background Effects */
 
-.register-page .register-text {
-  flex: 1;
-  max-width: 550px;
+.register-page::before {
+    content: "";
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background: rgba(124, 58, 237, 0.13);
+    filter: blur(110px);
+    border-radius: 50%;
+    top: -150px;
+    left: -100px;
+    pointer-events: none;
+}
+
+.register-page::after {
+    content: "";
+    position: absolute;
+    width: 350px;
+    height: 350px;
+    background: rgba(219, 39, 119, 0.12);
+    filter: blur(100px);
+    border-radius: 50%;
+    bottom: -150px;
+    right: -100px;
+    pointer-events: none;
+}
+
+/* Company Logo */
+
+.comapany_logo {
+    position: absolute;
+    top: 30px;
+    left: 8%;
+    z-index: 3;
+}
+
+.comapany_logo h2 {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: #ffffff;
+}
+
+.logo-accent {
+    color: #c084fc;
+}
+
+/* Welcome Section */
+
+.register-page > .register-text {
+    width: 52%;
+    max-width: 620px;
+    position: relative;
+    z-index: 1;
+    animation: slideLeft 0.9s ease;
 }
 
 .welcome-text h2 {
-  margin-bottom: 20px;
-  font-size: 38px;
-  color: #2c3e50;
-  font-weight: 700;
+    font-size: clamp(36px, 4vw, 55px);
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -2px;
+    margin-bottom: 25px;
+}
+
+.welcome-text h2::after {
+    content: "";
+    display: block;
+    width: 65px;
+    height: 5px;
+    margin-top: 18px;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #a855f7, #ec4899);
 }
 
 .welcome-text > p {
-  font-size: 16px;
-  line-height: 1.8;
-  color: #666;
-  margin-bottom: 25px;
+    color: #b8b8c9;
+    font-size: 15px;
+    line-height: 1.9;
+    max-width: 540px;
+    margin-bottom: 28px;
 }
-
 
 /* Features */
 
 .register-features {
-  list-style: none;
-  padding: 0;
-  margin: 25px 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 17px;
+    margin-bottom: 30px;
 }
 
 .register-features li {
-  position: relative;
-  margin-bottom: 15px;
-  padding-left: 30px;
-  font-size: 15px;
-  color: #444;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    color: #dedee9;
+    font-size: 15px;
+    transition: 0.3s ease;
 }
 
 .register-features li::before {
-  content: "✓";
-  position: absolute;
-  left: 0;
-  top: 0;
-  color: #27ae60;
-  font-size: 18px;
-  font-weight: bold;
+    content: "✓";
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: rgba(168, 85, 247, 0.18);
+    color: #c084fc;
+    font-weight: 800;
 }
 
-.register-bottom-text {
-  font-size: 15px !important;
-  color: #2c3e50 !important;
-  font-weight: 500;
+.register-features li:hover {
+    color: #ffffff;
+    transform: translateX(6px);
 }
 
+.welcome-text .register-bottom-text {
+    color: #c084fc;
+    font-size: 15px;
+    font-weight: 600;
+}
 
-/* =========================
-   REGISTER FORM
-========================= */
+/* Registration Card */
 
 .register-container {
-  width: 100%;
-  max-width: 420px;
-  background: white;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-  box-sizing: border-box;
+    width: 430px;
+    max-width: 100%;
+    padding: 40px;
+    position: relative;
+    z-index: 2;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
+    animation: slideRight 0.9s ease;
 }
 
-.register-container h2 {
-  text-align: center;
-  margin: 0 0 30px;
-  font-size: 30px;
-  color: #2c3e50;
+/* Card Heading */
+
+.register-container > h2 {
+    font-size: 30px;
+    font-weight: 750;
+    text-align: center;
+    margin-bottom: 35px;
+    color: #ffffff;
 }
 
-
-/* Labels */
-
-.register-container label {
-  display: inline-block;
-  margin-bottom: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #2c3e50;
+.register-container > h2::after {
+    content: "";
+    display: block;
+    width: 45px;
+    height: 4px;
+    background: linear-gradient(90deg, #a855f7, #ec4899);
+    border-radius: 10px;
+    margin: 12px auto 0;
 }
 
+/* Form */
 
-/* Inputs */
-
-.register-container input {
-  width: 100%;
-  height: 48px;
-  padding: 0 14px;
-  margin-bottom: 18px;
-  border: 1px solid #ddd;
-  border-radius: 7px;
-  outline: none;
-  font-size: 14px;
-  font-family: inherit;
-  box-sizing: border-box;
-  transition: 0.3s ease;
+.register-container form {
+    width: 100%;
+    position: relative;
 }
 
-.register-container input:focus {
-  border-color: #27ae60;
-  box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+.register-container form br {
+    display: none;
 }
 
-.register-container input::placeholder {
-  color: #aaa;
+.register-container form label {
+    display: block;
+    color: #dedee9;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
 }
 
+/* Input Fields */
+
+.register-container form input {
+    display: block;
+    width: 100%;
+    height: 52px;
+    padding: 0 16px;
+    margin: 0 0 23px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 10px;
+    outline: none;
+    background: rgba(255, 255, 255, 0.07);
+    color: #ffffff;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.register-container form input::placeholder {
+    color: #85859b;
+}
+
+.register-container form input:focus {
+    border-color: #a855f7;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.13);
+}
+
+/* Password Visibility */
+
+.show-password {
+    width: 100%;
+    height: 0;
+    position: relative;
+}
+
+.show-password button {
+    position: absolute;
+    right: 14px;
+    top: -62px;
+    width: 35px;
+    height: 40px;
+    border: none;
+    background: transparent;
+    color: #a5a5b8;
+    font-size: 17px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.show-password button:hover {
+    color: #c084fc;
+}
 
 /* Register Button */
 
 .register-btn {
-  width: 100%;
-  height: 48px;
-  border: none;
-  border-radius: 7px;
-  background: #27ae60;
-  color: white;
-  font-size: 16px;
-  font-weight: 600;
-  font-family: inherit;
-  cursor: pointer;
-  transition: 0.3s ease;
+    width: 100%;
+    height: 52px;
+    margin-top: 0;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(110deg, #9333ea, #c026d3);
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(147, 51, 234, 0.25);
 }
 
-.register-btn:hover {
-  background: #219150;
-  transform: translateY(-1px);
+.register-btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    background: linear-gradient(110deg, #a855f7, #db2777);
+    box-shadow: 0 12px 30px rgba(147, 51, 234, 0.4);
 }
 
+.register-btn:active:not(:disabled) {
+    transform: scale(0.98);
+}
 
-/* =========================
-   LOGIN TEXT
-========================= */
+.register-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Login Link */
 
 .register-container .register-text {
-  text-align: center;
-  margin-top: 20px;
+    width: 100%;
+    margin-top: 25px;
+    text-align: center;
 }
 
 .register-container .register-text p {
-  margin: 0;
-  font-size: 14px;
-  color: #777;
+    color: #a5a5b8;
+    font-size: 14px;
 }
 
 .register-container .register-text a {
-  margin-left: 6px;
-  color: #27ae60;
-  text-decoration: none;
-  font-weight: 600;
-  transition: 0.3s ease;
+    color: #c084fc;
+    font-weight: 700;
+    text-decoration: none;
+    margin-left: 6px;
+    transition: color 0.3s ease;
 }
 
 .register-container .register-text a:hover {
-  color: #219150;
-  text-decoration: underline;
+    color: #f0abfc;
+    text-decoration: underline;
 }
 
+/* Success and Error Messages */
 
-/* =========================
-   RESPONSIVE
-========================= */
-
-@media (max-width: 900px) {
-  .register-page {
-    flex-direction: column;
-    gap: 40px;
-    padding: 50px 25px;
-  }
-
-  .register-page .register-text {
-    max-width: 600px;
+.register-container form > p.success {
+    color: #4ade80;
     text-align: center;
-  }
-
-  .register-features {
-    display: inline-block;
-    text-align: left;
-  }
-
-  .register-container {
-    max-width: 450px;
-  }
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 18px;
+    margin-bottom: 15px;
 }
 
-
-@media (max-width: 500px) {
-  .register-page {
-    padding: 35px 18px;
-  }
-
-  .welcome-text h2 {
-    font-size: 28px;
-  }
-
-  .welcome-text > p {
+.register-container form > p.error {
+    color: #fb7185;
+    text-align: center;
     font-size: 14px;
-  }
+    font-weight: 600;
+    margin-top: 18px;
+    margin-bottom: 15px;
+}
 
-  .register-container {
-    padding: 28px 22px;
-  }
+/* Animations */
 
-  .register-container h2 {
-    font-size: 26px;
-  }
+@keyframes slideLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-35px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideRight {
+    from {
+        opacity: 0;
+        transform: translateX(35px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Tablet */
+
+@media (max-width: 950px) {
+    .register-page {
+        gap: 35px;
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+
+    .register-page > .register-text {
+        width: 48%;
+    }
+
+    .welcome-text h2 {
+        font-size: 38px;
+    }
+
+    .register-container {
+        width: 400px;
+        padding: 30px;
+    }
+}
+
+/* Mobile */
+
+@media (max-width: 700px) {
+    .register-page {
+        flex-direction: column;
+        justify-content: center;
+        padding: 110px 20px 45px;
+        gap: 35px;
+    }
+
+    .comapany_logo {
+        top: 25px;
+        left: 20px;
+    }
+
+    .register-page > .register-text {
+        width: 100%;
+        text-align: center;
+    }
+
+    .welcome-text h2 {
+        font-size: 34px;
+        letter-spacing: -1px;
+    }
+
+    .welcome-text h2::after {
+        margin: 15px auto;
+    }
+
+    .welcome-text > p {
+        font-size: 14px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .register-features {
+        align-items: flex-start;
+        width: fit-content;
+        margin: 0 auto 25px;
+        text-align: left;
+    }
+
+    .register-features li {
+        font-size: 13px;
+    }
+
+    .welcome-text .register-bottom-text {
+        font-size: 13px;
+    }
+
+    .register-container {
+        width: 100%;
+        max-width: 430px;
+        padding: 30px 24px;
+    }
+}
+
+/* Small Mobile */
+
+@media (max-width: 380px) {
+    .welcome-text h2 {
+        font-size: 28px;
+    }
+
+    .register-container {
+        padding: 25px 18px;
+    }
+
+    .register-container > h2 {
+        font-size: 25px;
+    }
+}
+
+/* Accessibility */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
 }

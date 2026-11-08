@@ -11,7 +11,7 @@ import {
 import "./CreateProduct.css";
 import Spinner from "./Spinner";
 import AdminNavbar from "./AdminNavbar";
-
+import { ShowMessage, useMessage } from "./ShowMessage";
 function CreateProduct() {
     const [name, setName] = useState("");
     const [price,setPrice]=useState("");
@@ -19,9 +19,9 @@ function CreateProduct() {
     const [category, setCategory] = useState("");
     const [description, setDescription] = useState("");
     const [files, setFiles] = useState([]);
-    const [message, setMessage] = useState("");
-    const [messageType, setMessageType] = useState("");
     const [loading,setLoading]=useState(false);
+
+    const {showSuccess,showError}=useMessage();
 
     const navigate = useNavigate();
 
@@ -33,12 +33,10 @@ function CreateProduct() {
             setCategory("");
             setDescription("");
             setFiles([]);
-            setMessage("");
-            setMessageType("");
+            ShowMessage("");
         } catch (error) {
             console.log(error);
-            setMessage(response.data.message);
-            setMessageType("error");
+            showError(response.data.message);
         }
     }
 
@@ -79,8 +77,7 @@ function CreateProduct() {
             });
 
             if (res.data.success) {
-                setMessage(res.data.message);
-                setMessageType("success");
+                showSuccess(res.data.message);
                  setName("");
             setCategory("");
             setDescription("");
@@ -88,13 +85,12 @@ function CreateProduct() {
             setPrice("");
             setFiles([]);
             } else {
-                setMessage(res.data.message);
-                setMessageType("error"); // Fixed: changed from messageType to setMessageType
+                showError(res.data.message);
+                
             }
         } catch (error) {
             console.log(error);
-            setMessage(error.response?.data?.message || "An error occurred");
-            setMessageType("error");
+            showError(error.response?.data?.message || "An error occurred");
         } finally{
             setLoading(false);
         }
@@ -310,11 +306,6 @@ function CreateProduct() {
                     </div>
                 </form>
 
-                {message && (
-                    <p className={messageType}>
-                        {message}
-                    </p>
-                )}
             </main>
         </div>
     );

@@ -7,20 +7,11 @@ import {
     faEyeSlash,
     faCheckCircle
 } from "@fortawesome/free-solid-svg-icons";
-import {
-    faGauge,
-    faBoxOpen,
-    faPlus,
-    faEnvelope,
-    faLayerGroup,
-    faUsersGear,
-    faGear,
-    faRightFromBracket
-} from "@fortawesome/free-solid-svg-icons";
 import { Link, useNavigate } from "react-router-dom";
 import api from "./api";
 import Spinner from "./Spinner";
 import AdminNavbar from "./AdminNavbar";
+import { useMessage } from "./ShowMessage";
 function Setting() {
     const [profilePreview, setProfilePreview] = useState(null);
     const [profileFile, setProfileFile] = useState(null);
@@ -31,21 +22,13 @@ function Setting() {
     const [password, setPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
 
-    const [message, setMessage] = useState("");
-    const [messageType, setMessageType] = useState("");
+    const {showSuccess,showError}=useMessage();
 
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [fetchingProfile, setFetchingProfile] = useState(true);
 
     const navigate = useNavigate();
-
-    const handleLogout=()=>{
-        localStorage.removeItem("token");
-        navigate("/login");
-        return
-    }
-
 
     // ==========================================
     // GET USER PROFILE EVERY TIME SETTINGS OPENS
@@ -96,8 +79,7 @@ function Setting() {
                     error
                 );
 
-                setMessage("Unable to load your profile.");
-                setMessageType("error");
+                showError("Unable to load your profile.");
 
             } finally {
                 setFetchingProfile(false);
@@ -143,8 +125,6 @@ function Setting() {
 
         try {
             setLoading(true);
-            setMessage("");
-            setMessageType("");
 
             const res = await api.put(
                 `/setting/${userId}`,
@@ -161,8 +141,7 @@ function Setting() {
                 // ==========================================
                 // SHOW SUCCESS MESSAGE
                 // ==========================================
-                setMessage("Profile saved successfully!");
-                setMessageType("success");
+                showSuccess("Profile saved successfully!");
 
                 // ==========================================
                 // SHOW THE SAVED IMAGE
@@ -182,12 +161,12 @@ function Setting() {
 
             
             } else {
-                setMessage(
+                showError(
                     res.data.message ||
                     "Unable to update profile."
                 );
 
-                setMessageType("error");
+                
             }
 
         } catch (error) {
@@ -201,8 +180,7 @@ function Setting() {
                 error.response?.data?.message ||
                 "Unable to update profile.";
 
-            setMessage(errorMsg);
-            setMessageType("error");
+            showError(errorMsg);
 
         } finally {
             setLoading(false);
@@ -224,11 +202,9 @@ function Setting() {
         // Check image type
         if (!file.type.startsWith("image/")) {
 
-            setMessage(
+            showError(
                 "Please select a valid image."
             );
-
-            setMessageType("error");
 
             return;
         }
@@ -236,11 +212,10 @@ function Setting() {
         // Check image size
         if (file.size > 5 * 1024 * 1024) {
 
-            setMessage(
+            showError(
                 "Image must be less than 5MB."
             );
 
-            setMessageType("error");
 
             return;
         }
@@ -254,8 +229,6 @@ function Setting() {
         setProfilePreview(imageUrl);
 
         // Remove previous message
-        setMessage("");
-        setMessageType("");
     };
 
 
@@ -344,31 +317,6 @@ function Setting() {
 
                 {/* =====================================
                     SUCCESS / ERROR MESSAGE
-                ====================================== */}
-
-                {message && (
-
-                    <div
-                        className={`setting-message ${messageType}`}
-                    >
-
-                        {messageType === "success" && (
-                            <FontAwesomeIcon
-                                icon={faCheckCircle}
-                            />
-                        )}
-
-                        <span>
-                            {message}
-                        </span>
-
-                    </div>
-
-                )}
-
-
-                {/* =====================================
-                    FORM INPUTS
                 ====================================== */}
 
                 <div className="setting-inputs">

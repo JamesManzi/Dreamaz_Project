@@ -4,38 +4,25 @@ import api from "./api";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faArrowLeft,
     faUsers,
     faSearch,
     faUserPlus,
     faEnvelope,
     faShieldHalved,
     faTrash,
-    faGauge,
-    faBoxOpen,
-    faPlus,
-    faLayerGroup,
-    faUsersGear,
-    faGear,
-    faRightFromBracket
 } from "@fortawesome/free-solid-svg-icons";
 
 import "./ManageUsers.css";
 import AdminNavbar from "./AdminNavbar";
-
+import { useMessage } from "./ShowMessage";
 function ManageUsers() {
 
     const [users, setUsers] = useState([]);
-    const [message, setMessage] = useState("");
-    const [messageType, setMessageType] = useState("");
+    const {showSuccess,showError}=useMessage();
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(true);
 
     const navigate = useNavigate();
-
-    const handleLogout = () => {
-        navigate("/login");
-    }
 
     useEffect(() => {
 
@@ -65,28 +52,22 @@ function ManageUsers() {
                 if (res.data.success) {
 
                     setUsers(res.data.users || []);
-                    setMessage("");
-                    setMessageType("");
 
                 } else {
 
-                    setMessage(
+                    showError(
                         res.data.message || "Failed to fetch users"
                     );
-
-                    setMessageType("error");
                 }
 
             } catch (error) {
 
                 console.log("Fetch Users Error", error);
 
-                setMessage(
+                showError(
                     error.response?.data?.message ||
                     "Failed to fetch users"
                 );
-
-                setMessageType("error");
 
             } finally {
 
@@ -166,31 +147,26 @@ function ManageUsers() {
                     )
                 );
 
-                setMessage(
+                showSuccess(
                     res.data.message || "User deleted successfully"
                 );
 
-                setMessageType("success");
-
             } else {
 
-                setMessage(
+                showError(
                     res.data.message || "Failed to delete user"
                 );
 
-                setMessageType("error");
             }
 
         } catch (error) {
 
             console.log("Delete User Error", error);
 
-            setMessage(
+            showError(
                 error.response?.data?.message ||
                 "Failed to delete user"
             );
-
-            setMessageType("error");
         }
     };
 
@@ -255,14 +231,6 @@ function ManageUsers() {
                     </div>
                 </section>
 
-                {/* MESSAGE */}
-                {message && (
-                    <div
-                        className={`users-message ${messageType}`}
-                    >
-                        {message}
-                    </div>
-                )}
 
                 {/* USERS CARD */}
                 <section className="users-card">

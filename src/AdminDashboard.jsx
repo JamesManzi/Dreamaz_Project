@@ -3,16 +3,16 @@ import { Link, useNavigate } from "react-router-dom"
 import "./AdminDashboard.css"
 import AdminNavbar from "./AdminNavbar";
 import api from "./api";
+import { useMessage } from "./ShowMessage";
 function AdminDashboard() {
     const [user, setUser] = useState(""); 
-    const [message, setMessage] = useState("");
-    const [messageType, setMessageType] = useState("");
     const [totalUsers,setTotalUsers]=useState(0);
     const [totalProducts,setTotalProducts]=useState(0);
     const [availableProducts,setAvailableProducts]=useState(0);
     const [soldProducts,setSoldProducts]=useState(0);
     const [reservedProducts,setReservdeProducts]=useState(0);
     const [totalCategories,setTotalCategories]=useState(0);
+    const {showSuccess,showError}=useMessage();
 
 
     const navigate = useNavigate();
@@ -38,16 +38,13 @@ function AdminDashboard() {
                 setSoldProducts(res.data.soldProducts);
                 setReservdeProducts(res.data.reservedProducts);
                 setTotalCategories(res.data.totalCategories);
-                setMessageType("success");
             } else {
-                setMessage(res.data.message);
-                setMessageType("error");
+                showError(res.data?.message);
             }
         })
         .catch((error) => {
             console.log("Admin Dashboard Error", error);
-            setMessage(error.response?.data?.message || "Admin Dashboard Error");
-            setMessageType("error");
+            showError(error.response?.data?.message || "Admin Dashboard Error");
         });
 
     }, [navigate]); 
@@ -95,11 +92,6 @@ function AdminDashboard() {
                     </div>
                  </main>
                  
-                 {message&&(
-                    <p className={messageType}>
-                        {message}
-                    </p>
-                 )}
             </div>
         </>
     );

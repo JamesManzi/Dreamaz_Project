@@ -6,59 +6,37 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faEye,
     faEyeSlash,
-    faUserPlus,
-    faShieldAlt,
-    faCheckCircle
 } from "@fortawesome/free-solid-svg-icons";
 import {
-    faGauge,
-    faBoxOpen,
-    faPlus,
-    faEnvelope,
-    faLayerGroup,
-    faUsersGear,
-    faGear,
-    faRightFromBracket,
     faUser
 } from "@fortawesome/free-solid-svg-icons";
 import "./CreateUsers.css";
 import Spinner from "./Spinner";
 import AdminNavbar from "./AdminNavbar";
-
+import { useMessage } from "./ShowMessage";
 function CreateUsers() {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [role,setRole]=useState("");
 
-    const [message, setMessage] = useState("");
-    const [messageType, setMessageType] = useState("");
-
+    const {showSuccess,showError}=useMessage();
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
-    const handleLogout=()=>{
-        localStorage.removeItem("token");
+
+    const token=localStorage.getItem("token");
+    const userId=localStorage.getItem("userId");
+    if(!token||!userId){
         navigate("/login");
         return
     }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        setMessage("");
-        setMessageType("");
-
         if (loading) {
             return;
-        }
-
-        const token = localStorage.getItem("token");
-
-        if(!token){
-            navigate("/login");
-            return
         }
 
         try {
@@ -80,43 +58,38 @@ function CreateUsers() {
             );
 
             if (res.data.success) {
-                setMessage(
+                showSuccess(
                     res.data.message ||
                     "User created successfully!"
                 );
 
-                setMessageType("success");
 
                 setUsername("");
                 setEmail("");
                 setPassword("");
             } else {
-                setMessage(
+                showError(
                     res.data.message ||
                     "Unable to create user."
                 );
-
-                setMessageType("error");
             }
         } catch (error) {
             console.log("Create User Error:", error);
 
             if (error.response) {
-                setMessage(
+                showError(
                     error.response.data?.message ||
                     "Unable to create user."
                 );
             } else if (error.request) {
-                setMessage(
+                showError(
                     "Cannot connect to the server."
                 );
             } else {
-                setMessage(
+                showError(
                     "Something went wrong. Please try again."
                 );
             }
-
-            setMessageType("error");
         } finally {
             setLoading(false);
         }
@@ -238,15 +211,6 @@ function CreateUsers() {
                            )}
                         </button>
                     </div>
-
-                    {/* MESSAGE */}
-                    {message && (
-                        <p
-                            className={`setting-message ${messageType}`}
-                        >
-                            {message}
-                        </p>
-                    )}
                 </form>
             </div>
         </div>

@@ -5,28 +5,25 @@ import "./Login.css";
 import { faEye,faEyeSlash } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Spinner from "./Spinner";
+import { useMessage } from "./ShowMessage";
 function Login(){
     const [email,setEmail]=useState("");
     const [password,setPassword]=useState("");
-    const [message,setMessage]=useState("");
-    const [messageType,setMessageType]=useState("");
     const [showPassword,setShowPassword]=useState(false);
     const [loading,setLoading]=useState(false);
-    
+    const {showSuccess,showError}=useMessage();
+
     const navigate=useNavigate();
 
     const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!email || !password) {
-        setMessage("All Fields Required");
-        setMessageType("error");
+        showError("All Fields Required");
         return;
     }
 
     setLoading(true);
-    setMessage("");
-    setMessageType("");
 
     try {
         const res = await api.post(
@@ -53,23 +50,20 @@ function Login(){
             setLoading(false);
 
             // Show success
-            setMessage("Login Successfully");
-            setMessageType("success");
+            showSuccess("Login Successfully");
 
             // Navigate after showing message
             setTimeout(() => {
-                navigate("/admin-dashboard");
+                if(res.data.user.role==="admin"){
+                    navigate("/admin-dashboard");
+                }else{
+                    navigate("/dashboard");
+                }
             }, 1500);
 
         } else {
-
+            showError(res.data?.message);
             setLoading(false);
-
-            setMessage(
-                res.data.message || "Login Error"
-            );
-
-            setMessageType("error");
         }
 
     } catch (error) {
@@ -78,71 +72,35 @@ function Login(){
             "Login Error:",
             error.response?.data || error.message
         );
+        showError("Login Error Try Again");
 
         setLoading(false);
-
-        setMessage(
-            error.response?.data?.message ||
-            "Login Error"
-        );
-
-        setMessageType("error");
     }
 };
     return(
         <>
         <div className="login-content">
-
-    <div className="login-description">
-
-        <h1>
-            Dreamaz<span className="logo1">Ink</span>
-        </h1>
-
-        <h2>Manage. Create. Grow.</h2>
-
-        <p>
-            DreamazInk is a modern marketplace designed to connect
-            customers with unique creative products while giving
-            administrators powerful tools to manage the entire platform.
-        </p>
-
-        <div className="login-features">
-
-            <div className="feature">
-                <h3>Product Management</h3>
-                <p>
-                    Easily add, update, organize, and manage products
-                    available on the marketplace.
-                </p>
+            <div className="comapany_logo">
+                <h2>Dreamaz <span className="logo-accent">Ink</span></h2>
             </div>
+        <div className="login-description">
+    <h1>Welcome to Dreamaz Ink</h1>
 
-            <div className="feature">
-                <h3>Create Users</h3>
-                <p>
-                   Create User Admins to be able to help you
-                   manage your platform efficiently.
-                </p>
-            </div>
+    <h2>Where Creativity Comes to Life.</h2>
 
-            <div className="feature">
-                <h3>Requests Management</h3>
-                <p>
-                    Keep track of requests and be able to resolve them
-                </p>
-            </div>
+    <p>
+        Discover a world of creativity, inspiration, and unique
+        artistic expressions. Explore extraordinary artworks,
+        connect with creativity, and find pieces that tell your story.
+    </p>
+
+    <h3>Art That Tells a Story.</h3>
+
+    <span>
+        Discover it. Experience it. Make it yours.
+    </span>
 
         </div>
-
-        <div className="security-message">
-            <strong> Secure Administrator Access</strong>
-            <p>
-                This page is restricted to authorized administrators.
-            </p>
-        </div>
-
-    </div>
-
             <div className="login-container">
                 <form onSubmit={handleSubmit}>
             <h2>Login</h2>
@@ -196,16 +154,12 @@ function Login(){
         <p>Don't Have Account?
             <Link to="/register">Register</Link>
         </p>
-        {message &&(
-            <p className={messageType}>
-                {message}
-            </p>
-        )}
+        
         </div>
             </div>
         </form>
             </div>
-        </div>
+            </div>
         </>
     )
 }

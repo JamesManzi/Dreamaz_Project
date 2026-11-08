@@ -5,7 +5,6 @@ import Login from "./Login";
 import Setting from "./Setting";
 import CreateUsers from "./CreateUsers";
 import ManageUsers from "./ManageUsers";
-import Messages from "./Messages";
 import GalleryDetails from "./GalleryDetails";
 import Register from "./Register";
 import Fashion from "./Fashion";
@@ -16,8 +15,9 @@ import About from "./About";
 import CreateProduct from "./CreateProduct";
 import ManageProducts from "./ManageProducts";
 import ProductDetails from "./ProductDetails";
-import CreateContent from "./CreateContent";
-import ManageContents from "./ManageContents";
+import Dashboard from "./Dashboard";
+import FashionAnimation from "./FashionAnimation";
+import CreateTrending from "./CreateTrending";
 function App(){
   return(
     <>
@@ -31,7 +31,6 @@ function App(){
     <Route path="/manage-users" element={<ManageUsers/>}/>
     <Route path="/create-product" element={<CreateProduct/>}/>
     <Route path="/manage-products" element={<ManageProducts/>}/>
-    <Route path="/messages" element={<Messages/>}/>
     <Route path="/gallery/:id" element={<GalleryDetails/>}/>
     <Route path="/register" element={<Register/>}/>
     <Route path="/fashion" element={<Fashion/>}/>
@@ -40,8 +39,9 @@ function App(){
     <Route path="/collections" element={<Collections/>}/>
     <Route path="/about"  element={<About/>}/>
     <Route path="/productDetails" element={<ProductDetails/>}/>
-    <Route path="/createContent" element={<CreateContent/>}/>
-    <Route path="/manageContents" element={<ManageContents/>}/>
+    <Route path="/dashboard" element={<Dashboard/>}/>
+    <Route path="/fashionAnimation" element={<FashionAnimation/>}/>
+    <Route path="/createTrending" element={<CreateTrending/>}/>
   </Routes>
   </BrowserRouter>
     </>
