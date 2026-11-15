@@ -1,0 +1,65 @@
+
+/* MEDIA CONTAINER */
+
+.fashion-media {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #17232e;
+}
+
+/* IMAGES */
+
+.fashion-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: fashionMediaFade 0.7s ease;
+}
+
+/* VIDEOS */
+
+.fashion-video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* MEDIA COUNTER */
+
+.fashion-counter {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    z-index: 5;
+    background: rgba(0, 0, 0, 0.65);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+}
+
+/* EMPTY MEDIA */
+
+.fashion-media-empty {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    background: #263849;
+}
+
+@keyframes fashionMediaFade {
+    from {
+        opacity: 0.4;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

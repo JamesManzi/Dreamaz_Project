@@ -1,0 +1,287 @@
+
+.prints-page {
+    width: 100%;
+    min-height: 70vh;
+    background: #f8f9fa;
+}
+
+/* Trending banner */
+.prints-trending {
+    width: 100%;
+    height: 540px;
+    position: relative;
+    overflow: hidden;
+    background: #2c3e50;
+}
+
+.prints-trending-media {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.prints-trending-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 9%;
+    background: linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.8),
+        rgba(0, 0, 0, 0.35),
+        transparent
+    );
+}
+
+.prints-trending-content {
+    max-width: 550px;
+    color: white;
+}
+
+.prints-label {
+    display: inline-block;
+    color: #27ae60;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+}
+
+.prints-trending-content h1 {
+    font-size: clamp(32px, 5vw, 55px);
+    margin-bottom: 15px;
+}
+
+.prints-trending-content p {
+    font-size: 16px;
+    line-height: 1.7;
+    margin-bottom: 15px;
+}
+
+.prints-trending-content h2 {
+    font-size: 25px;
+    margin-bottom: 25px;
+}
+
+.prints-trending-content button,
+.prints-card-content button {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 13px 25px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.prints-trending-content button:hover,
+.prints-card-content button:hover {
+    background: #219150;
+    transform: translateY(-2px);
+}
+
+/* Trending indicators */
+.prints-indicators {
+    position: absolute;
+    bottom: 25px;
+    left: 9%;
+    display: flex;
+    gap: 9px;
+}
+
+.prints-indicators span {
+    width: 25px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 5px;
+}
+
+.prints-indicators span.active {
+    background: #27ae60;
+    width: 40px;
+}
+
+/* Collection section */
+.prints-products-section {
+    padding: 55px 7%;
+}
+
+.prints-heading {
+    margin-bottom: 25px;
+}
+
+.prints-heading span {
+    color: #27ae60;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.prints-heading h2 {
+    color: #2c3e50;
+    font-size: 30px;
+    margin: 8px 0;
+}
+
+.prints-heading p {
+    color: #777;
+}
+
+.prints-search {
+    margin-bottom: 30px;
+}
+
+.prints-search input {
+    width: 100%;
+    max-width: 450px;
+    padding: 14px 18px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    outline: none;
+    font-size: 15px;
+}
+
+.prints-search input:focus {
+    border-color: #27ae60;
+}
+
+/* Product grid */
+.prints-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 25px;
+}
+
+.prints-card {
+    background: white;
+    border-radius: 9px;
+    overflow: hidden;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.06);
+    transition: 0.3s;
+}
+
+.prints-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.prints-card-image {
+    height: 230px;
+    background: #eee;
+    overflow: hidden;
+}
+
+.prints-card-image img,
+.prints-card-image video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.prints-no-image {
+    height: 100%;
+    display: grid;
+    place-items: center;
+    color: #777;
+}
+
+.prints-card-content {
+    padding: 18px;
+}
+
+.prints-card-content h3 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.prints-card-content h4 {
+    color: #27ae60;
+    margin-bottom: 10px;
+}
+
+.prints-card-content p {
+    color: #777;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 45px;
+    margin-bottom: 15px;
+}
+
+.prints-status {
+    text-align: center;
+    padding: 50px 10px;
+    color: #777;
+}
+
+/* Pagination */
+.prints-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 45px;
+    flex-wrap: wrap;
+}
+
+.prints-pagination button {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    background: white;
+    color: #2c3e50;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.prints-pagination button.active {
+    background: #27ae60;
+    border-color: #27ae60;
+    color: white;
+}
+
+.prints-pagination button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+    .prints-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .prints-trending {
+        height: 430px;
+    }
+
+    .prints-trending-overlay {
+        padding: 0 6%;
+    }
+
+    .prints-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 15px;
+    }
+
+    .prints-products-section {
+        padding: 35px 5%;
+    }
+
+    .prints-card-image {
+        height: 180px;
+    }
+}
+
+@media (max-width: 450px) {
+    .prints-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .prints-card-image {
+        height: 250px;
+    }
+}

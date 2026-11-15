@@ -18,6 +18,9 @@ import ProductDetails from "./ProductDetails";
 import Dashboard from "./Dashboard";
 import FashionAnimation from "./FashionAnimation";
 import CreateTrending from "./CreateTrending";
+import FashionDetails from "./FashionDetails";
+import PrintsDetails from "./PrintsDetails";
+import BuyerProfile from "./buyerProfile";
 function App(){
   return(
     <>
@@ -42,6 +45,9 @@ function App(){
     <Route path="/dashboard" element={<Dashboard/>}/>
     <Route path="/fashionAnimation" element={<FashionAnimation/>}/>
     <Route path="/createTrending" element={<CreateTrending/>}/>
+    <Route path="/fashion/:id" element={<FashionDetails />} />
+    <Route path="/prints/:id" element={<PrintsDetails />} />
+    <Route path="/buyerProfile" element={<BuyerProfile/>}/>
   </Routes>
   </BrowserRouter>
     </>

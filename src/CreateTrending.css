@@ -1,0 +1,449 @@
+
+/* =========================================
+   CREATE TRENDING PAGE
+========================================= */
+
+.create-trendings {
+    width: calc(100% - 260px);
+    min-height: 100vh;
+    margin-left: 260px;
+    padding: 35px 40px;
+    box-sizing: border-box;
+    background: #f1f5f9;
+    font-family: 'Inter', 'Poppins', sans-serif;
+    color: #1e293b;
+}
+
+/* =========================================
+   FORM CONTAINER
+========================================= */
+
+.trending-form {
+    width: 100%;
+    max-width: 1050px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+.trending-form form {
+    width: 100%;
+    padding: 35px 40px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 5px 25px rgba(15, 23, 42, 0.06);
+    box-sizing: border-box;
+}
+
+/* =========================================
+   MAIN HEADING
+========================================= */
+
+.trending-form form > h2 {
+    margin: 0 0 30px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #0f172a;
+    font-size: 27px;
+    font-weight: 700;
+}
+
+/* =========================================
+   FORM LABELS
+========================================= */
+
+.trending-form form > label {
+    display: inline-block;
+    margin-bottom: 9px;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* =========================================
+   INPUTS, SELECT AND TEXTAREA
+========================================= */
+
+.trending-form input:not([type="file"]),
+.trending-form select,
+.trending-form textarea {
+    display: block;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 15px;
+    margin: 0 0 22px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #1e293b;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.trending-form textarea {
+    min-height: 130px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.trending-form input:focus,
+.trending-form select:focus,
+.trending-form textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+.trending-form input::placeholder,
+.trending-form textarea::placeholder {
+    color: #94a3b8;
+}
+
+/* =========================================
+   MEDIA UPLOAD CARD
+========================================= */
+
+.form-card {
+    width: 100%;
+    margin-top: 15px;
+    padding: 25px;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    background: #f8fafc;
+    box-sizing: border-box;
+}
+
+/* =========================================
+   CARD HEADING
+========================================= */
+
+.card-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 22px;
+}
+
+.card-heading h2 {
+    margin: 0 0 7px;
+    color: #1e293b;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.card-heading p {
+    margin: 0;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.file-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 75px;
+    padding: 8px 13px;
+    border-radius: 30px;
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* =========================================
+   UPLOAD AREA
+========================================= */
+
+.upload-area {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 230px;
+    padding: 25px 15px;
+    border: 2px dashed #94a3b8;
+    border-radius: 12px;
+    background: #ffffff;
+    text-align: center;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: all 0.25s ease;
+}
+
+.upload-area:hover {
+    border-color: #2563eb;
+    background: #eff6ff;
+}
+
+.upload-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    color: #2563eb;
+    font-size: 42px;
+}
+
+.upload-area h3 {
+    margin: 5px 0;
+    color: #1e293b;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.upload-area p {
+    margin: 5px 0 12px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.upload-area span {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+/* Hide native file input */
+
+.upload-area input[type="file"] {
+    display: none;
+}
+
+/* =========================================
+   FILE PREVIEWS
+========================================= */
+
+.preview-images {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
+    width: 100%;
+    margin-top: 22px;
+}
+
+.preview-item {
+    min-width: 0;
+    padding: 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #ffffff;
+    box-sizing: border-box;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.preview-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(15, 23, 42, 0.08);
+}
+
+.preview-item img,
+.preview-item video {
+    display: block;
+    width: 100%;
+    height: 135px;
+    object-fit: cover;
+    border-radius: 7px;
+    background: #e2e8f0;
+}
+
+.preview-item p {
+    margin: 10px 0;
+    color: #475569;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+/* Delete button */
+
+.preview-item button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: 100%;
+    padding: 9px;
+    border: none;
+    border-radius: 7px;
+    background: #fee2e2;
+    color: #b91c1c;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.preview-item button:hover {
+    background: #fecaca;
+}
+
+/* =========================================
+   FORM BUTTONS
+========================================= */
+
+.trending-btns {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-top: 30px;
+    width: 100%;
+    justify-content: space-around;
+}
+
+.trending-btns button {
+    min-width: 130px;
+    padding: 13px 25px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.trending-btns button[type="submit"] {
+    background: #16a34a;
+}
+
+.trending-btns button[type="submit"]:hover {
+    background: #15803d;
+}
+
+.trending-btns button[type="reset"] {
+    background: #64748b;
+}
+
+.trending-btns button[type="reset"]:hover {
+    background: #475569;
+}
+
+/* =========================================
+   TABLET RESPONSIVENESS
+========================================= */
+
+@media screen and (max-width: 1024px) {
+    .create-trendings {
+        padding: 30px 25px;
+    }
+
+    .trending-form form {
+        padding: 30px;
+    }
+}
+
+/* =========================================
+   MOBILE RESPONSIVENESS
+========================================= */
+
+@media screen and (max-width: 768px) {
+    .create-trendings {
+        width: 100%;
+        margin-left: 0;
+        padding: 90px 18px 30px;
+    }
+
+    .trending-form {
+        max-width: 100%;
+    }
+
+    .trending-form form {
+        padding: 25px 20px;
+    }
+
+    .form-card {
+        padding: 18px;
+    }
+
+    .preview-images {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* =========================================
+   SMALL MOBILE SCREENS
+========================================= */
+
+@media screen and (max-width: 480px) {
+    .create-trendings {
+        padding: 85px 12px 25px;
+    }
+
+    .trending-form form {
+        padding: 20px 15px;
+        border-radius: 11px;
+    }
+
+    .trending-form form > h2 {
+        font-size: 22px;
+    }
+
+    .card-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .card-heading h2 {
+        font-size: 18px;
+    }
+
+    .upload-area {
+        min-height: 200px;
+        padding: 20px 10px;
+    }
+
+    .upload-area h3 {
+        font-size: 15px;
+    }
+
+    .upload-area span {
+        font-size: 10px;
+    }
+
+    .preview-images {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .preview-item img,
+    .preview-item video {
+        height: 110px;
+    }
+
+    .trending-btns {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .trending-btns button {
+        width: 100%;
+    }
+}
+
+/* =========================================
+   VERY SMALL SCREENS
+========================================= */
+
+@media screen and (max-width: 350px) {
+    .create-trendings {
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .trending-form form {
+        padding: 16px 12px;
+    }
+
+    .form-card {
+        padding: 12px;
+    }
+
+    .preview-images {
+        grid-template-columns: 1fr;
+    }
+}

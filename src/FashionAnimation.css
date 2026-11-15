@@ -1,129 +1,224 @@
 
-/* MAIN CONTAINER */
-.fashion-animations {
+/* HERO CAROUSEL */
+
+.fashion-hero {
+    position: relative;
     width: 100%;
+    min-height: 570px;
     display: flex;
     align-items: center;
-    gap: 20px;
-    padding: 20px;
     overflow: hidden;
-    flex-wrap: wrap;
-    background: #f8f9fa;
+    background: #17232e;
+    color: white;
 }
 
-/* MEDIA CONTAINERS */
-.fashion-animations > div {
-    flex: 1 1 250px;
-    max-width: 320px;
-    height: 350px;
-    overflow: hidden;
-    position: relative;
-    border-radius: 16px;
-    background: #fff;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+/* Background media */
 
-    animation: fashionFloat 4s ease-in-out infinite;
-
-    transition: box-shadow 0.4s ease,
-                transform 0.4s ease;
+.fashion-hero-media {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    animation: fashionFade 0.8s ease;
 }
 
-/* STAGGER ANIMATION */
-.fashion-animations > div:nth-child(2) {
-    animation-delay: 0.5s;
-}
-
-.fashion-animations > div:nth-child(3) {
-    animation-delay: 1s;
-}
-
-.fashion-animations > div:nth-child(4) {
-    animation-delay: 1.5s;
-}
-
-/* IMAGE AND VIDEO */
-.fashion-animations img,
-.fashion-animations video {
+.fashion-hero-media img,
+.fashion-hero-media video {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
-
-    animation: fashionZoom 12s ease-in-out infinite;
-
-    transition: transform 0.6s ease;
 }
 
-/* HOVER EFFECT */
-.fashion-animations > div:hover {
-    transform: translateY(-10px) scale(1.02);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-    animation-play-state: paused;
+/* Dark overlay */
+
+.fashion-hero-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+
+    background: linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.85),
+        rgba(0, 0, 0, 0.45),
+        rgba(0, 0, 0, 0.1)
+    );
 }
 
-.fashion-animations > div:hover img,
-.fashion-animations > div:hover video {
-    transform: scale(1.12);
-    animation-play-state: paused;
+/* Hero text */
+
+.fashion-hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 650px;
+    padding: 80px 8%;
+    animation: fashionText 0.7s ease;
 }
 
-/* FLOATING ANIMATION */
-@keyframes fashionFloat {
-    0%, 100% {
+.fashion-label {
+    display: inline-block;
+    color: #27ae60;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    margin-bottom: 20px;
+}
+
+.fashion-hero-content h1 {
+    font-size: clamp(38px, 5vw, 68px);
+    line-height: 1.08;
+    margin-bottom: 22px;
+    font-weight: 800;
+}
+
+.fashion-hero-content h1 span {
+    color: #27ae60;
+}
+
+.fashion-hero-content p {
+    font-size: 17px;
+    line-height: 1.8;
+    color: #eeeeee;
+    max-width: 480px;
+    margin-bottom: 30px;
+}
+
+/* View collection button */
+
+.fashion-hero-btn {
+    background: #27ae60;
+    color: white;
+    padding: 15px 28px;
+    border: none;
+    border-radius: 5px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.fashion-hero-btn:hover {
+    background: #219150;
+    transform: translateY(-3px);
+}
+
+/* Slider arrows */
+
+.fashion-slider-arrows {
+    position: absolute;
+    right: 40px;
+    bottom: 45px;
+    z-index: 3;
+    display: flex;
+    gap: 12px;
+}
+
+.fashion-slider-arrows button {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 1px solid white;
+    background: transparent;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.fashion-slider-arrows button:hover {
+    background: #27ae60;
+    border-color: #27ae60;
+}
+
+/* Slide dots */
+
+.fashion-slider-dots {
+    position: absolute;
+    left: 8%;
+    bottom: 40px;
+    z-index: 3;
+    display: flex;
+    gap: 10px;
+}
+
+.fashion-slider-dots button {
+    width: 25px;
+    height: 5px;
+    border: none;
+    border-radius: 5px;
+    background: rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.fashion-slider-dots button.active {
+    width: 45px;
+    background: #27ae60;
+}
+
+/* Animations */
+
+@keyframes fashionFade {
+    from {
+        opacity: 0.4;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fashionText {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
         transform: translateY(0);
     }
-
-    50% {
-        transform: translateY(-12px);
-    }
 }
 
-/* SLOW ZOOM ANIMATION */
-@keyframes fashionZoom {
-    0%, 100% {
-        transform: scale(1);
-    }
+/* Mobile responsive */
 
-    50% {
-        transform: scale(1.06);
-    }
-}
-
-/* HEADING */
-h2 {
-    color: #2c3e50;
-    font-size: 28px;
-    font-weight: 700;
-    text-align: center;
-    margin: 30px 0;
-}
-
-/* RESPONSIVE DESIGN */
 @media (max-width: 768px) {
-    .fashion-animations {
-        gap: 15px;
-        padding: 15px;
+
+    .fashion-hero {
+        min-height: 500px;
     }
 
-    .fashion-animations > div {
-        flex: 1 1 200px;
-        height: 280px;
+    .fashion-hero-content {
+        padding: 60px 25px;
     }
+
+    .fashion-hero-content h1 {
+        font-size: 42px;
+    }
+
+    .fashion-hero-content p {
+        font-size: 15px;
+    }
+
+    .fashion-slider-arrows {
+        right: 20px;
+        bottom: 25px;
+    }
+
+    .fashion-slider-dots {
+        left: 25px;
+        bottom: 45px;
+    }
+
 }
 
 @media (max-width: 480px) {
-    .fashion-animations > div {
-        flex: 1 1 100%;
-        max-width: 100%;
-        height: 320px;
-    }
-}
 
-/* ACCESSIBILITY */
-@media (prefers-reduced-motion: reduce) {
-    .fashion-animations > div,
-    .fashion-animations img,
-    .fashion-animations video {
-        animation: none;
+    .fashion-hero {
+        min-height: 450px;
     }
+
+    .fashion-hero-content h1 {
+        font-size: 35px;
+    }
+
 }
