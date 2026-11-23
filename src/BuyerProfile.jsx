@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "./api";
 import { useMessage } from "./ShowMessage";
-import Navbar from "./Navbar";
 import Footer from "./Footer";
 import "./BuyerProfile.css";
 import DashboardNavbar from "./DashboardNavbar";
