@@ -1,101 +1,210 @@
-import {NavLink,useNavigate } from "react-router-dom";
-import { useState } from "react";
+
+import { NavLink, useNavigate } from "react-router-dom";
 import "./AdminNavbar.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 import {
-    faGauge,
+    faGaugeHigh,
     faBoxOpen,
     faPlus,
-    faEnvelope,
     faLayerGroup,
     faUsersGear,
     faGear,
-    faRightFromBracket
+    faRightFromBracket,
+    faCartShopping,
+    faChartLine,
+    faEnvelope,
+    faChevronRight
 } from "@fortawesome/free-solid-svg-icons";
-function AdminNavbar(){
-    
-    const navigate=useNavigate();
 
-        const handleLogout=()=>{
-            localStorage.removeItem("token");
-            navigate("/login");
+function AdminNavbar() {
+
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("userId");
+        navigate("/login");
+    };
+
+    const navigationGroups = [
+        {
+            title: "OVERVIEW",
+            links: [
+                {
+                    name: "Dashboard",
+                    path: "/admin-dashboard",
+                    icon: faGaugeHigh
+                }
+            ]
+        },
+        {
+            title: "STORE MANAGEMENT",
+            links: [
+                {
+                    name: "Create Product",
+                    path: "/create-product",
+                    icon: faPlus
+                },
+                {
+                    name: "Manage Products",
+                    path: "/manage-products",
+                    icon: faBoxOpen
+                },
+                {
+                    name: "Create Trending",
+                    path: "/createTrending",
+                    icon: faChartLine
+                },
+                {
+                    name: "Manage Trendings",
+                    path: "/manage-trendings",
+                    icon: faLayerGroup
+                },
+                {
+                    name: "Manage Orders",
+                    path: "/manageOrders",
+                    icon: faCartShopping
+                }
+            ]
+        },
+        {
+            title: "USER MANAGEMENT",
+            links: [
+                {
+                    name: "Create User",
+                    path: "/create-users",
+                    icon: faPlus
+                },
+                {
+                    name: "Manage Users",
+                    path: "/manage-users",
+                    icon: faUsersGear
+                }
+            ]
+        },
+        {
+            title: "COMMUNICATION",
+            links: [
+                {
+                    name: "Messages",
+                    path: "/admin-messages",
+                    icon: faEnvelope
+                }
+            ]
+        },
+        {
+            title: "PREFERENCES",
+            links: [
+                {
+                    name: "Settings",
+                    path: "/Setting",
+                    icon: faGear
+                }
+            ]
         }
-    
-    return(
-        <>
-        <div className="admin-navbar">
-                    <div className="adminlogo">
-                        <h1>Dreamaz <span className="logo1">ink</span></h1>
+    ];
 
-                        <h2>Admin Dashboard</h2>
-                    </div>
-                    <div className="admin-navlinks">
-    <ul>
-        <li>
-            <NavLink to="/admin-dashboard">
-                <FontAwesomeIcon icon={faGauge} />
-                Dashboard
-            </NavLink>
-        </li>
+    return (
+        <aside className="admin-navbar">
 
-        <li>
-            <NavLink to="/createTrending">
-                <FontAwesomeIcon icon={faLayerGroup}/>
-                Create Trendings
-            </NavLink>
-        </li>
+            {/* BRAND */}
+            <div className="adminlogo">
 
-        <li>
-            <NavLink to="#">
-                <FontAwesomeIcon icon={faLayerGroup}/>
-                Manage Trendings
-            </NavLink>
-        </li>
-
-        <li>
-            <NavLink to="/create-product">
-                <FontAwesomeIcon icon={faLayerGroup} />
-                Create Product
-            </NavLink>
-        </li>
-        <li>
-            <NavLink to="/manage-products">
-            <FontAwesomeIcon icon={faLayerGroup} />
-            Manage Products
-            </NavLink>
-        </li>
-
-        <li>
-            <NavLink to="/create-users">
-                <FontAwesomeIcon icon={faUsersGear} />
-                Create User
-            </NavLink>
-        </li>
-
-        <li>
-            <NavLink to="/Setting">
-                <FontAwesomeIcon icon={faGear} />
-                Settings
-            </NavLink>
-        </li>
-        <li>
-            <NavLink to="/manage-users">
-            <FontAwesomeIcon icon={faUsersGear}/>
-            Manage Users
-            </NavLink>
-        </li>
-
-        <li>
-            <NavLink onClick={handleLogout} to="/login">
-                <FontAwesomeIcon icon={faRightFromBracket} />
-                Logout
-            </NavLink>
-        </li>
-    </ul>
-</div>
+                <div className="admin-brand-icon">
+                    D
                 </div>
-        </>
-    )
+
+                <div className="admin-brand-text">
+                    <h1>
+                        Dreamaz <span className="logo1">ink</span>
+                    </h1>
+
+                    <p>ADMINISTRATION</p>
+                </div>
+
+            </div>
+
+
+            {/* ADMIN PROFILE LABEL */}
+            <div className="admin-sidebar-label">
+                <span className="admin-online-indicator"></span>
+                <span>Admin Workspace</span>
+            </div>
+
+
+            {/* SCROLLABLE NAVIGATION */}
+            <nav className="admin-navlinks">
+
+                {navigationGroups.map((group, index) => (
+
+                    <div className="admin-nav-group" key={index}>
+
+                        <p className="admin-nav-title">
+                            {group.title}
+                        </p>
+
+                        <ul>
+                            {group.links.map((link) => (
+
+                                <li key={link.path}>
+
+                                    <NavLink
+                                        to={link.path}
+                                        className={({ isActive }) =>
+                                            isActive ? "active" : ""
+                                        }
+                                    >
+
+                                        <FontAwesomeIcon
+                                            icon={link.icon}
+                                            className="admin-nav-icon"
+                                        />
+
+                                        <span>{link.name}</span>
+
+                                        <FontAwesomeIcon
+                                            icon={faChevronRight}
+                                            className="admin-nav-arrow"
+                                        />
+
+                                    </NavLink>
+
+                                </li>
+
+                            ))}
+                        </ul>
+
+                    </div>
+
+                ))}
+
+            </nav>
+
+
+            {/* BOTTOM LOGOUT */}
+            <div className="admin-sidebar-bottom">
+
+                <button
+                    className="admin-logout"
+                    onClick={handleLogout}
+                >
+
+                    <FontAwesomeIcon icon={faRightFromBracket} />
+
+                    <span>Logout</span>
+
+                </button>
+
+                <div className="admin-sidebar-footer">
+                    <p>Dreamaz Ink</p>
+                    <span>Administration Panel</span>
+                </div>
+
+            </div>
+
+        </aside>
+    );
 }
 
 export default AdminNavbar;

@@ -27,6 +27,9 @@ import Checkout from "./Checkout";
 import OrderSuccess from "./OrderSuccess";
 import MyOrders from "./MyOrders";
 import BuyerProfile from "./BuyerProfile";
+import ManageOrders from "./ManageOrders";
+import BuyerOrders from "./BuyerOrders";
+import ManageTrendings from "./ManageTrendings";
 function App(){
   return(
     <>
@@ -54,7 +57,7 @@ function App(){
     <Route path="/fashion/:id" element={<FashionDetails />} />
     <Route path="/prints/:id" element={<PrintsDetails />} />
     <Route path="/hero" element={<Hero/>}/>
-    <Route path="/buyerProfile" element={<buyerProfile/>}/>
+    <Route path="/buyerProfile" element={<BuyerProfile/>}/>
     <Route
     path="/trending/:id"
     element={<TrendingDetails />}
@@ -63,6 +66,9 @@ function App(){
 <Route path="/checkout" element={<Checkout/>}/>
 <Route path="/order-success" element={<OrderSuccess/>}/>
 <Route path="/myOrders" element={<MyOrders/>}/>
+<Route path="/manageOrders" element={<ManageOrders/>}/>
+<Route path="/orders" element={<BuyerOrders/>}/>
+<Route path="/manage-trendings" element={<ManageTrendings/>}/>
   </Routes>
   </BrowserRouter>
     </>

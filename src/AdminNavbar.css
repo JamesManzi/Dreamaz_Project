@@ -1,18 +1,15 @@
 
-.admin-dashboard {
-    width: 100%;
-    min-height: 100vh;
-}
+/* ================================
+   GLOBAL RESET
+================================ */
 
-.admin-navlinks li a.active {
-    background-color:green;
-    color: #ffffff;
-    border-left-color: #38bdf8;
+* {
+    box-sizing: border-box;
 }
 
 
 /* ================================
-   SIDEBAR
+   ADMIN SIDEBAR
 ================================ */
 
 .admin-navbar {
@@ -23,91 +20,147 @@
     top: 0;
     left: 0;
 
-    background-color: #1e293b;
+    background: #172235;
     color: #ffffff;
 
     display: flex;
     flex-direction: column;
 
-    padding: 20px 0;
-
-    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05);
+    padding: 0;
 
     z-index: 1000;
 
-    /* Sidebar itself can scroll if necessary */
     overflow: hidden;
+
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.08);
 }
 
 
 /* ================================
-   LOGO
+   BRAND / LOGO
 ================================ */
 
 .adminlogo {
     width: 100%;
 
-    padding: 0 20px 25px 20px;
+    min-height: 95px;
 
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 18px 20px;
+
+    border-bottom: 1px solid rgba(255,255,255,0.08);
 
     flex-shrink: 0;
 }
 
-.adminlogo h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
+.admin-brand-icon {
+    width: 43px;
+    height: 43px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: linear-gradient(135deg, #38bdf8, #0284c7);
 
     color: #ffffff;
 
-    letter-spacing: 0.5px;
+    font-size: 24px;
+    font-weight: 800;
+
+    border-radius: 12px;
+
+    box-shadow: 0 4px 12px rgba(56,189,248,0.2);
 }
 
-.adminlogo .logo1 {
+.admin-brand-text h1 {
+    font-size: 20px;
+    font-weight: 750;
+
+    color: #ffffff;
+
+    letter-spacing: -0.5px;
+}
+
+.admin-brand-text .logo1 {
     color: #38bdf8;
 }
 
-.adminlogo h2 {
-    font-size: 0.85rem;
-    font-weight: 400;
+.admin-brand-text p {
+    margin-top: 5px;
 
     color: #94a3b8;
 
-    margin-top: 5px;
+    font-size: 9px;
+    font-weight: 700;
 
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
 }
 
 
 /* ================================
-   NAVIGATION CONTAINER
+   WORKSPACE LABEL
+================================ */
+
+.admin-sidebar-label {
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 20px 22px 10px;
+
+    color: #94a3b8;
+
+    font-size: 12px;
+    font-weight: 500;
+
+    flex-shrink: 0;
+}
+
+.admin-online-indicator {
+    width: 8px;
+    height: 8px;
+
+    background: #22c55e;
+
+    border-radius: 50%;
+
+    box-shadow: 0 0 8px rgba(34,197,94,0.5);
+}
+
+
+/* ================================
+   NAVIGATION SCROLL AREA
 ================================ */
 
 .admin-navlinks {
     width: 100%;
 
-    margin-top: 20px;
-
-    /*
-       This makes ONLY the navigation
-       area scroll vertically.
-    */
     flex: 1;
+
+    min-height: 0;
 
     overflow-y: auto;
     overflow-x: hidden;
 
-    min-height: 0;
+    padding: 8px 12px 15px;
+
+    scrollbar-width: thin;
+    scrollbar-color: #475569 transparent;
 }
 
 
 /* ================================
-   NAVIGATION SCROLLBAR
+   CUSTOM SCROLLBAR
 ================================ */
 
 .admin-navlinks::-webkit-scrollbar {
-    width: 6px;
+    width: 5px;
 }
 
 .admin-navlinks::-webkit-scrollbar-track {
@@ -115,20 +168,37 @@
 }
 
 .admin-navlinks::-webkit-scrollbar-thumb {
-    background-color: #475569;
+    background: #475569;
+
     border-radius: 10px;
 }
 
 .admin-navlinks::-webkit-scrollbar-thumb:hover {
-    background-color: #64748b;
+    background: #64748b;
 }
 
 
-/* Firefox scrollbar */
+/* ================================
+   NAVIGATION GROUPS
+================================ */
 
-.admin-navlinks {
-    scrollbar-width: thin;
-    scrollbar-color: #475569 transparent;
+.admin-nav-group {
+    width: 100%;
+
+    margin-bottom: 22px;
+}
+
+.admin-nav-title {
+    padding: 0 12px;
+
+    margin-bottom: 10px;
+
+    color: #64748b;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 1.5px;
 }
 
 
@@ -148,8 +218,7 @@
 .admin-navlinks li {
     width: 100%;
 
-    margin: 0 0 4px 0;
-    padding: 0;
+    margin-bottom: 5px;
 }
 
 
@@ -160,34 +229,33 @@
 .admin-navlinks li a {
     width: 100%;
 
-    min-height: 48px;
+    min-height: 46px;
 
     display: flex;
     align-items: center;
 
-    padding: 12px 20px;
+    gap: 13px;
 
-    color: #cbd5e1;
+    padding: 11px 13px;
+
+    color: #aab7c9;
 
     text-decoration: none;
 
-    font-size: 0.95rem;
+    font-size: 13px;
     font-weight: 500;
 
-    /*
-       Transparent border prevents
-       the link from moving when hovered.
-    */
-    border-left: 4px solid transparent;
+    border-radius: 8px;
+
+    border-left: 3px solid transparent;
 
     transition:
-        background-color 0.2s ease,
-        color 0.2s ease,
-        border-color 0.2s ease;
+        background 0.25s ease,
+        color 0.25s ease,
+        border-color 0.25s ease,
+        transform 0.25s ease;
 
     white-space: nowrap;
-
-    box-sizing: border-box;
 }
 
 
@@ -195,39 +263,293 @@
    NAVIGATION ICONS
 ================================ */
 
-.admin-navlinks li a svg {
-    width: 20px;
-    min-width: 20px;
+.admin-nav-icon {
+    width: 18px;
+    min-width: 18px;
 
-    margin-right: 12px;
+    font-size: 15px;
 
-    font-size: 1.1rem;
+    color: #94a3b8;
+
+    transition: color 0.25s ease;
+}
+
+.admin-navlinks li a span {
+    flex: 1;
+}
+
+
+/* ================================
+   NAVIGATION ARROW
+================================ */
+
+.admin-nav-arrow {
+    font-size: 10px;
+
+    color: #64748b;
+
+    opacity: 0;
+
+    transform: translateX(-5px);
+
+    transition: all 0.25s ease;
+}
+
+
+/* ================================
+   HOVER EFFECT
+================================ */
+
+.admin-navlinks li a:hover {
+    background: #26364d;
+
+    color: #ffffff;
+
+    transform: translateX(3px);
+}
+
+.admin-navlinks li a:hover .admin-nav-icon {
+    color: #38bdf8;
+}
+
+.admin-navlinks li a:hover .admin-nav-arrow {
+    opacity: 1;
+
+    transform: translateX(0);
+}
+
+
+/* ================================
+   ACTIVE NAVIGATION
+================================ */
+
+.admin-navlinks li a.active {
+    background: linear-gradient(
+        90deg,
+        rgba(56,189,248,0.18),
+        rgba(56,189,248,0.06)
+    );
+
+    color: #38bdf8;
+
+    border-left-color: #38bdf8;
+
+    font-weight: 650;
+}
+
+.admin-navlinks li a.active .admin-nav-icon {
+    color: #38bdf8;
+}
+
+.admin-navlinks li a.active .admin-nav-arrow {
+    opacity: 1;
+
+    transform: translateX(0);
+
+    color: #38bdf8;
+}
+
+
+/* ================================
+   BOTTOM SIDEBAR
+================================ */
+
+.admin-sidebar-bottom {
+    width: 100%;
+
+    padding: 15px 15px 18px;
+
+    border-top: 1px solid rgba(255,255,255,0.08);
+
+    background: #172235;
+
+    flex-shrink: 0;
+}
+
+
+/* ================================
+   LOGOUT BUTTON
+================================ */
+
+.admin-logout {
+    width: 100%;
+
+    height: 45px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 13px;
+
+    padding: 0 14px;
+
+    border: 1px solid rgba(239,68,68,0.15);
+
+    border-radius: 8px;
+
+    background: rgba(239,68,68,0.08);
+
+    color: #f87171;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: all 0.3s ease;
+}
+
+.admin-logout:hover {
+    background: #dc2626;
+
+    color: #ffffff;
+
+    border-color: #dc2626;
+
+    transform: translateY(-2px);
+}
+
+.admin-logout svg {
+    font-size: 15px;
+}
+
+
+/* ================================
+   FOOTER
+================================ */
+
+.admin-sidebar-footer {
+    margin-top: 15px;
 
     text-align: center;
 }
 
+.admin-sidebar-footer p {
+    color: #94a3b8;
 
-/* ================================
-   HOVER
-================================ */
+    font-size: 11px;
+    font-weight: 600;
+}
 
-.admin-navlinks li a:hover {
-    background-color: #334155;
+.admin-sidebar-footer span {
+    display: block;
 
-    color: #ffffff;
+    margin-top: 4px;
 
-    border-left-color: #38bdf8;
+    color: #64748b;
+
+    font-size: 10px;
 }
 
 
 /* ================================
-   ACTIVE LINK
+   TABLET
 ================================ */
 
-.admin-navlinks li a.active {
-    background-color: #334155;
+@media (max-width: 768px) {
 
-    color: #ffffff;
+    .admin-navbar {
+        width: 220px;
+    }
 
-    border-left-color: #38bdf8;
+    .adminlogo {
+        padding: 15px;
+    }
+
+    .admin-brand-text h1 {
+        font-size: 18px;
+    }
+
+}
+
+
+/* ================================
+   MOBILE
+================================ */
+
+@media (max-width: 600px) {
+
+    .admin-navbar {
+        position: relative;
+
+        top: auto;
+        left: auto;
+
+        width: 100%;
+        height: auto;
+
+        min-height: auto;
+
+        padding: 0;
+
+        overflow: visible;
+
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .adminlogo {
+        min-height: 75px;
+
+        padding: 12px 18px;
+    }
+
+    .admin-sidebar-label {
+        padding: 12px 18px 5px;
+    }
+
+    /* Navigation scrolls vertically on mobile */
+
+    .admin-navlinks {
+        width: 100%;
+
+        flex: none;
+
+        max-height: 260px;
+
+        overflow-y: auto;
+        overflow-x: hidden;
+
+        padding: 10px 15px;
+    }
+
+    .admin-nav-group {
+        margin-bottom: 15px;
+    }
+
+    .admin-navlinks li a {
+        min-height: 43px;
+    }
+
+    .admin-sidebar-bottom {
+        padding: 12px 15px;
+    }
+
+    .admin-sidebar-footer {
+        display: none;
+    }
+
+}
+
+
+/* ================================
+   SMALL MOBILE
+================================ */
+
+@media (max-width: 400px) {
+
+    .admin-brand-icon {
+        width: 38px;
+        height: 38px;
+
+        font-size: 21px;
+    }
+
+    .admin-brand-text h1 {
+        font-size: 17px;
+    }
+
+    .admin-navlinks li a {
+        font-size: 12px;
+    }
+
 }
