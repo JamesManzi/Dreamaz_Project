@@ -20,13 +20,13 @@ import FashionAnimation from "./FashionAnimation";
 import CreateTrending from "./CreateTrending";
 import FashionDetails from "./FashionDetails";
 import PrintsDetails from "./PrintsDetails";
-import BuyerProfile from "./buyerProfile";
 import Hero from "./Hero";
 import TrendingDetails from "./TrendingDetails";
 import Cart from "./Cart";
 import Checkout from "./Checkout";
 import OrderSuccess from "./OrderSuccess";
 import MyOrders from "./MyOrders";
+import BuyerProfile from "./buyerProfile";
 function App(){
   return(
     <>
@@ -53,8 +53,8 @@ function App(){
     <Route path="/createTrending" element={<CreateTrending/>}/>
     <Route path="/fashion/:id" element={<FashionDetails />} />
     <Route path="/prints/:id" element={<PrintsDetails />} />
-    <Route path="/buyerProfile" element={<BuyerProfile/>}/>
     <Route path="/hero" element={<Hero/>}/>
+    <Route path="/buyerProfile" element={<BuyerProfile/>}/>
     <Route
     path="/trending/:id"
     element={<TrendingDetails />}
@@ -62,7 +62,7 @@ function App(){
 <Route path="/cart" element={<Cart/>}/>
 <Route path="/checkout" element={<Checkout/>}/>
 <Route path="/order-success" element={<OrderSuccess/>}/>
-<Route path="//myOrders" element={<MyOrders/>}/>
+<Route path="/myOrders" element={<MyOrders/>}/>
   </Routes>
   </BrowserRouter>
     </>
