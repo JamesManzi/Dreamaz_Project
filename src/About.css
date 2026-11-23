@@ -1,260 +1,740 @@
+/* =========================================
+   GENERAL ABOUT PAGE
+========================================= */
 
 .dreamaz-about {
-    background: #fff;
-    color: #292929;
+    width: 100%;
+    overflow: hidden;
+    background: #ffffff;
+    color: #222222;
+    font-family: inherit;
 }
 
-/* Hero section */
+.dreamaz-about * {
+    box-sizing: border-box;
+}
+
+.dreamaz-section-label {
+    display: inline-block;
+    color: #b47b45;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    margin-bottom: 16px;
+}
+
+/* =========================================
+   HERO SECTION
+========================================= */
+
 .dreamaz-about-hero {
-    min-height: 450px;
+    position: relative;
+    min-height: 650px;
     display: flex;
     align-items: center;
-    padding: 70px 9%;
-    background: linear-gradient(120deg, #171717, #393939, #171717);
-    color: white;
+    overflow: hidden;
+    isolation: isolate;
+    background: #171717;
+}
+
+.dreamaz-hero-video {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    overflow: hidden;
+}
+
+.dreamaz-hero-video video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.dreamaz-hero-fallback {
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(circle at 75% 30%, #70513c, transparent 35%),
+        linear-gradient(120deg, #111111, #303030, #171717);
+}
+
+.dreamaz-hero-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.88) 0%,
+        rgba(0, 0, 0, 0.63) 45%,
+        rgba(0, 0, 0, 0.25) 100%
+    );
 }
 
 .dreamaz-about-hero-content {
-    max-width: 650px;
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 850px;
+    padding: 100px 8%;
+    color: #ffffff;
 }
 
 .dreamaz-about-hero-content > span {
-    color: #d4a45c;
-    font-weight: 700;
-    letter-spacing: 3px;
+    display: inline-block;
     font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: #e2b47f;
+    margin-bottom: 20px;
 }
 
 .dreamaz-about-hero-content h1 {
-    font-size: clamp(38px, 6vw, 65px);
-    margin: 20px 0;
-    line-height: 1.1;
+    font-size: clamp(42px, 6vw, 82px);
+    line-height: 1.08;
+    font-weight: 800;
+    max-width: 750px;
+    margin: 0 0 25px;
+    color: #ffffff;
 }
 
 .dreamaz-about-hero-content p {
+    max-width: 560px;
     font-size: 17px;
     line-height: 1.8;
-    color: #ddd;
-    margin-bottom: 30px;
+    color: #eeeeee;
+    margin-bottom: 32px;
 }
 
 .dreamaz-hero-btn {
-    display: inline-block;
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    gap: 20px;
+    padding: 15px 27px;
+    background: #b47b45;
+    color: #ffffff;
     text-decoration: none;
-    background: #d4a45c;
-    color: #171717;
-    padding: 14px 27px;
-    border-radius: 5px;
+    font-size: 14px;
     font-weight: 700;
-    transition: 0.3s;
+    border-radius: 4px;
+    transition: 0.3s ease;
+}
+
+.dreamaz-hero-btn span {
+    font-size: 20px;
+    transition: transform 0.3s ease;
 }
 
 .dreamaz-hero-btn:hover {
-    background: #edbd77;
+    background: #966238;
     transform: translateY(-3px);
 }
 
-/* About content */
+.dreamaz-hero-btn:hover span {
+    transform: translateX(5px);
+}
+
+.dreamaz-hero-decoration {
+    position: absolute;
+    right: 7%;
+    bottom: 80px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    color: #ffffff;
+    font-size: 11px;
+    letter-spacing: 4px;
+    font-weight: 700;
+    opacity: 0.85;
+}
+
+.dreamaz-hero-decoration span {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+    padding-bottom: 10px;
+}
+
+.dreamaz-hero-scroll {
+    position: absolute;
+    left: 8%;
+    bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #ffffff;
+    font-size: 9px;
+    letter-spacing: 3px;
+    opacity: 0.7;
+}
+
+.dreamaz-hero-scroll span {
+    position: relative;
+    overflow: hidden;
+    width: 35px;
+    height: 1px;
+    background: #ffffff;
+}
+
+/* =========================================
+   ABOUT CONTENT
+========================================= */
+
 .dreamaz-about-content {
-    padding: 85px 8%;
+    width: min(1200px, 90%);
+    margin: 110px auto;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 60px;
     align-items: center;
+    gap: 75px;
 }
 
 .dreamaz-about-image {
-    min-height: 380px;
-    background: linear-gradient(135deg, #292929, #555, #222);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 30px;
-    border-radius: 10px;
+    min-height: 450px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 6px;
+    background:
+        radial-gradient(circle at 25% 25%, #c49a70, transparent 30%),
+        linear-gradient(135deg, #202020, #57412f);
 }
 
 .dreamaz-art-placeholder {
+    min-height: 450px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     text-align: center;
-    color: white;
-    border: 1px solid #d4a45c;
-    padding: 55px 25px;
-    width: 100%;
+    padding: 35px;
+    color: #ffffff;
+    position: relative;
 }
 
-.dreamaz-art-placeholder span {
-    color: #d4a45c;
+.dreamaz-art-placeholder > span {
+    font-size: 11px;
     letter-spacing: 4px;
+    color: #e2b47f;
     font-weight: 700;
 }
 
 .dreamaz-art-placeholder h2 {
-    margin-top: 20px;
-    font-size: 30px;
+    max-width: 350px;
+    font-size: clamp(30px, 4vw, 48px);
+    line-height: 1.2;
+    margin: 20px 0;
 }
 
-.dreamaz-section-label {
-    color: #b17c35;
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: 2px;
+.dreamaz-art-decoration {
+    font-size: 75px;
+    color: #d3a16d;
+    opacity: 0.7;
 }
 
 .dreamaz-about-text h2 {
-    font-size: 36px;
-    color: #242424;
-    margin: 12px 0 20px;
+    font-size: clamp(30px, 4vw, 45px);
+    line-height: 1.2;
+    margin: 0 0 25px;
+    color: #202020;
 }
 
 .dreamaz-about-text p {
-    color: #666;
     font-size: 15px;
     line-height: 1.9;
-    margin-bottom: 15px;
+    color: #666666;
+    margin-bottom: 17px;
 }
 
-/* Mission, vision and values */
+.dreamaz-text-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 15px;
+    color: #a66d3d;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.dreamaz-text-link span {
+    font-size: 20px;
+    transition: transform 0.3s ease;
+}
+
+.dreamaz-text-link:hover span {
+    transform: translateX(6px);
+}
+
+/* =========================================
+   MISSION, VISION AND VALUES
+========================================= */
+
 .dreamaz-mission-section {
-    padding: 65px 8%;
-    background: #f8f7f5;
+    padding: 85px 7%;
+    background: #f7f5f2;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 25px;
 }
 
 .dreamaz-info-card {
-    background: white;
-    padding: 35px 25px;
-    border-radius: 9px;
-    text-align: center;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
-    transition: 0.3s;
+    padding: 40px 30px;
+    background: #ffffff;
+    border: 1px solid #eeeeee;
+    border-radius: 6px;
+    transition: 0.3s ease;
 }
 
 .dreamaz-info-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.09);
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.07);
 }
 
 .dreamaz-info-icon {
-    font-size: 38px;
-    color: #b17c35;
-    margin-bottom: 15px;
+    width: 55px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #f4e9dd;
+    color: #a66d3d;
+    font-size: 27px;
+    margin-bottom: 25px;
+    transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
+}
+
+.dreamaz-info-card:hover .dreamaz-info-icon {
+    background: #b47b45;
+    color: #ffffff;
+    transform: rotate(-8deg) scale(1.08);
 }
 
 .dreamaz-info-card h3 {
-    color: #292929;
     font-size: 21px;
-    margin-bottom: 15px;
+    color: #222222;
+    margin: 0 0 15px;
 }
 
 .dreamaz-info-card p {
-    color: #777;
+    color: #777777;
+    font-size: 14px;
     line-height: 1.8;
+    margin: 0;
+}
+
+/* =========================================
+   TRENDING ARTWORK
+========================================= */
+
+.dreamaz-trending-section {
+    width: min(1250px, 90%);
+    margin: 110px auto;
+}
+
+.dreamaz-trending-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+    margin-bottom: 35px;
+}
+
+.dreamaz-trending-heading h2 {
+    font-size: clamp(32px, 4vw, 48px);
+    color: #222222;
+    margin: 0 0 12px;
+}
+
+.dreamaz-trending-heading p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #777777;
+    margin: 0;
+}
+
+.dreamaz-trending-symbol {
+    font-size: 75px;
+    color: #c69b70;
+    animation: dreamazRotate 12s linear infinite;
+}
+
+@keyframes dreamazRotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Category buttons */
+
+.dreamaz-category-filters {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 35px;
+}
+
+.dreamaz-category-filters button {
+    padding: 11px 22px;
+    border: 1px solid #dddddd;
+    background: #ffffff;
+    color: #555555;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.dreamaz-category-filters button:hover,
+.dreamaz-category-filters button.active {
+    background: #222222;
+    color: #ffffff;
+    border-color: #222222;
+}
+
+/* Artwork grid */
+
+.dreamaz-trending-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 25px;
+}
+
+.dreamaz-art-card {
+    min-width: 0;
+    background: #ffffff;
+    border: 1px solid #eeeeee;
+    border-radius: 6px;
+    overflow: hidden;
+    transition: 0.3s ease;
+}
+
+.dreamaz-art-card:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.09);
+}
+
+.dreamaz-art-card-image {
+    position: relative;
+    width: 100%;
+    height: 260px;
+    overflow: hidden;
+    background: #eeeeee;
+}
+
+.dreamaz-art-card-image img,
+.dreamaz-art-card-image video {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.dreamaz-art-card:hover .dreamaz-art-card-image img,
+.dreamaz-art-card:hover .dreamaz-art-card-image video {
+    transform: scale(1.06);
+}
+
+.dreamaz-trending-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.94);
+    color: #a66d3d;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 3px;
+}
+
+.dreamaz-no-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    color: #777777;
     font-size: 14px;
 }
 
-/* Contact section */
+.dreamaz-no-image span {
+    font-size: 40px;
+    color: #b47b45;
+}
+
+.dreamaz-art-card-info {
+    padding: 20px;
+}
+
+.dreamaz-art-category {
+    color: #a66d3d;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+}
+
+.dreamaz-art-card-info h3 {
+    color: #222222;
+    font-size: 17px;
+    margin: 10px 0;
+    line-height: 1.4;
+}
+
+.dreamaz-art-card-info p {
+    color: #777777;
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Loading and empty states */
+
+.dreamaz-art-loading {
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    color: #777777;
+    font-size: 14px;
+}
+
+.dreamaz-loader {
+    width: 35px;
+    height: 35px;
+    border: 3px solid #eeeeee;
+    border-top-color: #a66d3d;
+    border-radius: 50%;
+    animation: dreamazSpin 0.8s linear infinite;
+}
+
+@keyframes dreamazSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.dreamaz-empty-artwork {
+    min-height: 250px;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: #f8f6f3;
+}
+
+.dreamaz-empty-artwork > span {
+    color: #b47b45;
+    font-size: 45px;
+}
+
+.dreamaz-empty-artwork h3 {
+    font-size: 22px;
+    margin: 15px 0 8px;
+}
+
+.dreamaz-empty-artwork p {
+    color: #777777;
+    font-size: 14px;
+}
+
+/* =========================================
+   WHY CHOOSE US
+========================================= */
+
+.dreamaz-why-section {
+    padding: 100px 8%;
+    background: #1d1d1d;
+    color: #ffffff;
+}
+
+.dreamaz-why-heading {
+    text-align: center;
+    max-width: 650px;
+    margin: 0 auto 55px;
+}
+
+.dreamaz-why-heading h2 {
+    font-size: clamp(30px, 4vw, 45px);
+    margin: 0 0 15px;
+}
+
+.dreamaz-why-heading p {
+    color: #bbbbbb;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.dreamaz-why-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 45px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.dreamaz-why-grid > div {
+    border-top: 1px solid #555555;
+    padding-top: 25px;
+    transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.dreamaz-why-grid > div:hover {
+    border-color: #d0a174;
+    transform: translateY(-6px);
+}
+
+.dreamaz-why-grid > div > span {
+    color: #d0a174;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.dreamaz-why-grid h3 {
+    font-size: 22px;
+    margin: 20px 0 12px;
+}
+
+.dreamaz-why-grid p {
+    color: #bbbbbb;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+/* =========================================
+   CONTACT SECTION
+========================================= */
+
 .dreamaz-contact-section {
-    padding: 85px 8%;
-    background: white;
+    padding: 100px 8%;
+    background: #f8f7f5;
 }
 
 .dreamaz-contact-heading {
     text-align: center;
     max-width: 650px;
-    margin: 0 auto 45px;
+    margin: 0 auto 55px;
 }
 
 .dreamaz-contact-heading h2 {
-    font-size: 34px;
-    color: #292929;
-    margin: 12px 0;
+    color: #222222;
+    font-size: clamp(30px, 4vw, 45px);
+    margin: 0 0 15px;
 }
 
 .dreamaz-contact-heading p {
-    color: #777;
-    line-height: 1.8;
+    color: #777777;
+    font-size: 15px;
+    line-height: 1.7;
 }
 
 .dreamaz-contact-layout {
     display: grid;
-    grid-template-columns: 0.8fr 1.4fr;
-    gap: 35px;
-    align-items: start;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: 40px;
+    max-width: 1200px;
+    margin: auto;
 }
 
 .dreamaz-contact-information {
-    background: #242424;
-    color: white;
-    padding: 35px 28px;
-    border-radius: 9px;
-    min-height: 100%;
+    background: #222222;
+    color: #ffffff;
+    padding: 40px;
+    border-radius: 6px;
 }
 
 .dreamaz-contact-information h3,
 .dreamaz-contact-form-container h3 {
     font-size: 23px;
-    margin-bottom: 12px;
+    margin: 0 0 15px;
 }
 
-.dreamaz-contact-information > p,
-.dreamaz-contact-form-container > p {
-    color: #999;
-    line-height: 1.7;
-    margin-bottom: 30px;
+.dreamaz-contact-information > p {
+    color: #bbbbbb;
     font-size: 14px;
+    line-height: 1.7;
+    margin-bottom: 35px;
 }
 
 .dreamaz-contact-item {
     display: flex;
-    gap: 15px;
     align-items: center;
-    margin: 28px 0;
+    gap: 18px;
+    margin-bottom: 28px;
 }
 
 .dreamaz-contact-icon {
-    width: 43px;
-    height: 43px;
-    display: grid;
-    place-items: center;
-    background: rgba(212, 164, 92, 0.15);
-    color: #d4a45c;
+    width: 45px;
+    height: 45px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #3b3027;
+    color: #d0a174;
     border-radius: 50%;
     font-size: 20px;
-    flex-shrink: 0;
 }
 
 .dreamaz-contact-item h4 {
-    font-size: 14px;
-    margin-bottom: 7px;
+    font-size: 13px;
+    margin: 0 0 7px;
 }
 
 .dreamaz-contact-item a {
-    color: #d4a45c;
+    color: #bbbbbb;
+    font-size: 13px;
     text-decoration: none;
-    font-size: 14px;
     overflow-wrap: anywhere;
 }
 
+.dreamaz-contact-item a:hover {
+    color: #d0a174;
+}
+
 .dreamaz-contact-note {
-    border-top: 1px solid #444;
-    padding-top: 20px;
     margin-top: 35px;
-    color: #aaa;
-    line-height: 1.8;
+    padding-top: 25px;
+    border-top: 1px solid #444444;
+    color: #bbbbbb;
     font-size: 13px;
+    line-height: 1.8;
 }
 
 /* Contact form */
+
 .dreamaz-contact-form-container {
-    padding: 35px;
-    border: 1px solid #eee;
-    border-radius: 9px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    background: #ffffff;
+    padding: 40px;
+    border: 1px solid #eeeeee;
+    border-radius: 6px;
 }
 
-.dreamaz-contact-form-container h3 {
-    color: #292929;
+.dreamaz-contact-form-container > p {
+    color: #777777;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-bottom: 25px;
 }
 
 .dreamaz-form-row {
@@ -266,51 +746,66 @@
 .dreamaz-form-group {
     display: flex;
     flex-direction: column;
+    gap: 9px;
     margin-bottom: 20px;
 }
 
 .dreamaz-form-group label {
-    color: #333;
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 9px;
+    color: #333333;
+    font-size: 13px;
+    font-weight: 700;
 }
 
 .dreamaz-form-group input,
 .dreamaz-form-group textarea {
     width: 100%;
-    padding: 14px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    padding: 14px 15px;
+    border: 1px solid #dddddd;
+    background: #ffffff;
+    color: #222222;
     font-family: inherit;
     font-size: 14px;
     outline: none;
-    transition: 0.3s;
+    border-radius: 3px;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
 }
 
 .dreamaz-form-group input:focus,
 .dreamaz-form-group textarea:focus {
-    border-color: #b17c35;
-    box-shadow: 0 0 0 3px rgba(177, 124, 53, 0.1);
+    border-color: #b47b45;
+    box-shadow: 0 0 0 4px rgba(180, 123, 69, 0.15);
 }
 
 .dreamaz-form-group textarea {
     resize: vertical;
+    min-height: 130px;
 }
 
 .dreamaz-send-btn {
-    background: #292929;
-    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
     padding: 15px 27px;
     border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    background: #222222;
+    color: #ffffff;
+    font-size: 14px;
     font-weight: 700;
-    transition: 0.3s;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.dreamaz-send-btn span {
+    transition: transform 0.3s ease;
 }
 
 .dreamaz-send-btn:hover {
-    background: #b17c35;
+    background: #a66d3d;
+}
+
+.dreamaz-send-btn:hover:not(:disabled) span {
+    transform: translateX(5px);
 }
 
 .dreamaz-send-btn:disabled {
@@ -319,52 +814,358 @@
 }
 
 .dreamaz-feedback {
-    padding: 13px;
-    border-radius: 5px;
+    padding: 13px 15px;
     margin-bottom: 20px;
-    font-size: 14px;
+    border-radius: 3px;
+    font-size: 13px;
+    animation: dreamaz-reveal-up 0.4s ease both;
 }
 
 .dreamaz-feedback.success {
-    color: #176b38;
-    background: #e6f5eb;
+    background: #e8f6ed;
+    color: #237a42;
 }
 
 .dreamaz-feedback.error {
-    color: #a12626;
-    background: #fdeaea;
+    background: #fdecec;
+    color: #b83232;
 }
 
-/* Responsive */
-@media (max-width: 850px) {
+/* =========================================
+   SCROLL ANIMATIONS
+========================================= */
+
+/* ---------- Reveal on scroll (up, left, right, zoom) ---------- */
+.dreamaz-about .reveal:not(.is-visible) {
+    opacity: 0;
+}
+
+.dreamaz-about .reveal.is-visible {
+    animation: dreamaz-reveal-up 0.85s cubic-bezier(0.2, 0.7, 0.2, 1)
+        var(--delay, 0ms) backwards;
+}
+
+.dreamaz-about .reveal[data-reveal="left"].is-visible {
+    animation-name: dreamaz-reveal-left;
+}
+
+.dreamaz-about .reveal[data-reveal="right"].is-visible {
+    animation-name: dreamaz-reveal-right;
+}
+
+.dreamaz-about .reveal[data-reveal="zoom"].is-visible {
+    animation-name: dreamaz-reveal-zoom;
+}
+
+@keyframes dreamaz-reveal-up {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes dreamaz-reveal-left {
+    from { opacity: 0; transform: translateX(-60px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes dreamaz-reveal-right {
+    from { opacity: 0; transform: translateX(60px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes dreamaz-reveal-zoom {
+    from { opacity: 0; transform: scale(0.9) translateY(20px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ---------- Scroll progress bar ---------- */
+.dreamaz-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.dreamaz-progress span {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform-origin: left center;
+    background: linear-gradient(90deg, #b47b45, #e2b47f, #b47b45);
+    transition: transform 0.1s linear;
+}
+
+/* ---------- Back to top ---------- */
+.dreamaz-top {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 900;
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border: none;
+    border-radius: 50%;
+    background: #222222;
+    color: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transform: translateY(16px);
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s ease;
+}
+
+.dreamaz-top.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.dreamaz-top:hover {
+    background: #b47b45;
+}
+
+/* ---------- Hero: parallax + staggered entrance ---------- */
+.dreamaz-hero-video {
+    transform: translateY(var(--parallax, 0px)) scale(1.12);
+    will-change: transform;
+}
+
+.dreamaz-about-hero-content {
+    opacity: var(--hero-fade, 1);
+}
+
+.dreamaz-about-hero-content > * {
+    animation: dreamaz-reveal-up 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.dreamaz-about-hero-content > *:nth-child(1) { animation-delay: 0.15s; }
+.dreamaz-about-hero-content > *:nth-child(2) { animation-delay: 0.3s; }
+.dreamaz-about-hero-content > *:nth-child(3) { animation-delay: 0.45s; }
+.dreamaz-about-hero-content > *:nth-child(4) { animation-delay: 0.6s; }
+
+.dreamaz-hero-decoration span {
+    animation: dreamaz-reveal-right 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.dreamaz-hero-decoration span:nth-child(1) { animation-delay: 0.7s; }
+.dreamaz-hero-decoration span:nth-child(2) { animation-delay: 0.85s; }
+.dreamaz-hero-decoration span:nth-child(3) { animation-delay: 1s; }
+
+/* Animated scroll cue */
+.dreamaz-hero-scroll span::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: #e2b47f;
+    transform: translateX(-100%);
+    animation: dreamaz-scroll-cue 2s ease-in-out infinite;
+}
+
+@keyframes dreamaz-scroll-cue {
+    0%   { transform: translateX(-100%); }
+    60%  { transform: translateX(0); }
+    100% { transform: translateX(100%); }
+}
+
+/* Button shimmer */
+.dreamaz-hero-btn::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -80%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transform: skewX(-20deg);
+    animation: dreamaz-shimmer 3.8s ease-in-out infinite;
+}
+
+@keyframes dreamaz-shimmer {
+    0%, 60% { left: -80%; }
+    100%    { left: 140%; }
+}
+
+/* ---------- Marquee band ---------- */
+.dreamaz-marquee {
+    overflow: hidden;
+    padding: 22px 0;
+    background: #222222;
+    border-top: 1px solid #333333;
+    border-bottom: 1px solid #333333;
+}
+
+.dreamaz-marquee-track {
+    display: flex;
+    width: max-content;
+    animation: dreamaz-marquee 32s linear infinite;
+}
+
+.dreamaz-marquee:hover .dreamaz-marquee-track {
+    animation-play-state: paused;
+}
+
+.dreamaz-marquee-track span {
+    display: inline-flex;
+    align-items: center;
+    gap: 34px;
+    padding-right: 34px;
+    color: #f4e9dd;
+    font-size: clamp(18px, 2.4vw, 28px);
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.dreamaz-marquee-track i {
+    color: #b47b45;
+    font-style: normal;
+    font-size: 0.8em;
+}
+
+@keyframes dreamaz-marquee {
+    to { transform: translateX(-50%); }
+}
+
+/* ---------- Floating decoration ---------- */
+.dreamaz-art-decoration {
+    animation: dreamaz-float 5s ease-in-out infinite;
+}
+
+@keyframes dreamaz-float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50%      { transform: translateY(-14px) rotate(12deg); }
+}
+
+/* =========================================
+   RESPONSIVE DESIGN
+========================================= */
+
+@media (max-width: 1000px) {
+    .dreamaz-trending-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .dreamaz-about-content {
+        gap: 40px;
+    }
+
+    .dreamaz-contact-layout {
+        grid-template-columns: 1fr 1.3fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .dreamaz-about-hero {
+        min-height: 550px;
+    }
+
+    .dreamaz-about-hero-content {
+        padding: 80px 7%;
+    }
+
+    .dreamaz-about-hero-content h1 {
+        font-size: 48px;
+    }
+
+    .dreamaz-about-hero-content p {
+        font-size: 15px;
+    }
+
+    .dreamaz-hero-decoration {
+        display: none;
+    }
+
     .dreamaz-about-content {
         grid-template-columns: 1fr;
+        margin: 75px auto;
         gap: 35px;
     }
 
+    .dreamaz-about-image,
+    .dreamaz-art-placeholder {
+        min-height: 350px;
+    }
+
     .dreamaz-mission-section {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
+        padding: 65px 7%;
+    }
+
+    .dreamaz-trending-section {
+        margin: 75px auto;
+    }
+
+    .dreamaz-trending-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 15px;
+    }
+
+    .dreamaz-art-card-image {
+        height: 220px;
+    }
+
+    .dreamaz-why-section,
+    .dreamaz-contact-section {
+        padding: 75px 7%;
+    }
+
+    .dreamaz-why-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
     }
 
     .dreamaz-contact-layout {
         grid-template-columns: 1fr;
     }
+
+    .dreamaz-top {
+        right: 16px;
+        bottom: 16px;
+    }
+
+    .dreamaz-marquee {
+        padding: 16px 0;
+    }
 }
 
-@media (max-width: 550px) {
+@media (max-width: 480px) {
     .dreamaz-about-hero {
-        padding: 65px 6%;
-        min-height: 400px;
+        min-height: 500px;
     }
 
-    .dreamaz-about-content,
-    .dreamaz-contact-section {
-        padding: 55px 6%;
+    .dreamaz-about-hero-content h1 {
+        font-size: 39px;
     }
 
-    .dreamaz-mission-section {
+    .dreamaz-about-hero-content > span {
+        font-size: 10px;
+        letter-spacing: 2px;
+    }
+
+    .dreamaz-hero-scroll {
+        display: none;
+    }
+
+    .dreamaz-trending-heading {
+        align-items: flex-start;
+    }
+
+    .dreamaz-trending-symbol {
+        font-size: 40px;
+    }
+
+    .dreamaz-trending-grid {
         grid-template-columns: 1fr;
-        padding: 45px 6%;
+    }
+
+    .dreamaz-art-card-image {
+        height: 280px;
     }
 
     .dreamaz-form-row {
@@ -372,11 +1173,37 @@
         gap: 0;
     }
 
+    .dreamaz-contact-information,
     .dreamaz-contact-form-container {
-        padding: 22px 17px;
+        padding: 25px 20px;
     }
 
-    .dreamaz-contact-heading h2 {
-        font-size: 27px;
+    .dreamaz-category-filters {
+        gap: 8px;
+    }
+
+    .dreamaz-category-filters button {
+        padding: 9px 15px;
+        font-size: 12px;
+    }
+}
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+    .dreamaz-about *,
+    .dreamaz-about *::before,
+    .dreamaz-about *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .dreamaz-about .reveal:not(.is-visible) {
+        opacity: 1;
+    }
+
+    .dreamaz-hero-video {
+        transform: none;
     }
 }

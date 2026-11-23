@@ -1,166 +1,426 @@
-import { useState } from "react";
-import { useNavigate,Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+
 import api from "./api";
-import "./Login.css";
-import { faEye,faEyeSlash } from "@fortawesome/free-regular-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Spinner from "./Spinner";
 import { useMessage } from "./ShowMessage";
-function Login(){
-    const [email,setEmail]=useState("");
-    const [password,setPassword]=useState("");
-    const [showPassword,setShowPassword]=useState(false);
-    const [loading,setLoading]=useState(false);
-    const {showSuccess,showError}=useMessage();
 
-    const navigate=useNavigate();
+import "./Login.css";
 
-    const handleSubmit = async (e) => {
-    e.preventDefault();
+/* =================================================================
+   Icons
+   ================================================================= */
+const ICONS = {
+    mail: (
+        <>
+            <rect x="3" y="5" width="18" height="14" rx="2" />
+            <path d="M3 7l9 6 9-6" />
+        </>
+    ),
+    lock: (
+        <>
+            <rect x="4" y="11" width="16" height="10" rx="2" />
+            <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+        </>
+    ),
+    eye: (
+        <>
+            <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
+            <circle cx="12" cy="12" r="3" />
+        </>
+    ),
+    eyeOff: (
+        <>
+            <path d="M3 3l18 18" />
+            <path d="M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4M6.5 6.6A17 17 0 0 0 2 12s3.6 7 10 7a10 10 0 0 0 4-.8" />
+            <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" />
+        </>
+    ),
+    palette: (
+        <>
+            <path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.9 1.5-1.9-.3-1 .4-2.1 1.5-2.1H17a4 4 0 0 0 4-4c0-5-4-10-9-10z" />
+            <circle cx="7.5" cy="11" r="1" />
+            <circle cx="10" cy="7" r="1" />
+            <circle cx="15" cy="7.5" r="1" />
+        </>
+    ),
+    shield: (
+        <>
+            <path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6l8-3z" />
+            <path d="M9 12l2 2 4-4" />
+        </>
+    ),
+    sparkle: (
+        <>
+            <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z" />
+            <path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16z" />
+        </>
+    ),
+    alert: (
+        <>
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7v6M12 16.5v.5" />
+        </>
+    ),
+    arrow: <path d="M5 12h14M13 6l6 6-6 6" />
+};
 
-    if (!email || !password) {
-        showError("All Fields Required");
-        return;
+const Icon = ({ name, size = 20 }) => (
+    <svg
+        viewBox="0 0 24 24"
+        width={size}
+        height={size}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+    >
+        {ICONS[name]}
+    </svg>
+);
+
+/* =================================================================
+   Static content
+   ================================================================= */
+const ROTATING_WORDS = ["tells a story", "inspires you", "makes it yours"];
+
+const FEATURES = [
+    {
+        icon: "palette",
+        title: "Discover original artworks",
+        text: "Browse unique pieces across many styles."
+    },
+    {
+        icon: "sparkle",
+        title: "Find art that fits your space",
+        text: "Search and filter to find the right piece fast."
+    },
+    {
+        icon: "shield",
+        title: "Shop with your account",
+        text: "Keep your cart and follow your orders."
     }
+];
 
-    setLoading(true);
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    try {
-        const res = await api.post(
-            "/login",
-            {
-                email,
-                password
-            }
+/* =================================================================
+   Page
+   ================================================================= */
+function Login() {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
+    const [capsLock, setCapsLock] = useState(false);
+    const [touched, setTouched] = useState({ email: false, password: false });
+    const [shake, setShake] = useState(false);
+    const [wordIndex, setWordIndex] = useState(0);
+
+    const pageRef = useRef(null);
+    const redirectTimer = useRef(null);
+
+    const { showSuccess, showError } = useMessage();
+    const navigate = useNavigate();
+
+    /* ---------- Validation ---------- */
+    const errors = {
+        email: !email
+            ? "Email is required"
+            : !EMAIL_PATTERN.test(email)
+            ? "Enter a valid email address"
+            : "",
+        password: !password ? "Password is required" : ""
+    };
+
+    const isValid = !errors.email && !errors.password;
+
+    /* ---------- Rotating tagline ---------- */
+    useEffect(() => {
+        const interval = setInterval(
+            () => setWordIndex((i) => (i + 1) % ROTATING_WORDS.length),
+            2800
         );
+        return () => clearInterval(interval);
+    }, []);
 
-        if (res.data.success) {
+    /* ---------- Cursor glow (updates CSS vars, no re-render) ---------- */
+    const handleMouseMove = (e) => {
+        const el = pageRef.current;
+        if (!el) return;
 
-            localStorage.setItem(
-                "userId",
-                res.data.user.id
-            );
+        const rect = el.getBoundingClientRect();
+        el.style.setProperty("--mx", `${e.clientX - rect.left}px`);
+        el.style.setProperty("--my", `${e.clientY - rect.top}px`);
+    };
 
-            localStorage.setItem(
-                "token",
-                res.data.token
-            );
+    /* ---------- Cleanup redirect timer ---------- */
+    useEffect(() => () => clearTimeout(redirectTimer.current), []);
 
-            // Stop loading
-            setLoading(false);
+    const triggerShake = () => {
+        setShake(true);
+        setTimeout(() => setShake(false), 500);
+    };
 
-            // Show success
-            showSuccess("Login Successfully");
+    /* ---------- Submit ---------- */
+    const handleSubmit = async (e) => {
+        e.preventDefault();
 
-            // Navigate after showing message
-            setTimeout(() => {
-                if(res.data.user.role==="admin"){
-                    navigate("/admin-dashboard");
-                }else{
-                    navigate("/dashboard");
-                }
-            }, 1500);
+        setTouched({ email: true, password: true });
 
-        } else {
-            showError(res.data?.message);
-            setLoading(false);
+        if (!isValid) {
+            triggerShake();
+            showError(errors.email || errors.password || "All Fields Required");
+            return;
         }
 
-    } catch (error) {
+        setLoading(true);
 
-        console.log(
-            "Login Error:",
-            error.response?.data || error.message
-        );
-        showError("Login Error Try Again");
+        try {
+            const res = await api.post("/login", {
+                email: email.trim(),
+                password
+            });
 
-        setLoading(false);
-    }
-};
-    return(
-        <>
-        <div className="login-content">
-            <div className="comapany_logo">
-                <h2>Dreamaz <span className="logo-accent">Ink</span></h2>
-            </div>
-        <div className="login-description">
-    <h1>Welcome to Dreamaz Ink</h1>
+            if (res.data.success) {
+                localStorage.setItem("userId", res.data.user.id);
+                localStorage.setItem("token", res.data.token);
 
-    <h2>Where Creativity Comes to Life.</h2>
+                setLoading(false);
+                setSuccess(true);
+                showSuccess("Login Successfully");
 
-    <p>
-        Discover a world of creativity, inspiration, and unique
-        artistic expressions. Explore extraordinary artworks,
-        connect with creativity, and find pieces that tell your story.
-    </p>
+                redirectTimer.current = setTimeout(() => {
+                    navigate(
+                        res.data.user.role === "admin"
+                            ? "/admin-dashboard"
+                            : "/dashboard"
+                    );
+                }, 1500);
+            } else {
+                showError(res.data?.message || "Login failed");
+                triggerShake();
+                setLoading(false);
+            }
+        } catch (error) {
+            console.log("Login Error:", error.response?.data || error.message);
 
-    <h3>Art That Tells a Story.</h3>
+            showError(
+                error.response?.data?.message || "Login Error Try Again"
+            );
+            triggerShake();
+            setLoading(false);
+        }
+    };
 
-    <span>
-        Discover it. Experience it. Make it yours.
-    </span>
+    const handleKey = (e) => {
+        setCapsLock(e.getModifierState && e.getModifierState("CapsLock"));
+    };
 
-        </div>
-            <div className="login-container">
-                <form onSubmit={handleSubmit}>
-            <h2>Login</h2>
-            <div className="input-container">
-            <label htmlFor="email">Email</label><br/>
-            <input type="email" className="login" name="email"
-            placeholder="Enter Email"  value={email}
-            onChange={(e)=>setEmail(e.target.value)} required/><br/>
-            <div className="password-inputs">
-    <label htmlFor="password">Password</label>
-
-    <div className="password-wrapper">
-        <input
-            type={showPassword ? "text" : "password"}
-            className="login"
-            name="password"
-            placeholder="Enter Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-        />
-
-        <button
-            type="button"
-            className="password-toggle"
-            onClick={() => setShowPassword(!showPassword)}
+    return (
+        <main
+            className="login-page"
+            ref={pageRef}
+            onMouseMove={handleMouseMove}
         >
-            <FontAwesomeIcon
-                icon={showPassword ? faEyeSlash : faEye}
-            />
-        </button>
-    </div>
-</div>
+            {/* Animated background */}
+            <div className="login-bg" aria-hidden="true">
+                <span className="login-orb orb-1" />
+                <span className="login-orb orb-2" />
+                <span className="login-orb orb-3" />
+                <span className="login-grid" />
+                <span className="login-cursor-glow" />
             </div>
-            <div className="login-button">
-                <button
-    type="submit"
-    className="btn"
-    disabled={loading}
->
-    {loading ? (
-        <>
-        <Spinner text="Verfying..."></Spinner>
-        </>
-    ):(
-        "Login"
-    )}
-</button>
 
-<div className="login-text">
-        <p>Don't Have Account?
-            <Link to="/register">Register</Link>
-        </p>
-        
-        </div>
-            </div>
-        </form>
-            </div>
-            </div>
-        </>
-    )
+            {/* Logo */}
+            <Link to="/" className="login-logo" aria-label="Dreamaz Ink home">
+                Dreamaz <span>Ink</span>
+            </Link>
+
+            {/* ---------- Brand panel ---------- */}
+            <section className="login-brand">
+                <span className="login-eyebrow">Welcome back</span>
+
+                <h1>
+                    Art that
+                    <span className="login-rotator">
+                        <span key={wordIndex} className="login-rotator-word">
+                            {ROTATING_WORDS[wordIndex]}
+                        </span>
+                    </span>
+                </h1>
+
+                <p className="login-lead">
+                    Discover a world of creativity, inspiration and unique
+                    artistic expression. Sign in to explore extraordinary
+                    artworks and find pieces that tell your story.
+                </p>
+
+                <ul className="login-features">
+                    {FEATURES.map((feature, index) => (
+                        <li
+                            key={feature.title}
+                            style={{ "--i": index }}
+                        >
+                            <span className="login-feature-icon">
+                                <Icon name={feature.icon} size={20} />
+                            </span>
+                            <div>
+                                <strong>{feature.title}</strong>
+                                <span>{feature.text}</span>
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+
+                {/* Decorative floating canvases */}
+                <div className="login-canvases" aria-hidden="true">
+                    <span className="canvas canvas-a" />
+                    <span className="canvas canvas-b" />
+                    <span className="canvas canvas-c" />
+                </div>
+            </section>
+
+            {/* ---------- Login card ---------- */}
+            <section className={`login-card ${shake ? "shake" : ""}`}>
+                {success ? (
+                    <div className="login-success" role="status">
+                        <div className="login-check">
+                            <svg viewBox="0 0 52 52" aria-hidden="true">
+                                <circle cx="26" cy="26" r="24" />
+                                <path d="M15 27l8 8 14-16" />
+                            </svg>
+                        </div>
+                        <h2>You are in!</h2>
+                        <p>Taking you to your dashboard...</p>
+                    </div>
+                ) : (
+                    <form onSubmit={handleSubmit} noValidate>
+                        <div className="login-card-head">
+                            <h2>Sign in</h2>
+                            <p>Enter your details to continue.</p>
+                        </div>
+
+                        {/* Email */}
+                        <div
+                            className={`login-field ${
+                                touched.email && errors.email ? "has-error" : ""
+                            }`}
+                            style={{ "--i": 0 }}
+                        >
+                            <label htmlFor="email">Email address</label>
+
+                            <div className="login-input">
+                                <Icon name="mail" />
+                                <input
+                                    id="email"
+                                    type="email"
+                                    name="email"
+                                    placeholder="you@example.com"
+                                    autoComplete="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    onBlur={() =>
+                                        setTouched((t) => ({ ...t, email: true }))
+                                    }
+                                    aria-invalid={Boolean(touched.email && errors.email)}
+                                />
+                            </div>
+
+                            {touched.email && errors.email && (
+                                <span className="login-error" role="alert">
+                                    <Icon name="alert" size={14} />
+                                    {errors.email}
+                                </span>
+                            )}
+                        </div>
+
+                        {/* Password */}
+                        <div
+                            className={`login-field ${
+                                touched.password && errors.password ? "has-error" : ""
+                            }`}
+                            style={{ "--i": 1 }}
+                        >
+                            <label htmlFor="password">Password</label>
+
+                            <div className="login-input">
+                                <Icon name="lock" />
+                                <input
+                                    id="password"
+                                    type={showPassword ? "text" : "password"}
+                                    name="password"
+                                    placeholder="Enter your password"
+                                    autoComplete="current-password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    onKeyUp={handleKey}
+                                    onKeyDown={handleKey}
+                                    onBlur={() => {
+                                        setCapsLock(false);
+                                        setTouched((t) => ({ ...t, password: true }));
+                                    }}
+                                    aria-invalid={Boolean(
+                                        touched.password && errors.password
+                                    )}
+                                />
+
+                                <button
+                                    type="button"
+                                    className="login-toggle"
+                                    onClick={() => setShowPassword((s) => !s)}
+                                    aria-label={
+                                        showPassword ? "Hide password" : "Show password"
+                                    }
+                                >
+                                    <Icon name={showPassword ? "eyeOff" : "eye"} />
+                                </button>
+                            </div>
+
+                            {touched.password && errors.password && (
+                                <span className="login-error" role="alert">
+                                    <Icon name="alert" size={14} />
+                                    {errors.password}
+                                </span>
+                            )}
+
+                            {capsLock && (
+                                <span className="login-warning" role="status">
+                                    <Icon name="alert" size={14} />
+                                    Caps Lock is on
+                                </span>
+                            )}
+                        </div>
+
+                        {/* Submit */}
+                        <button
+                            type="submit"
+                            className="login-submit"
+                            style={{ "--i": 2 }}
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <Spinner text="Verifying..." />
+                            ) : (
+                                <>
+                                    Sign In
+                                    <Icon name="arrow" size={18} />
+                                </>
+                            )}
+                        </button>
+
+                        <p className="login-switch">
+                            Don't have an account?
+                            <Link to="/register">Create one</Link>
+                        </p>
+                    </form>
+                )}
+            </section>
+        </main>
+    );
 }
+
 export default Login;

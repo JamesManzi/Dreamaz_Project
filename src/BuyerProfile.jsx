@@ -6,7 +6,7 @@ import { useMessage } from "./ShowMessage";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import "./BuyerProfile.css";
-
+import DashboardNavbar from "./DashboardNavbar";
 function BuyerProfile() {
     const navigate = useNavigate();
     const { showSuccess, showError } = useMessage();
@@ -102,7 +102,7 @@ function BuyerProfile() {
 
             // Change this endpoint to match your backend route.
             const res = await api.put(
-                "/updateBuyerProfile",
+                "/updateBuyer",
                 formData,
                 {
                     headers: {
@@ -166,7 +166,7 @@ function BuyerProfile() {
 
     return (
         <>
-            <Navbar />
+            <DashboardNavbar />
 
             <main className="buyer-profile-page">
                 <div className="profile-container">

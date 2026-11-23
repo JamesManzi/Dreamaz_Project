@@ -21,6 +21,12 @@ import CreateTrending from "./CreateTrending";
 import FashionDetails from "./FashionDetails";
 import PrintsDetails from "./PrintsDetails";
 import BuyerProfile from "./buyerProfile";
+import Hero from "./Hero";
+import TrendingDetails from "./TrendingDetails";
+import Cart from "./Cart";
+import Checkout from "./Checkout";
+import OrderSuccess from "./OrderSuccess";
+import MyOrders from "./MyOrders";
 function App(){
   return(
     <>
@@ -48,6 +54,15 @@ function App(){
     <Route path="/fashion/:id" element={<FashionDetails />} />
     <Route path="/prints/:id" element={<PrintsDetails />} />
     <Route path="/buyerProfile" element={<BuyerProfile/>}/>
+    <Route path="/hero" element={<Hero/>}/>
+    <Route
+    path="/trending/:id"
+    element={<TrendingDetails />}
+/>
+<Route path="/cart" element={<Cart/>}/>
+<Route path="/checkout" element={<Checkout/>}/>
+<Route path="/order-success" element={<OrderSuccess/>}/>
+<Route path="//myOrders" element={<MyOrders/>}/>
   </Routes>
   </BrowserRouter>
     </>

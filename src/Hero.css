@@ -1,0 +1,247 @@
+/* =================================================================utta
+   HERO SECTION CONTAINER
+   ================================================================ */
+.hero {
+    position: relative;
+    width: 100%;
+    height: 85vh;
+    min-height: 500px;
+    max-height: 850px;
+    background-color: #0f172a;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* =================================================================
+   MEDIA DISPLAY (Images & Videos)
+   ================================================================ */
+.hero-media {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    animation: heroFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes heroFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(1.03);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Cinematic Gradient Overlay */
+.hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to top,
+        rgba(15, 23, 42, 0.9) 0%,
+        rgba(15, 23, 42, 0.5) 50%,
+        rgba(15, 23, 42, 0.2) 100%
+    );
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* =================================================================
+   CONTENT OVERLAY
+   ================================================================ */
+.hero-overlay {
+    position: absolute;
+    bottom: 80px;
+    left: 60px;
+    right: 60px;
+    z-index: 2;
+    max-width: 700px;
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.hero-overlay span {
+    display: inline-block;
+    padding: 6px 14px;
+    background: rgba(99, 102, 241, 0.85);
+    backdrop-filter: blur(8px);
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+}
+
+.hero-overlay h1 {
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.15;
+    margin: 0 0 12px 0;
+    letter-spacing: -0.02em;
+}
+
+.hero-overlay p {
+    font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* =================================================================
+   NAVIGATION ARROWS (Prev / Next)
+   ================================================================ */
+.hero-prev,
+.hero-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero-prev { left: 24px; }
+.hero-next { right: 24px; }
+
+.hero-prev:hover,
+.hero-next:hover {
+    background: rgba(99, 102, 241, 0.9);
+    border-color: rgba(99, 102, 241, 0.9);
+    transform: translateY(-50%) scale(1.08);
+}
+
+/* =================================================================
+   NAVIGATION DOTS
+   ================================================================ */
+.hero-dots {
+    position: absolute;
+    bottom: 30px;
+    left: 60px;
+    z-index: 3;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.hero-dots button {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hero-dots button.active {
+    width: 28px;
+    background: #6366f1;
+}
+
+.hero-dots button:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.6);
+}
+
+/* =================================================================
+   EXPLORE MORE BUTTON
+   ================================================================ */
+.read-more-btn {
+    position: absolute;
+    bottom: 30px;
+    right: 60px;
+    z-index: 3;
+}
+
+.read-more-btn button {
+    background: #ffffff;
+    color: #0f172a;
+    border: none;
+    padding: 12px 24px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.read-more-btn button:hover {
+    background: #6366f1;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+}
+
+/* =================================================================
+   LOADING & EMPTY STATES
+   ================================================================ */
+.hero h2 {
+    color: #ffffff;
+    font-size: 1.25rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    z-index: 2;
+}
+
+/* =================================================================
+   RESPONSIVE DESIGN (Tablets & Mobile)
+   ================================================================ */
+@media (max-width: 768px) {
+    .hero {
+        height: 70vh;
+        min-height: 420px;
+    }
+
+    .hero-overlay {
+        left: 24px;
+        right: 24px;
+        bottom: 75px;
+    }
+
+    .hero-dots {
+        left: 24px;
+        bottom: 24px;
+    }
+
+    .read-more-btn {
+        right: 24px;
+        bottom: 18px;
+    }
+
+    .hero-prev,
+    .hero-next {
+        width: 38px;
+        height: 38px;
+        font-size: 0.9rem;
+    }
+    
+    .hero-prev { left: 12px; }
+    .hero-next { right: 12px; }
+}

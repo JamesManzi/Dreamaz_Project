@@ -1,0 +1,312 @@
+/* =========================================
+   ABOUT PAGE — SCROLL ANIMATIONS
+   Import AFTER About.css
+========================================= */
+
+/* ---------- Reveal on scroll (4 directions) ---------- */
+.dreamaz-about .reveal:not(.is-visible) {
+    opacity: 0;
+}
+
+.dreamaz-about .reveal.is-visible {
+    animation: dreamaz-reveal-up 0.85s cubic-bezier(0.2, 0.7, 0.2, 1)
+        var(--delay, 0ms) backwards;
+}
+
+.dreamaz-about .reveal[data-reveal="left"].is-visible {
+    animation-name: dreamaz-reveal-left;
+}
+
+.dreamaz-about .reveal[data-reveal="right"].is-visible {
+    animation-name: dreamaz-reveal-right;
+}
+
+.dreamaz-about .reveal[data-reveal="zoom"].is-visible {
+    animation-name: dreamaz-reveal-zoom;
+}
+
+@keyframes dreamaz-reveal-up {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes dreamaz-reveal-left {
+    from { opacity: 0; transform: translateX(-60px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes dreamaz-reveal-right {
+    from { opacity: 0; transform: translateX(60px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes dreamaz-reveal-zoom {
+    from { opacity: 0; transform: scale(0.9) translateY(20px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ---------- Scroll progress bar ---------- */
+.dreamaz-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.dreamaz-progress span {
+    display: block;
+    width: 100%;
+    height: 100%;
+    transform-origin: left center;
+    background: linear-gradient(90deg, #b47b45, #e2b47f, #b47b45);
+    transition: transform 0.1s linear;
+}
+
+/* ---------- Back to top ---------- */
+.dreamaz-top {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 900;
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border: none;
+    border-radius: 50%;
+    background: #222222;
+    color: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transform: translateY(16px);
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s ease;
+}
+
+.dreamaz-top.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.dreamaz-top:hover {
+    background: #b47b45;
+}
+
+/* ---------- Hero: parallax + staggered entrance ---------- */
+.dreamaz-hero-video {
+    transform: translateY(var(--parallax, 0px)) scale(1.12);
+    will-change: transform;
+}
+
+.dreamaz-about-hero-content {
+    opacity: var(--hero-fade, 1);
+    animation: none;
+}
+
+.dreamaz-about-hero-content > * {
+    animation: dreamaz-reveal-up 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.dreamaz-about-hero-content > *:nth-child(1) { animation-delay: 0.15s; }
+.dreamaz-about-hero-content > *:nth-child(2) { animation-delay: 0.3s; }
+.dreamaz-about-hero-content > *:nth-child(3) { animation-delay: 0.45s; }
+.dreamaz-about-hero-content > *:nth-child(4) { animation-delay: 0.6s; }
+
+.dreamaz-hero-decoration span {
+    animation: dreamaz-reveal-right 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.dreamaz-hero-decoration span:nth-child(1) { animation-delay: 0.7s; }
+.dreamaz-hero-decoration span:nth-child(2) { animation-delay: 0.85s; }
+.dreamaz-hero-decoration span:nth-child(3) { animation-delay: 1s; }
+
+/* Animated scroll cue */
+.dreamaz-hero-scroll span {
+    position: relative;
+    overflow: hidden;
+}
+
+.dreamaz-hero-scroll span::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: #e2b47f;
+    transform: translateX(-100%);
+    animation: dreamaz-scroll-cue 2s ease-in-out infinite;
+}
+
+@keyframes dreamaz-scroll-cue {
+    0%   { transform: translateX(-100%); }
+    60%  { transform: translateX(0); }
+    100% { transform: translateX(100%); }
+}
+
+.dreamaz-hero-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.dreamaz-hero-btn::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -80%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transform: skewX(-20deg);
+    animation: dreamaz-shimmer 3.8s ease-in-out infinite;
+}
+
+@keyframes dreamaz-shimmer {
+    0%, 60% { left: -80%; }
+    100%    { left: 140%; }
+}
+
+/* ---------- Marquee band ---------- */
+.dreamaz-marquee {
+    overflow: hidden;
+    padding: 22px 0;
+    background: #222222;
+    border-top: 1px solid #333333;
+    border-bottom: 1px solid #333333;
+}
+
+.dreamaz-marquee-track {
+    display: flex;
+    width: max-content;
+    animation: dreamaz-marquee 32s linear infinite;
+}
+
+.dreamaz-marquee:hover .dreamaz-marquee-track {
+    animation-play-state: paused;
+}
+
+.dreamaz-marquee-track span {
+    display: inline-flex;
+    align-items: center;
+    gap: 34px;
+    padding-right: 34px;
+    color: #f4e9dd;
+    font-size: clamp(18px, 2.4vw, 28px);
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.dreamaz-marquee-track i {
+    color: #b47b45;
+    font-style: normal;
+    font-size: 0.8em;
+}
+
+@keyframes dreamaz-marquee {
+    to { transform: translateX(-50%); }
+}
+
+/* ---------- Component polish ---------- */
+.dreamaz-about-image {
+    border-radius: 6px;
+}
+
+.dreamaz-art-decoration {
+    animation: dreamaz-float 5s ease-in-out infinite;
+}
+
+@keyframes dreamaz-float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50%      { transform: translateY(-14px) rotate(12deg); }
+}
+
+.dreamaz-info-card {
+    border-radius: 6px;
+}
+
+.dreamaz-info-card:hover .dreamaz-info-icon {
+    background: #b47b45;
+    color: #ffffff;
+    transform: rotate(-8deg) scale(1.08);
+}
+
+.dreamaz-info-icon {
+    transition: background 0.3s ease, color 0.3s ease, transform 0.3s ease;
+}
+
+.dreamaz-art-card {
+    border-radius: 6px;
+}
+
+.dreamaz-why-grid > div {
+    transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.dreamaz-why-grid > div:hover {
+    border-color: #d0a174;
+    transform: translateY(-6px);
+}
+
+.dreamaz-contact-information,
+.dreamaz-contact-form-container {
+    border-radius: 6px;
+}
+
+.dreamaz-form-group input:focus,
+.dreamaz-form-group textarea:focus {
+    box-shadow: 0 0 0 4px rgba(180, 123, 69, 0.15);
+}
+
+.dreamaz-feedback {
+    animation: dreamaz-reveal-up 0.4s ease both;
+}
+
+.dreamaz-send-btn span {
+    transition: transform 0.3s ease;
+}
+
+.dreamaz-send-btn:hover:not(:disabled) span {
+    transform: translateX(5px);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+    .dreamaz-top {
+        right: 16px;
+        bottom: 16px;
+    }
+
+    .dreamaz-marquee {
+        padding: 16px 0;
+    }
+}
+
+/* ---------- Respect reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .dreamaz-about .reveal:not(.is-visible) {
+        opacity: 1;
+    }
+
+    .dreamaz-about .reveal.is-visible,
+    .dreamaz-about-hero-content > *,
+    .dreamaz-hero-decoration span,
+    .dreamaz-hero-btn::after,
+    .dreamaz-hero-scroll span::after,
+    .dreamaz-art-decoration,
+    .dreamaz-marquee-track {
+        animation: none;
+    }
+
+    .dreamaz-hero-video {
+        transform: none;
+    }
+
+    .dreamaz-progress span,
+    .dreamaz-top {
+        transition: none;
+    }
+}

@@ -13,8 +13,8 @@ function Navbar(){
                         <li><Link to="/fashion">Fashion</Link></li>
                         <li><Link to="/accessories">Accessories</Link></li>
                         <li><Link to="/prints">Prints</Link></li>
-                        <li><Link to="/collections">Collections</Link></li>
                         <li><Link to="/about">About</Link></li>
+                        <li><Link to="/login">Login</Link></li>
                     </ul>
             </div>
         </div>

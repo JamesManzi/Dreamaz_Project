@@ -168,3 +168,32 @@
         font-size: 25px;
     }
 }
+
+.logout-btn {
+    padding: 10px 22px;
+    background: #ef4444;
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+.logout-btn:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 7px 18px rgba(239, 68, 68, 0.25);
+}
+
+.logout-btn:active {
+    transform: translateY(0) scale(0.97);
+}
+
+.logout-btn:focus-visible {
+    outline: 3px solid rgba(239, 68, 68, 0.3);
+    outline-offset: 3px;
+}
