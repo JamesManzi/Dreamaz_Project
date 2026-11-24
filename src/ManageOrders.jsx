@@ -75,54 +75,98 @@ function ManageOrders() {
         setSaving(false);
     };
 
-    const saveStatus = async () => {
-        if (!selectedOrder) return;
-        try {
-            setSaving(true);
-            const config = getAuthConfig();
-            if (!config) return navigate("/login");
+    
+const saveStatus = async () => {
+    if (!selectedOrder) return;
 
-            await api.put(
-                `/updateOrderStatus/${selectedOrder._id}`,
-                { status: editStatus },
-                config
-            );
+    try {
+        setSaving(true);
 
+        const config = getAuthConfig();
+
+        if (!config) {
+            navigate("/login");
+            return;
+        }
+
+        const res = await api.put(
+            `/updateOrder/${selectedOrder._id}`,
+            { status: editStatus },
+            config
+        );
+
+        if (res.data.success) {
             setOrders((prev) =>
-                prev.map((o) =>
-                    o._id === selectedOrder._id ? { ...o, status: editStatus } : o
+                prev.map((order) =>
+                    order._id === selectedOrder._id
+                        ? res.data.order
+                        : order
                 )
             );
-            setSelectedOrder((prev) => (prev ? { ...prev, status: editStatus } : null));
+
+            setSelectedOrder(res.data.order);
+
             alert("Order updated successfully.");
-        } catch (error) {
-            console.error("Error updating order:", error);
-            alert(error.response?.data?.message || "Unable to update order.");
-        } finally {
-            setSaving(false);
         }
-    };
 
-    /* ---------- DELETE ---------- */
-    const confirmDelete = async () => {
-        if (!orderToDelete) return;
-        try {
-            setDeleting(true);
-            const config = getAuthConfig();
-            if (!config) return navigate("/login");
+    } catch (error) {
+        console.error(
+            "Updating order error:",
+            error.response?.data || error.message
+        );
 
-            await api.delete(`/deleteOrder/${orderToDelete._id}`, config);
+        alert(error.response?.data?.message || "Unable to update order.");
 
-            setOrders((prev) => prev.filter((o) => o._id !== orderToDelete._id));
-            if (selectedOrder?._id === orderToDelete._id) setSelectedOrder(null);
+    } finally {
+        setSaving(false);
+    }
+};
+
+   
+const confirmDelete = async () => {
+    if (!orderToDelete) return;
+
+    try {
+        setDeleting(true);
+
+        const config = getAuthConfig();
+
+        if (!config) {
+            navigate("/login");
+            return;
+        }
+
+        const res = await api.delete(
+            `/order/${orderToDelete._id}`,
+            config
+        );
+
+        if (res.data.success) {
+            setOrders((prev) =>
+                prev.filter((order) => order._id !== orderToDelete._id)
+            );
+
+            if (selectedOrder?._id === orderToDelete._id) {
+                setSelectedOrder(null);
+            }
+
             setOrderToDelete(null);
-        } catch (error) {
-            console.error("Error deleting order:", error);
-            alert(error.response?.data?.message || "Unable to delete order.");
-        } finally {
-            setDeleting(false);
+
+            alert("Order deleted successfully.");
         }
-    };
+
+    } catch (error) {
+        console.error(
+            "Deleting order error:",
+            error.response?.data || error.message
+        );
+
+        alert(error.response?.data?.message || "Unable to delete order.");
+
+    } finally {
+        setDeleting(false);
+    }
+};
 
     /* ---------- FILTER + STATS ---------- */
     const filteredOrders = orders.filter((order) => {
