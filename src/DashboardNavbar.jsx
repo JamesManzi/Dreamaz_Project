@@ -19,7 +19,7 @@ function DashboardNavbar(){
                         <li><Link to="/accessories">Accessories</Link></li>
                         <li><Link to="/prints">Prints</Link></li>
                         <li><Link to="/about">About</Link></li>
-                        <li><Link to="/dashboard"></Link></li>
+                        <li><Link to="/dashboard">Dashboard</Link></li>
                         <li>
                             <button className="logout-btn" onClick={logout}>Logout</button>
                         </li>
