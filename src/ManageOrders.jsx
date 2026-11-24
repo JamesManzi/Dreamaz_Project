@@ -201,6 +201,9 @@ function ManageOrders() {
 
     };
 
+    const getCustomerPhone = (order) => {
+    return order.shippingAddress?.phone || "N/A";
+};
 
     // DELETE ORDER
     const confirmDelete = async () => {
@@ -468,6 +471,7 @@ function ManageOrders() {
                                     <tr>
                                         <th>Order ID</th>
                                         <th>Customer</th>
+                                        <th>Phone</th>
                                         <th>Date</th>
                                         <th>Items</th>
                                         <th>Total</th>
@@ -491,6 +495,9 @@ function ManageOrders() {
                                             <td>
                                                 {getCustomerName(order)}
                                             </td>
+                                            <td>
+    {getCustomerPhone(order)}
+</td>
 
                                             <td>
                                                 {order.createdAt
@@ -584,6 +591,9 @@ function ManageOrders() {
                             <p>
                                 Customer: {getCustomerName(selectedOrder)}
                             </p>
+                            <p>
+    <strong>Buyer Phone:</strong> {getCustomerPhone(selectedOrder)}
+</p>
 
                             <p>
                                 Date: {
