@@ -21,7 +21,13 @@ const formatPrice = (price) => {
         return "Price unavailable";
     }
 
-    return `${Number(price).toLocaleString()} RWF`;
+    const amount = Number(price);
+
+    if (!Number.isFinite(amount)) {
+        return "Price unavailable";
+    }
+
+    return `${amount.toLocaleString()} RWF`;
 };
 
 const getPageNumbers = (current, total) => {
@@ -38,13 +44,13 @@ const getPageNumbers = (current, total) => {
     ]);
 
     const sorted = [...pages]
-        .filter((p) => p >= 1 && p <= total)
+        .filter((page) => page >= 1 && page <= total)
         .sort((a, b) => a - b);
 
     const result = [];
 
-    sorted.forEach((page, i) => {
-        if (i > 0 && page - sorted[i - 1] > 1) {
+    sorted.forEach((page, index) => {
+        if (index > 0 && page - sorted[index - 1] > 1) {
             result.push("...");
         }
 
@@ -52,6 +58,25 @@ const getPageNumbers = (current, total) => {
     });
 
     return result;
+};
+
+const getProductFiles = (fashion) => {
+    if (!Array.isArray(fashion.files)) return [];
+
+    return fashion.files
+        .map((file) => {
+            if (typeof file === "string") {
+                return {
+                    url: file,
+                    type: /\.(mp4|webm|ogg|mov)$/i.test(file)
+                        ? "video"
+                        : "image"
+                };
+            }
+
+            return file;
+        })
+        .filter((file) => file?.url);
 };
 
 /* =========================================
@@ -102,7 +127,10 @@ const ICONS = {
             <circle cx="11" cy="11" r="7" />
             <path d="M21 21l-4.3-4.3M8.5 8.5l5 5M13.5 8.5l-5 5" />
         </>
-    )
+    ),
+
+    left: <path d="m15 18-6-6 6-6" />,
+    right: <path d="m9 18 6-6-6-6" />
 };
 
 const Icon = ({ name, size = 22 }) => (
@@ -144,6 +172,137 @@ const PERKS = [
 ];
 
 /* =========================================
+   PRODUCT MEDIA CAROUSEL
+========================================= */
+
+function ProductCarousel({ files, productName, onOpen }) {
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [paused, setPaused] = useState(false);
+
+    const media = files.length > 0 ? files : [];
+
+    useEffect(() => {
+        setActiveIndex(0);
+    }, [files]);
+
+    useEffect(() => {
+        if (paused || media.length <= 1) return;
+
+        const timer = window.setInterval(() => {
+            setActiveIndex((current) =>
+                (current + 1) % media.length
+            );
+        }, 4000);
+
+        return () => window.clearInterval(timer);
+    }, [media.length, paused]);
+
+    const previous = (event) => {
+        event.stopPropagation();
+
+        setActiveIndex((current) =>
+            (current - 1 + media.length) % media.length
+        );
+    };
+
+    const next = (event) => {
+        event.stopPropagation();
+
+        setActiveIndex((current) =>
+            (current + 1) % media.length
+        );
+    };
+
+    const currentFile = media[activeIndex];
+
+    return (
+        <div
+            className="fashion-card-media"
+            onMouseEnter={() => setPaused(true)}
+            onMouseLeave={() => setPaused(false)}
+        >
+            <button
+                type="button"
+                className="fashion-media-open"
+                onClick={onOpen}
+                aria-label={`View ${productName}`}
+            >
+                {currentFile?.type === "video" ? (
+                    <video
+                        key={currentFile.url}
+                        src={currentFile.url}
+                        muted
+                        autoPlay
+                        loop
+                        playsInline
+                        preload="metadata"
+                    />
+                ) : currentFile?.url ? (
+                    <img
+                        key={currentFile.url}
+                        src={currentFile.url}
+                        alt={productName || "Fashion product"}
+                        loading="lazy"
+                    />
+                ) : (
+                    <div className="fashion-no-image">
+                        <Icon name="image" size={38} />
+                        <span>No image available</span>
+                    </div>
+                )}
+            </button>
+
+            <span className="fashion-category-badge">
+                Fashion
+            </span>
+
+            {media.length > 1 && (
+                <>
+                    <button
+                        type="button"
+                        className="fashion-carousel-arrow fashion-carousel-prev"
+                        onClick={previous}
+                        aria-label="Previous product image"
+                    >
+                        <Icon name="left" size={18} />
+                    </button>
+
+                    <button
+                        type="button"
+                        className="fashion-carousel-arrow fashion-carousel-next"
+                        onClick={next}
+                        aria-label="Next product image"
+                    >
+                        <Icon name="right" size={18} />
+                    </button>
+
+                    <div className="fashion-carousel-counter">
+                        {activeIndex + 1}/{media.length}
+                    </div>
+
+                    <div className="fashion-carousel-dots">
+                        {media.map((file, index) => (
+                            <button
+                                key={`${file.url}-${index}`}
+                                type="button"
+                                className={
+                                    activeIndex === index ? "active" : ""
+                                }
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    setActiveIndex(index);
+                                }}
+                                aria-label={`Show image ${index + 1}`}
+                            />
+                        ))}
+                    </div>
+                </>
+            )}
+        </div>
+    );
+}
+
+/* =========================================
    PRODUCT CARD
 ========================================= */
 
@@ -154,73 +313,89 @@ function FashionCard({
     onOpen,
     onAdd
 }) {
-    const file = fashion.files?.[0];
+    const files = useMemo(
+        () => getProductFiles(fashion),
+        [fashion.files]
+    );
+
+    const availability = fashion.availability;
+
+    const isUnavailable =
+        availability === false ||
+        String(availability).toLowerCase() === "unavailable" ||
+        String(availability).toLowerCase() === "out of stock";
 
     return (
         <article
-            className="fashion-product-card"
+            className="fashion-home-card"
             data-reveal
-            style={{ "--delay": `${(index % 4) * 80}ms` }}
+            style={{ "--delay": `${(index % 3) * 90}ms` }}
         >
-            <div
-                className="fashion-product-image"
-                onClick={() => onOpen(fashion._id)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                        onOpen(fashion._id);
-                    }
-                }}
-            >
-                {file?.type === "video" ? (
-                    <video
-                        src={file.url}
-                        muted
-                        playsInline
-                        preload="metadata"
-                    />
-                ) : file?.url ? (
-                    <img
-                        src={file.url}
-                        alt={fashion.name || "Fashion product"}
-                        loading="lazy"
-                    />
-                ) : (
-                    <div className="fashion-no-image">
-                        <Icon name="image" size={34} />
-                    </div>
-                )}
-            </div>
+            <ProductCarousel
+                files={files}
+                productName={fashion.name}
+                onOpen={() => onOpen(fashion._id)}
+            />
 
-            <div className="fashion-product-info">
+            <div className="fashion-home-card-body">
+
+                <div className="fashion-card-topline">
+                    <span className="fashion-card-category">
+                        Fashion
+                    </span>
+
+                    {availability && (
+                        <span
+                            className={`fashion-stock-badge ${
+                                isUnavailable ? "unavailable" : "available"
+                            }`}
+                        >
+                            {typeof availability === "boolean"
+                                ? availability
+                                    ? "Available"
+                                    : "Unavailable"
+                                : availability}
+                        </span>
+                    )}
+                </div>
+
                 <h3 title={fashion.name}>
-                    {fashion.name}
+                    {fashion.name || "Untitled Product"}
                 </h3>
 
-                <p>
-                    {fashion.description || "No description available."}
+                <p className="fashion-home-description">
+                    {fashion.description ||
+                        "No description available."}
                 </p>
 
-                <h4>
-                    {formatPrice(fashion.price)}
-                </h4>
+                <div className="fashion-home-card-footer">
+                    <div className="fashion-home-price">
+                        <span>Price</span>
+                        <strong>{formatPrice(fashion.price)}</strong>
+                    </div>
 
-                <div className="fashion-btns">
-                    <button
-                        type="button"
-                        onClick={() => onOpen(fashion._id)}
-                    >
-                        View More
-                    </button>
+                    <div className="fashion-home-actions">
+                        <button
+                            type="button"
+                            className="fashion-view-button"
+                            onClick={() => onOpen(fashion._id)}
+                        >
+                            View Details
+                        </button>
 
-                    <button
-                        type="button"
-                        disabled={adding}
-                        onClick={() => onAdd(fashion._id)}
-                    >
-                        {adding ? "Adding..." : "Add to Cart"}
-                    </button>
+                        <button
+                            type="button"
+                            className="fashion-cart-button"
+                            disabled={adding || isUnavailable}
+                            onClick={() => onAdd(fashion._id)}
+                        >
+                            {adding
+                                ? "Adding..."
+                                : isUnavailable
+                                    ? "Unavailable"
+                                    : "Add to Cart"}
+                        </button>
+                    </div>
                 </div>
             </div>
         </article>
@@ -245,7 +420,6 @@ function Fashion() {
     const productsRef = useRef(null);
 
     const navigate = useNavigate();
-
     const { showSuccess, showError } = useMessage();
 
     /* =========================================
@@ -380,10 +554,13 @@ function Fashion() {
     };
 
     const addToCart = async (productId) => {
-        // Check authentication before making the request.
         const token = localStorage.getItem("token");
 
-        if (!token || token === "null" || token === "undefined") {
+        if (
+            !token ||
+            token === "null" ||
+            token === "undefined"
+        ) {
             askUserToLogin();
             return;
         }
@@ -392,7 +569,7 @@ function Fashion() {
             setAddingProduct(productId);
 
             const response = await api.post(
-                "/api/cart/add",
+                "/cart/add",
                 {
                     productId,
                     quantity: 1
@@ -444,7 +621,7 @@ function Fashion() {
 
             ticking = true;
 
-            requestAnimationFrame(() => {
+            window.requestAnimationFrame(() => {
                 const top = window.scrollY;
 
                 const height =
@@ -500,10 +677,10 @@ function Fashion() {
             }
         );
 
-        targets.forEach((el) => {
-            if (!el.classList.contains("is-visible")) {
-                el.classList.add("reveal");
-                observer.observe(el);
+        targets.forEach((element) => {
+            if (!element.classList.contains("is-visible")) {
+                element.classList.add("reveal");
+                observer.observe(element);
             }
         });
 
@@ -573,7 +750,6 @@ function Fashion() {
                     </div>
 
                     <div className="fashion-toolbar">
-
                         <div className="fashion-search">
                             <Icon name="search" size={20} />
 
@@ -581,8 +757,8 @@ function Fashion() {
                                 type="text"
                                 placeholder="Search fashion products..."
                                 value={search}
-                                onChange={(e) =>
-                                    handleSearch(e.target.value)
+                                onChange={(event) =>
+                                    handleSearch(event.target.value)
                                 }
                                 aria-label="Search fashion products"
                             />
@@ -600,8 +776,8 @@ function Fashion() {
 
                         <select
                             value={sortBy}
-                            onChange={(e) =>
-                                handleSort(e.target.value)
+                            onChange={(event) =>
+                                handleSort(event.target.value)
                             }
                             aria-label="Sort products"
                         >
@@ -610,7 +786,6 @@ function Fashion() {
                             <option value="high">Price: High to Low</option>
                             <option value="name">Name: A to Z</option>
                         </select>
-
                     </div>
                 </section>
 
@@ -623,15 +798,14 @@ function Fashion() {
                             className="fashion-products"
                             aria-busy="true"
                         >
-                            {Array.from({ length: 8 }).map((_, i) => (
+                            {Array.from({ length: 8 }).map((_, index) => (
                                 <div
-                                    key={i}
+                                    key={index}
                                     className="fashion-skeleton"
                                 />
                             ))}
                         </div>
                     ) : displayedProducts.length > 0 ? (
-
                         <div className="fashion-products">
                             {displayedProducts.map((fashion, index) => (
                                 <FashionCard
@@ -646,11 +820,8 @@ function Fashion() {
                                 />
                             ))}
                         </div>
-
                     ) : (
-
                         <div className="fashion-empty">
-
                             <div className="fashion-empty-icon">
                                 <Icon name="empty" size={30} />
                             </div>
@@ -669,12 +840,12 @@ function Fashion() {
 
                             {search && (
                                 <button
+                                    type="button"
                                     onClick={() => handleSearch("")}
                                 >
                                     Clear Search
                                 </button>
                             )}
-
                         </div>
                     )}
 
@@ -685,8 +856,8 @@ function Fashion() {
                             className="fashion-pagination"
                             aria-label="Pagination"
                         >
-
                             <button
+                                type="button"
                                 onClick={() =>
                                     goToPage(currentPage - 1)
                                 }
@@ -699,10 +870,10 @@ function Fashion() {
                                 {getPageNumbers(
                                     currentPage,
                                     totalPages
-                                ).map((page, i) =>
+                                ).map((page, index) =>
                                     page === "..." ? (
                                         <span
-                                            key={`gap-${i}`}
+                                            key={`gap-${index}`}
                                             className="fashion-gap"
                                         >
                                             …
@@ -710,6 +881,7 @@ function Fashion() {
                                     ) : (
                                         <button
                                             key={page}
+                                            type="button"
                                             className={
                                                 currentPage === page
                                                     ? "current-page"
@@ -731,6 +903,7 @@ function Fashion() {
                             </div>
 
                             <button
+                                type="button"
                                 onClick={() =>
                                     goToPage(currentPage + 1)
                                 }
@@ -740,10 +913,8 @@ function Fashion() {
                             >
                                 Next →
                             </button>
-
                         </nav>
                     )}
-
                 </section>
 
                 {/* PERKS */}
@@ -773,7 +944,6 @@ function Fashion() {
             </main>
 
             <Footer />
-
         </div>
     );
 }
