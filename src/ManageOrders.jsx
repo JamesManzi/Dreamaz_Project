@@ -75,7 +75,7 @@ function ManageOrders() {
         setSaving(false);
     };
 
-    
+   
 const saveStatus = async () => {
     if (!selectedOrder) return;
 
@@ -91,7 +91,7 @@ const saveStatus = async () => {
 
         const res = await api.put(
             `/updateOrder/${selectedOrder._id}`,
-            { status: editStatus },
+            { orderStatus: editStatus },
             config
         );
 
@@ -106,7 +106,7 @@ const saveStatus = async () => {
 
             setSelectedOrder(res.data.order);
 
-            alert("Order updated successfully.");
+            alert("Order status updated successfully.");
         }
 
     } catch (error) {
@@ -121,6 +121,7 @@ const saveStatus = async () => {
         setSaving(false);
     }
 };
+
 
    
 const confirmDelete = async () => {
