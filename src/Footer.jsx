@@ -1,4 +1,7 @@
+
+import { Link } from "react-router-dom";
 import "./Footer.css";
+
 function Footer() {
     return (
         <footer className="isonga-footer">
@@ -12,43 +15,43 @@ function Footer() {
                     </h2>
 
                     <p>
-                       Discover Trending Products<br/>
-                       All in One Market place
+                        Discover Trending Products<br />
+                        All in One Marketplace
                     </p>
                 </div>
 
                 {/* QUICK LINKS */}
                 <div className="isonga-footer-links">
                     <h3>Explore</h3>
-                    <a href="/">Home</a>
-                    <a href="/fashion">Fashion</a>
-                    <a href="/accessories">Accessories</a>
-                    <a href="/prints">Prints</a>
+                    <Link to="/">Home</Link>
+                    <Link to="/fashion">Fashion</Link>
+                    <Link to="/accessories">Accessories</Link>
+                    <Link to="/prints">Prints</Link>
                 </div>
 
                 {/* MARKETPLACE */}
                 <div className="isonga-footer-links">
                     <h3>Marketplace</h3>
-                    <a href="/login">Buyer Account</a>
+                    <Link to="/login">Buyer Account</Link>
                 </div>
 
-                {/* SUPPORT */}
+                {/* INFORMATION */}
                 <div className="isonga-footer-links">
                     <h3>Information</h3>
-                    <a href="/about">About Us</a>
-                    <a href="/privacy">Privacy Policy</a>
+                    <Link to="/about">About Us</Link>
+                    <Link to="/privacy">Privacy Policy</Link>
                 </div>
 
             </div>
 
             <div className="isonga-footer-bottom">
                 <p>
-                    © {new Date().getFullYear()} Isonga Market.
+                    © {new Date().getFullYear()} Dreamaz Ink.
                     All rights reserved.
                 </p>
 
                 <p>
-                    Buy and Sell Everywhere, Fast and Secure.
+                    Discover Art That Tells a Story.
                 </p>
             </div>
 
