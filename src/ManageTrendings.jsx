@@ -1,5 +1,13 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useState
+} from "react";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 import {
     faFire,
     faMagnifyingGlass,
@@ -22,24 +30,77 @@ import {
 import AdminNavbar from "./AdminNavbar";
 import api from "./api";
 import "./ManageTrendings.css";
-import Loading from "./Loading";
+
 /* =========================================
-   TRENDING PRODUCT MEDIA SLIDESHOW
+   HELPERS
 ========================================= */
 
-function TrendingCarousel({ trending, files, name, onView }) {
+const getTrendingId = (trending) => trending?._id || trending?.id;
+
+const getTrendingName = (trending) =>
+    trending?.name || "Untitled Trending";
+
+const getTrendingFiles = (trending) => {
+    if (!Array.isArray(trending?.files)) return [];
+
+    return trending.files.filter(
+        (file) => file && (typeof file === "string" || file.url)
+    );
+};
+
+const getFileUrl = (file) =>
+    typeof file === "string" ? file : file?.url || "";
+
+const getFileType = (file) => {
+    if (typeof file === "object" && file?.type) {
+        return file.type;
+    }
+
+    return /\.(mp4|webm|ogg|mov)(\?|$)/i.test(getFileUrl(file))
+        ? "video"
+        : "image";
+};
+
+const formatDate = (date) => {
+    if (!date) return "Not available";
+
+    const parsedDate = new Date(date);
+
+    if (Number.isNaN(parsedDate.getTime())) {
+        return "Not available";
+    }
+
+    return parsedDate.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    });
+};
+
+/* =========================================
+   TRENDING MEDIA SLIDESHOW
+========================================= */
+
+function TrendingCarousel({
+    trending,
+    files,
+    name,
+    onView
+}) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [paused, setPaused] = useState(false);
 
     useEffect(() => {
         setCurrentIndex(0);
-    }, [trending?._id, trending?.id]);
+    }, [trending?._id]);
 
     useEffect(() => {
         if (files.length <= 1 || paused) return undefined;
 
         const interval = window.setInterval(() => {
-            setCurrentIndex((previous) => (previous + 1) % files.length);
+            setCurrentIndex((previous) =>
+                (previous + 1) % files.length
+            );
         }, 4000);
 
         return () => window.clearInterval(interval);
@@ -47,29 +108,23 @@ function TrendingCarousel({ trending, files, name, onView }) {
 
     const nextSlide = (event) => {
         event.stopPropagation();
-        if (files.length > 1) {
-            setCurrentIndex((previous) => (previous + 1) % files.length);
-        }
+
+        setCurrentIndex((previous) =>
+            (previous + 1) % files.length
+        );
     };
 
     const previousSlide = (event) => {
         event.stopPropagation();
-        if (files.length > 1) {
-            setCurrentIndex((previous) =>
-                (previous - 1 + files.length) % files.length
-            );
-        }
+
+        setCurrentIndex((previous) =>
+            (previous - 1 + files.length) % files.length
+        );
     };
 
     const currentFile = files[currentIndex];
-    const fileUrl =
-        typeof currentFile === "string" ? currentFile : currentFile?.url;
-    const fileType =
-        typeof currentFile === "object" && currentFile?.type
-            ? currentFile.type
-            : /\.(mp4|webm|ogg|mov)(\?|$)/i.test(fileUrl || "")
-                ? "video"
-                : "image";
+    const fileUrl = getFileUrl(currentFile);
+    const fileType = getFileType(currentFile);
 
     return (
         <div
@@ -80,7 +135,10 @@ function TrendingCarousel({ trending, files, name, onView }) {
             role="button"
             tabIndex={0}
             onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") onView();
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    onView();
+                }
             }}
             aria-label={`View ${name}`}
         >
@@ -94,7 +152,12 @@ function TrendingCarousel({ trending, files, name, onView }) {
                         preload="metadata"
                     />
                 ) : (
-                    <img key={fileUrl} src={fileUrl} alt={name} loading="lazy" />
+                    <img
+                        key={fileUrl}
+                        src={fileUrl}
+                        alt={name}
+                        loading="lazy"
+                    />
                 )
             ) : (
                 <span className="trending-no-image">
@@ -114,27 +177,32 @@ function TrendingCarousel({ trending, files, name, onView }) {
                         type="button"
                         className="trending-slide-arrow trending-slide-prev"
                         onClick={previousSlide}
-                        aria-label="Previous image"
+                        aria-label="Previous media"
                     >
                         <FontAwesomeIcon icon={faChevronLeft} />
                     </button>
+
                     <button
                         type="button"
                         className="trending-slide-arrow trending-slide-next"
                         onClick={nextSlide}
-                        aria-label="Next image"
+                        aria-label="Next media"
                     >
                         <FontAwesomeIcon icon={faChevronRight} />
                     </button>
+
                     <span className="trending-slide-counter">
                         {currentIndex + 1} / {files.length}
                     </span>
+
                     <div className="trending-slide-dots">
                         {files.map((file, index) => (
                             <button
                                 type="button"
-                                key={`${typeof file === "string" ? file : file?.url}-${index}`}
-                                className={index === currentIndex ? "active" : ""}
+                                key={`${getFileUrl(file)}-${index}`}
+                                className={
+                                    index === currentIndex ? "active" : ""
+                                }
                                 onClick={(event) => {
                                     event.stopPropagation();
                                     setCurrentIndex(index);
@@ -149,29 +217,56 @@ function TrendingCarousel({ trending, files, name, onView }) {
     );
 }
 
+/* =========================================
+   MAIN COMPONENT
+========================================= */
+
 function ManageTrendings() {
     const [trendings, setTrendings] = useState([]);
     const [loading, setLoading] = useState(true);
+
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
+
     const [selectedTrending, setSelectedTrending] = useState(null);
+
     const [error, setError] = useState("");
     const [deletingId, setDeletingId] = useState(null);
+
     const [notice, setNotice] = useState("");
     const [noticeType, setNoticeType] = useState("success");
 
-    // Product update state, following ManageProducts.
+    // Update form states
     const [showUpdateForm, setShowUpdateForm] = useState(false);
     const [editingTrending, setEditingTrending] = useState(null);
     const [saving, setSaving] = useState(false);
+
     const [existingFiles, setExistingFiles] = useState([]);
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [filePreviews, setFilePreviews] = useState([]);
 
-    const showNotification = (message, type = "success") => {
+    /* =========================================
+       NOTIFICATIONS
+    ========================================= */
+
+    const showNotification = useCallback((message, type = "success") => {
         setNotice(message);
         setNoticeType(type);
-    };
+    }, []);
+
+    useEffect(() => {
+        if (!notice) return undefined;
+
+        const timer = window.setTimeout(() => {
+            setNotice("");
+        }, 3500);
+
+        return () => window.clearTimeout(timer);
+    }, [notice]);
+
+    /* =========================================
+       FETCH TRENDINGS
+    ========================================= */
 
     const fetchTrendings = useCallback(async () => {
         try {
@@ -179,19 +274,28 @@ function ManageTrendings() {
             setError("");
 
             const response = await api.get("/getTrending?category=all");
+
             const data =
                 response.data?.trendings ||
                 response.data?.trending ||
                 response.data?.products ||
                 response.data;
 
-            setTrendings(Array.isArray(data) ? data : []);
+            if (!Array.isArray(data)) {
+                throw new Error("Invalid trending data received from server.");
+            }
+
+            setTrendings(data);
+
         } catch (err) {
             console.error("Fetch trendings error:", err);
+
             setError(
                 err.response?.data?.message ||
-                "Unable to load trending products. Please try again."
+                err.message ||
+                "Unable to load trending entries. Please try again."
             );
+
         } finally {
             setLoading(false);
         }
@@ -201,208 +305,135 @@ function ManageTrendings() {
         fetchTrendings();
     }, [fetchTrendings]);
 
-    useEffect(() => {
-        if (!notice) return undefined;
-        const timer = window.setTimeout(() => setNotice(""), 3500);
-        return () => window.clearTimeout(timer);
-    }, [notice]);
+    /* =========================================
+       FILTERING AND CATEGORIES
+    ========================================= */
 
-    const getProduct = (trending) => {
-        const candidate =
-            trending?.product ||
-            trending?.productId ||
-            trending?.item ||
-            trending;
+    const categories = useMemo(() => {
+        const uniqueCategories = [
+            ...new Set(
+                trendings
+                    .map((item) => item.category)
+                    .filter(Boolean)
+            )
+        ];
 
-        return candidate && typeof candidate === "object" ? candidate : trending;
-    };
-
-    const getName = (trending) => {
-        const product = getProduct(trending);
-        return (
-            product?.productName ||
-            product?.name ||
-            product?.title ||
-            trending?.productName ||
-            trending?.name ||
-            "Untitled Product"
-        );
-    };
-
-    const getFiles = (trending) => {
-        const product = getProduct(trending);
-        const possibleFiles =
-            product?.files ||
-            product?.images ||
-            product?.media ||
-            trending?.files ||
-            trending?.images ||
-            [];
-
-        if (Array.isArray(possibleFiles) && possibleFiles.length) {
-            return possibleFiles
-                .map((file) => {
-                    if (typeof file === "string") return file;
-                    if (file?.url) return file;
-                    return null;
-                })
-                .filter(Boolean);
-        }
-
-        const singleImage =
-            product?.image ||
-            product?.imageUrl ||
-            product?.productImage ||
-            trending?.image ||
-            trending?.imageUrl;
-
-        return singleImage ? [singleImage] : [];
-    };
-
-    const getImage = (trending) => {
-        const first = getFiles(trending)[0];
-        return typeof first === "string" ? first : first?.url || "";
-    };
-
-    const getPrice = (trending) => {
-        const product = getProduct(trending);
-        return product?.price ?? trending?.price ?? 0;
-    };
-
-    const getCategory = (trending) => {
-        const product = getProduct(trending);
-        return product?.category || trending?.category || "Uncategorized";
-    };
-
-    const getId = (trending) =>
-        trending?._id || trending?.id || trending?.trendingId;
-
-    const getProductId = (trending) => {
-        const product = getProduct(trending);
-        return product?._id || product?.id || trending?.product?._id;
-    };
-
-    const getDate = (trending) =>
-        trending?.createdAt ||
-        trending?.dateAdded ||
-        trending?.updatedAt ||
-        getProduct(trending)?.createdAt;
-
-    const formatPrice = (price) =>
-        `${Number(price || 0).toLocaleString("en-US")} RWF`;
-
-    const formatDate = (date) => {
-        if (!date) return "Not available";
-        const parsedDate = new Date(date);
-        if (Number.isNaN(parsedDate.getTime())) return "Not available";
-
-        return parsedDate.toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric"
-        });
-    };
-
-    const categories = useMemo(
-        () => ["All", ...new Set(trendings.map(getCategory).filter(Boolean))],
-        [trendings]
-    );
+        return ["All", ...uniqueCategories];
+    }, [trendings]);
 
     const filteredTrendings = useMemo(() => {
         const query = searchTerm.trim().toLowerCase();
 
         return trendings.filter((trending) => {
-            const name = getName(trending).toLowerCase();
-            const category = getCategory(trending);
+            const name = getTrendingName(trending).toLowerCase();
+            const category = (trending.category || "").toLowerCase();
+
             const matchesSearch =
                 !query ||
                 name.includes(query) ||
-                category.toLowerCase().includes(query);
+                category.includes(query);
 
             const matchesCategory =
-                selectedCategory === "All" || category === selectedCategory;
+                selectedCategory === "All" ||
+                trending.category === selectedCategory;
 
             return matchesSearch && matchesCategory;
         });
     }, [trendings, searchTerm, selectedCategory]);
 
+    /* =========================================
+       DELETE TRENDING
+       DELETE /deleteTrending/:id
+    ========================================= */
+
     const handleDelete = async (trending) => {
-        const id = getId(trending);
+        const id = getTrendingId(trending);
 
         if (!id) {
-            showNotification("This trending entry does not have a valid ID.", "error");
+            showNotification(
+                "This trending entry does not have a valid ID.",
+                "error"
+            );
             return;
         }
 
-        if (!window.confirm(`Remove "${getName(trending)}" from the trending section?`)) {
-            return;
-        }
+        const confirmed = window.confirm(
+            `Are you sure you want to remove "${getTrendingName(trending)}" from trending?`
+        );
+
+        if (!confirmed) return;
 
         try {
             setDeletingId(id);
-            await api.delete(`/deleteTrending/${id}`);
+
+            const response = await api.delete(
+                `/deleteTrending/${id}`
+            );
+
+            if (!response.data?.success) {
+                throw new Error(
+                    response.data?.message || "Unable to delete trending entry."
+                );
+            }
 
             setTrendings((current) =>
-                current.filter((item) => String(getId(item)) !== String(id))
+                current.filter(
+                    (item) => String(getTrendingId(item)) !== String(id)
+                )
             );
 
             setSelectedTrending((current) =>
-                current && String(getId(current)) === String(id) ? null : current
+                current && String(getTrendingId(current)) === String(id)
+                    ? null
+                    : current
             );
 
-            showNotification("Trending product removed successfully.");
+            showNotification(
+                response.data.message ||
+                "Trending entry removed successfully."
+            );
+
         } catch (err) {
             console.error("Delete trending error:", err);
+
             showNotification(
-                err.response?.data?.message || "Failed to remove this trending entry.",
+                err.response?.data?.message ||
+                err.message ||
+                "Failed to remove trending entry.",
                 "error"
             );
+
         } finally {
             setDeletingId(null);
         }
     };
 
     /* =========================================
-       OPEN PRODUCT UPDATE FORM
+       OPEN UPDATE FORM
     ========================================= */
 
     const handleUpdate = (trending) => {
-        const product = getProduct(trending);
-        const productId = getProductId(trending);
-
-        if (!productId) {
+        if (!trending?._id) {
             showNotification(
-                "This trending entry does not contain a populated product ID, so its product cannot be edited here.",
+                "This trending entry has no valid MongoDB ID.",
                 "error"
             );
             return;
         }
 
         setEditingTrending({
-            ...product,
-            _id: productId,
-            name: product?.name || product?.productName || product?.title || "",
-            price: product?.price ?? "",
-            category: product?.category || "",
-            availability: product?.availability || "available",
-            description: product?.description || ""
+            _id: trending._id,
+            name: trending.name || "",
+            category: trending.category || "",
+            description: trending.description || ""
         });
 
-        const media = getFiles(trending);
-        setExistingFiles(
-            media.map((file) =>
-                typeof file === "string"
-                    ? {
-                        url: file,
-                        type: /\.(mp4|webm|ogg|mov)(\?|$)/i.test(file) ? "video" : "image"
-                    }
-                    : file
-            )
-        );
+        setExistingFiles(getTrendingFiles(trending));
         setSelectedFiles([]);
         setFilePreviews([]);
-        setShowUpdateForm(true);
+
         setSelectedTrending(null);
+        setShowUpdateForm(true);
     };
 
     const handleEditField = (field, value) => {
@@ -412,8 +443,15 @@ function ManageTrendings() {
         }));
     };
 
+    /* =========================================
+       FILE MANAGEMENT
+    ========================================= */
+
     const handleFileChange = (event) => {
-        const incomingFiles = Array.from(event.target.files || []);
+        const incomingFiles = Array.from(
+            event.target.files || []
+        );
+
         if (!incomingFiles.length) return;
 
         const allowedFiles = incomingFiles.filter(
@@ -423,47 +461,75 @@ function ManageTrendings() {
         );
 
         if (allowedFiles.length !== incomingFiles.length) {
-            showNotification("Only image and video files are allowed.", "error");
+            showNotification(
+                "Only image and video files are allowed.",
+                "error"
+            );
         }
 
         const previews = allowedFiles.map((file) => ({
             file,
             url: URL.createObjectURL(file),
-            type: file.type.startsWith("video/") ? "video" : "image"
+            type: file.type.startsWith("video/")
+                ? "video"
+                : "image"
         }));
 
-        setSelectedFiles((current) => [...current, ...allowedFiles]);
-        setFilePreviews((current) => [...current, ...previews]);
+        setSelectedFiles((current) => [
+            ...current,
+            ...allowedFiles
+        ]);
+
+        setFilePreviews((current) => [
+            ...current,
+            ...previews
+        ]);
+
+        // Allow selecting the same file again.
         event.target.value = "";
     };
 
     const removeSelectedFile = (index) => {
         setFilePreviews((current) => {
             const preview = current[index];
-            if (preview?.url) URL.revokeObjectURL(preview.url);
-            return current.filter((_, itemIndex) => itemIndex !== index);
+
+            if (preview?.url) {
+                URL.revokeObjectURL(preview.url);
+            }
+
+            return current.filter(
+                (_, itemIndex) => itemIndex !== index
+            );
         });
 
         setSelectedFiles((current) =>
-            current.filter((_, itemIndex) => itemIndex !== index)
+            current.filter(
+                (_, itemIndex) => itemIndex !== index
+            )
         );
     };
 
     const removeExistingFile = (index) => {
         setExistingFiles((current) =>
-            current.filter((_, itemIndex) => itemIndex !== index)
+            current.filter(
+                (_, itemIndex) => itemIndex !== index
+            )
         );
     };
 
     const clearFilePreviews = () => {
         filePreviews.forEach((preview) => {
-            if (preview.url) URL.revokeObjectURL(preview.url);
+            if (preview.url) {
+                URL.revokeObjectURL(preview.url);
+            }
         });
     };
 
     const closeUpdateForm = () => {
         if (saving) return;
+
         clearFilePreviews();
+
         setShowUpdateForm(false);
         setEditingTrending(null);
         setExistingFiles([]);
@@ -472,32 +538,22 @@ function ManageTrendings() {
     };
 
     /* =========================================
-       SAVE PRODUCT UPDATE
-       Uses the same product update endpoint and
-       multipart field names as ManageProducts.
+       SAVE TRENDING UPDATE
+       PUT /updateTrending/:id
     ========================================= */
 
     const handleSaveUpdate = async (event) => {
         event.preventDefault();
+
         if (!editingTrending) return;
 
-        if (!editingTrending.name?.trim()) {
-            showNotification("Product name is required.", "error");
+        if (!editingTrending.name.trim()) {
+            showNotification("Trending name is required.", "error");
             return;
         }
 
-        if (
-            editingTrending.price === "" ||
-            Number(editingTrending.price) < 0 ||
-            !Number.isFinite(Number(editingTrending.price))
-        ) {
-            showNotification("Enter a valid product price.", "error");
-            return;
-        }
-
-        const token = localStorage.getItem("token");
-        if (!token) {
-            showNotification("Please log in again to update this product.", "error");
+        if (!editingTrending.category.trim()) {
+            showNotification("Please select a category.", "error");
             return;
         }
 
@@ -505,92 +561,139 @@ function ManageTrendings() {
             setSaving(true);
 
             const formData = new FormData();
-            formData.append("name", editingTrending.name.trim());
-            formData.append("price", editingTrending.price);
-            formData.append("category", editingTrending.category || "");
-            formData.append(
-                "availability",
-                editingTrending.availability || "available"
-            );
-            formData.append("description", editingTrending.description || "");
-            formData.append("existingFiles", JSON.stringify(existingFiles));
 
+            formData.append(
+                "name",
+                editingTrending.name.trim()
+            );
+
+            formData.append(
+                "category",
+                editingTrending.category.trim()
+            );
+
+            formData.append(
+                "description",
+                editingTrending.description || ""
+            );
+
+            // Existing media that should remain.
+            formData.append(
+                "existingFiles",
+                JSON.stringify(existingFiles)
+            );
+
+            // Newly selected media.
             selectedFiles.forEach((file) => {
                 formData.append("files", file);
             });
 
-            const response = await api.post(
-                `/updateProduct/${editingTrending._id}`,
-                formData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
+            const response = await api.put(
+                `/updateTrending/${editingTrending._id}`,
+                formData
             );
 
-            if (response.data?.success) {
-                await fetchTrendings();
-                clearFilePreviews();
-                setShowUpdateForm(false);
-                setEditingTrending(null);
-                setExistingFiles([]);
-                setSelectedFiles([]);
-                setFilePreviews([]);
-                showNotification(
-                    response.data.message || "Product updated successfully."
-                );
-            } else {
-                showNotification(
-                    response.data?.message || "Unable to update this product.",
-                    "error"
+            if (!response.data?.success) {
+                throw new Error(
+                    response.data?.message ||
+                    "Unable to update trending entry."
                 );
             }
+
+            // Update the list immediately using the returned document.
+            const updatedItem = response.data.updatedItem;
+
+            if (updatedItem?._id) {
+                setTrendings((current) =>
+                    current.map((item) =>
+                        String(getTrendingId(item)) ===
+                        String(updatedItem._id)
+                            ? updatedItem
+                            : item
+                    )
+                );
+            } else {
+                await fetchTrendings();
+            }
+
+            clearFilePreviews();
+
+            setShowUpdateForm(false);
+            setEditingTrending(null);
+            setExistingFiles([]);
+            setSelectedFiles([]);
+            setFilePreviews([]);
+
+            showNotification(
+                response.data.message ||
+                "Trending entry updated successfully."
+            );
+
         } catch (err) {
-            console.error("Updating trending product error:", err);
+            console.error("Update trending error:", err);
+
             showNotification(
                 err.response?.data?.message ||
-                "Something went wrong while updating the product.",
+                err.message ||
+                "Failed to update trending entry.",
                 "error"
             );
+
         } finally {
             setSaving(false);
         }
     };
 
-    useEffect(() => {
-        if (!selectedTrending && !showUpdateForm) return undefined;
+    /* =========================================
+       ESCAPE KEY
+    ========================================= */
 
+    useEffect(() => {
         const handleKeyDown = (event) => {
-            if (event.key === "Escape") {
-                if (showUpdateForm) closeUpdateForm();
-                else setSelectedTrending(null);
+            if (event.key !== "Escape") return;
+
+            if (showUpdateForm) {
+                closeUpdateForm();
+            } else if (selectedTrending) {
+                setSelectedTrending(null);
             }
         };
 
         window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [selectedTrending, showUpdateForm, saving]);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [showUpdateForm, selectedTrending, saving]);
+
+    /* =========================================
+       COMPONENT RENDER
+    ========================================= */
 
     return (
         <div className="manage-trendings-page">
             <AdminNavbar />
 
             <main className="manage-trendings-container">
+
+                {/* PAGE HEADER */}
+
                 <header className="manage-trendings-header">
                     <div className="manage-trendings-heading">
                         <span className="manage-trendings-eyebrow">
                             DREAMAZ INK / ADMINISTRATION
                         </span>
+
                         <h1>
                             <span className="manage-trendings-title-icon">
                                 <FontAwesomeIcon icon={faFire} />
                             </span>
                             Manage Trendings
                         </h1>
+
                         <p>
-                            Manage featured products, update product information,
-                            and control the trending section.
+                            Manage featured content, update trending
+                            information and control your trending section.
                         </p>
                     </div>
 
@@ -600,16 +703,25 @@ function ManageTrendings() {
                         onClick={fetchTrendings}
                         disabled={loading}
                     >
-                        <FontAwesomeIcon icon={faRotate} spin={loading} />
+                        <FontAwesomeIcon
+                            icon={faRotate}
+                            spin={loading}
+                        />
                         {loading ? "Refreshing..." : "Refresh"}
                     </button>
                 </header>
 
-                <section className="trending-stats" aria-label="Trending overview">
+                {/* STATISTICS */}
+
+                <section
+                    className="trending-stats"
+                    aria-label="Trending overview"
+                >
                     <article className="trending-stat-card">
                         <div className="trending-stat-icon trending-stat-fire">
                             <FontAwesomeIcon icon={faFire} />
                         </div>
+
                         <div>
                             <span>Total trendings</span>
                             <strong>{trendings.length}</strong>
@@ -621,9 +733,12 @@ function ManageTrendings() {
                         <div className="trending-stat-icon trending-stat-category">
                             <FontAwesomeIcon icon={faLayerGroup} />
                         </div>
+
                         <div>
                             <span>Categories</span>
-                            <strong>{Math.max(categories.length - 1, 0)}</strong>
+                            <strong>
+                                {Math.max(categories.length - 1, 0)}
+                            </strong>
                             <small>Represented in trending</small>
                         </div>
                     </article>
@@ -632,6 +747,7 @@ function ManageTrendings() {
                         <div className="trending-stat-icon trending-stat-filter">
                             <FontAwesomeIcon icon={faTag} />
                         </div>
+
                         <div>
                             <span>Showing results</span>
                             <strong>{filteredTrendings.length}</strong>
@@ -640,26 +756,36 @@ function ManageTrendings() {
                     </article>
                 </section>
 
+                {/* MAIN CONTENT */}
+
                 <section className="manage-trendings-content">
+
                     <div className="trending-toolbar">
                         <div>
                             <span className="trending-section-kicker">
                                 CONTENT MANAGEMENT
                             </span>
-                            <h2>Trending products</h2>
+
+                            <h2>Trending entries</h2>
+
                             <p>
-                                Browse featured items, edit product details, or remove them.
+                                Browse featured content, update details
+                                or remove entries.
                             </p>
                         </div>
 
                         <label className="trending-search">
                             <FontAwesomeIcon icon={faMagnifyingGlass} />
+
                             <input
                                 type="search"
                                 placeholder="Search name or category..."
                                 value={searchTerm}
-                                onChange={(event) => setSearchTerm(event.target.value)}
+                                onChange={(event) =>
+                                    setSearchTerm(event.target.value)
+                                }
                             />
+
                             {searchTerm && (
                                 <button
                                     type="button"
@@ -672,6 +798,8 @@ function ManageTrendings() {
                         </label>
                     </div>
 
+                    {/* CATEGORY FILTERS */}
+
                     <div className="trending-filter-row">
                         <div className="trending-category-filters">
                             {categories.map((category) => (
@@ -679,137 +807,226 @@ function ManageTrendings() {
                                     type="button"
                                     key={category}
                                     className={
-                                        selectedCategory === category ? "active" : ""
+                                        selectedCategory === category
+                                            ? "active"
+                                            : ""
                                     }
-                                    onClick={() => setSelectedCategory(category)}
+                                    onClick={() =>
+                                        setSelectedCategory(category)
+                                    }
                                 >
                                     {category}
                                 </button>
                             ))}
                         </div>
+
                         <span className="trending-result-count">
                             {filteredTrendings.length}{" "}
-                            {filteredTrendings.length === 1 ? "item" : "items"}
+                            {filteredTrendings.length === 1
+                                ? "item"
+                                : "items"}
                         </span>
                     </div>
 
-                    {/* FEATURED COLLECTIONS */}
-         {!loading && error && (
+                    {/* LOADING */}
+
+                    {loading && (
+                        <div className="trending-state">
+                            <div className="trending-state-icon">
+                                <FontAwesomeIcon
+                                    icon={faRotate}
+                                    spin
+                                />
+                            </div>
+
+                            <h3>Loading trending entries</h3>
+
+                            <p>Please wait while we retrieve your content.</p>
+                        </div>
+                    )}
+
+                    {/* ERROR */}
+
+                    {!loading && error && (
                         <div className="trending-state trending-error">
                             <div className="trending-state-icon">
                                 <FontAwesomeIcon icon={faBoxOpen} />
                             </div>
+
                             <h3>Could not load trendings</h3>
+
                             <p>{error}</p>
-                            <button type="button" onClick={fetchTrendings}>
+
+                            <button
+                                type="button"
+                                onClick={fetchTrendings}
+                            >
                                 Try again
                             </button>
                         </div>
                     )}
 
-                    {!loading && !error && filteredTrendings.length === 0 && (
-                        <div className="trending-state trending-empty">
-                            <div className="trending-state-icon">
-                                <FontAwesomeIcon icon={faFire} />
-                            </div>
-                            <h3>No trending products found</h3>
-                            <p>
-                                {trendings.length === 0
-                                    ? "Products added to trending will appear here."
-                                    : "Try another search term or choose a different category."}
-                            </p>
-                            {(searchTerm || selectedCategory !== "All") && (
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setSearchTerm("");
-                                        setSelectedCategory("All");
-                                    }}
-                                >
-                                    Clear filters
-                                </button>
-                            )}
-                        </div>
-                    )}
+                    {/* EMPTY */}
 
-                    {!loading && !error && filteredTrendings.length > 0 && (
-                        <div className="trending-admin-grid">
-                            {filteredTrendings.map((trending, index) => {
-                                const id = getId(trending);
-                                const files = getFiles(trending);
+                    {!loading &&
+                        !error &&
+                        filteredTrendings.length === 0 && (
+                            <div className="trending-state trending-empty">
+                                <div className="trending-state-icon">
+                                    <FontAwesomeIcon icon={faFire} />
+                                </div>
 
-                                return (
-                                    <article
-                                        className="trending-admin-card"
-                                        key={id || `${getName(trending)}-${index}`}
+                                <h3>No trending entries found</h3>
+
+                                <p>
+                                    {trendings.length === 0
+                                        ? "Trending entries will appear here when you add them."
+                                        : "Try another search term or choose a different category."}
+                                </p>
+
+                                {(searchTerm ||
+                                    selectedCategory !== "All") && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setSearchTerm("");
+                                            setSelectedCategory("All");
+                                        }}
                                     >
-                                        <TrendingCarousel
-                                            trending={trending}
-                                            files={files}
-                                            name={getName(trending)}
-                                            onView={() => setSelectedTrending(trending)}
-                                        />
+                                        Clear filters
+                                    </button>
+                                )}
+                            </div>
+                        )}
 
-                                        <div className="trending-admin-details">
-                                            <div className="trending-card-topline">
-                                                <span className="trending-admin-category">
-                                                    {getCategory(trending)}
-                                                </span>
-                                                <span className="trending-card-number">
-                                                    #{String(index + 1).padStart(2, "0")}
-                                                </span>
-                                            </div>
+                    {/* TRENDING GRID */}
 
-                                            <h3 title={getName(trending)}>
-                                                {getName(trending)}
-                                            </h3>
-                                            <h4>{formatPrice(getPrice(trending))}</h4>
+                    {!loading &&
+                        !error &&
+                        filteredTrendings.length > 0 && (
+                            <div className="trending-admin-grid">
+                                {filteredTrendings.map(
+                                    (trending, index) => {
+                                        const id = getTrendingId(trending);
+                                        const files = getTrendingFiles(trending);
 
-                                            <div className="trending-admin-date">
-                                                <FontAwesomeIcon icon={faCalendarDays} />
-                                                <span>Added {formatDate(getDate(trending))}</span>
-                                            </div>
+                                        return (
+                                            <article
+                                                className="trending-admin-card"
+                                                key={id || index}
+                                            >
+                                                <TrendingCarousel
+                                                    trending={trending}
+                                                    files={files}
+                                                    name={getTrendingName(trending)}
+                                                    onView={() =>
+                                                        setSelectedTrending(trending)
+                                                    }
+                                                />
 
-                                            <div className="trending-admin-actions">
-                                                <button
-                                                    type="button"
-                                                    className="trending-view-btn"
-                                                    onClick={() => setSelectedTrending(trending)}
-                                                >
-                                                    <FontAwesomeIcon icon={faEye} />
-                                                    View
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    className="trending-edit-btn"
-                                                    onClick={() => handleUpdate(trending)}
-                                                >
-                                                    <FontAwesomeIcon icon={faPenToSquare} />
-                                                    Update
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    className="trending-delete-btn"
-                                                    onClick={() => handleDelete(trending)}
-                                                    disabled={deletingId === id}
-                                                    aria-label={`Remove ${getName(trending)} from trending`}
-                                                >
-                                                    <FontAwesomeIcon icon={faTrash} />
-                                                    {deletingId === id ? "..." : "Remove"}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </article>
-                                );
-                            })}
-                        </div>
-                    )}
+                                                <div className="trending-admin-details">
+
+                                                    <div className="trending-card-topline">
+                                                        <span className="trending-admin-category">
+                                                            {trending.category ||
+                                                                "Uncategorized"}
+                                                        </span>
+
+                                                        <span className="trending-card-number">
+                                                            #
+                                                            {String(index + 1).padStart(
+                                                                2,
+                                                                "0"
+                                                            )}
+                                                        </span>
+                                                    </div>
+
+                                                    <h3 title={getTrendingName(trending)}>
+                                                        {getTrendingName(trending)}
+                                                    </h3>
+
+                                                    <p className="trending-card-description">
+    {trending.description?.trim()
+        ? trending.description
+        : "No description available."}
+</p>
+
+                                                    <div className="trending-admin-date">
+                                                        <FontAwesomeIcon
+                                                            icon={faCalendarDays}
+                                                        />
+
+                                                        <span>
+                                                            Added{" "}
+                                                            {formatDate(
+                                                                trending.createdAt
+                                                            )}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="trending-admin-actions">
+                                                        <button
+                                                            type="button"
+                                                            className="trending-view-btn"
+                                                            onClick={() =>
+                                                                setSelectedTrending(trending)
+                                                            }
+                                                        >
+                                                            <FontAwesomeIcon icon={faEye} />
+                                                            View
+                                                        </button>
+
+                                                        <button
+                                                            type="button"
+                                                            className="trending-edit-btn"
+                                                            onClick={() =>
+                                                                handleUpdate(trending)
+                                                            }
+                                                        >
+                                                            <FontAwesomeIcon
+                                                                icon={faPenToSquare}
+                                                            />
+                                                            Update
+                                                        </button>
+
+                                                        <button
+                                                            type="button"
+                                                            className="trending-delete-btn"
+                                                            onClick={() =>
+                                                                handleDelete(trending)
+                                                            }
+                                                            disabled={
+                                                                deletingId === id
+                                                            }
+                                                        >
+                                                            <FontAwesomeIcon
+                                                                icon={faTrash}
+                                                            />
+
+                                                            {deletingId === id
+                                                                ? "Removing..."
+                                                                : "Remove"}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        );
+                                    }
+                                )}
+                            </div>
+                        )}
                 </section>
             </main>
 
+            {/* NOTIFICATION */}
+
             {notice && (
-                <div className={`trending-toast ${noticeType}`} role="status">
+                <div
+                    className={`trending-toast ${noticeType}`}
+                    role="status"
+                >
                     <span>{notice}</span>
+
                     <button
                         type="button"
                         onClick={() => setNotice("")}
@@ -820,7 +1037,10 @@ function ManageTrendings() {
                 </div>
             )}
 
-            {/* VIEW DETAILS MODAL */}
+            {/* =========================================
+                VIEW DETAILS MODAL
+            ========================================= */}
+
             {selectedTrending && (
                 <div
                     className="trending-details-overlay"
@@ -835,9 +1055,12 @@ function ManageTrendings() {
                     >
                         <div className="trending-modal-header">
                             <div>
-                                <span>PRODUCT INFORMATION</span>
-                                <h2 id="trending-modal-title">Trending details</h2>
+                                <span>CONTENT INFORMATION</span>
+                                <h2 id="trending-modal-title">
+                                    Trending details
+                                </h2>
                             </div>
+
                             <button
                                 type="button"
                                 onClick={() => setSelectedTrending(null)}
@@ -847,12 +1070,26 @@ function ManageTrendings() {
                             </button>
                         </div>
 
-                        {getImage(selectedTrending) ? (
-                            <img
-                                className="trending-modal-image"
-                                src={getImage(selectedTrending)}
-                                alt={getName(selectedTrending)}
-                            />
+                        {getTrendingFiles(selectedTrending).length > 0 ? (
+                            getFileType(
+                                getTrendingFiles(selectedTrending)[0]
+                            ) === "video" ? (
+                                <video
+                                    className="trending-modal-image"
+                                    src={getFileUrl(
+                                        getTrendingFiles(selectedTrending)[0]
+                                    )}
+                                    controls
+                                />
+                            ) : (
+                                <img
+                                    className="trending-modal-image"
+                                    src={getFileUrl(
+                                        getTrendingFiles(selectedTrending)[0]
+                                    )}
+                                    alt={getTrendingName(selectedTrending)}
+                                />
+                            )
                         ) : (
                             <div className="trending-modal-image trending-modal-no-image">
                                 <FontAwesomeIcon icon={faBoxOpen} />
@@ -861,25 +1098,40 @@ function ManageTrendings() {
 
                         <div className="trending-modal-product-heading">
                             <span className="trending-admin-category">
-                                {getCategory(selectedTrending)}
+                                {selectedTrending.category ||
+                                    "Uncategorized"}
                             </span>
-                            <h3>{getName(selectedTrending)}</h3>
-                            <strong>{formatPrice(getPrice(selectedTrending))}</strong>
+
+                            <h3>{getTrendingName(selectedTrending)}</h3>
+
+                            <p>
+                                {selectedTrending.description ||
+                                    "No description available."}
+                            </p>
                         </div>
 
                         <div className="trending-modal-info">
                             <div>
                                 <span>Category</span>
-                                <strong>{getCategory(selectedTrending)}</strong>
+                                <strong>
+                                    {selectedTrending.category || "N/A"}
+                                </strong>
                             </div>
+
                             <div>
                                 <span>Date added</span>
-                                <strong>{formatDate(getDate(selectedTrending))}</strong>
+                                <strong>
+                                    {formatDate(selectedTrending.createdAt)}
+                                </strong>
                             </div>
+
                             <div>
                                 <span>Media files</span>
-                                <strong>{getFiles(selectedTrending).length}</strong>
+                                <strong>
+                                    {getTrendingFiles(selectedTrending).length}
+                                </strong>
                             </div>
+
                             <div>
                                 <span>Trending status</span>
                                 <strong className="trending-status-active">
@@ -896,19 +1148,28 @@ function ManageTrendings() {
                             >
                                 Close
                             </button>
+
                             <button
                                 type="button"
                                 className="trending-modal-edit"
-                                onClick={() => handleUpdate(selectedTrending)}
+                                onClick={() =>
+                                    handleUpdate(selectedTrending)
+                                }
                             >
                                 <FontAwesomeIcon icon={faPenToSquare} />
-                                Update product
+                                Update
                             </button>
+
                             <button
                                 type="button"
                                 className="trending-modal-remove"
-                                onClick={() => handleDelete(selectedTrending)}
-                                disabled={deletingId === getId(selectedTrending)}
+                                onClick={() =>
+                                    handleDelete(selectedTrending)
+                                }
+                                disabled={
+                                    deletingId ===
+                                    getTrendingId(selectedTrending)
+                                }
                             >
                                 <FontAwesomeIcon icon={faTrash} />
                                 Remove
@@ -918,18 +1179,29 @@ function ManageTrendings() {
                 </div>
             )}
 
-            {/* UPDATE PRODUCT MODAL */}
+            {/* =========================================
+                UPDATE TRENDING MODAL
+            ========================================= */}
+
             {showUpdateForm && editingTrending && (
-                <div className="trending-details-overlay trending-update-overlay">
+                <div
+                    className="trending-details-overlay trending-update-overlay"
+                    onClick={(event) => {
+                        if (event.target === event.currentTarget) {
+                            closeUpdateForm();
+                        }
+                    }}
+                >
                     <form
                         className="trending-update-modal"
                         onSubmit={handleSaveUpdate}
                     >
                         <div className="trending-modal-header">
                             <div>
-                                <span>PRODUCT MANAGEMENT</span>
-                                <h2>Update product</h2>
+                                <span>CONTENT MANAGEMENT</span>
+                                <h2>Update trending entry</h2>
                             </div>
+
                             <button
                                 type="button"
                                 onClick={closeUpdateForm}
@@ -940,90 +1212,78 @@ function ManageTrendings() {
                             </button>
                         </div>
 
+                        {/* FORM FIELDS */}
+
                         <div className="trending-update-fields">
                             <label>
-                                Product name
+                                Trending name
+
                                 <input
                                     type="text"
                                     value={editingTrending.name}
                                     onChange={(event) =>
-                                        handleEditField("name", event.target.value)
+                                        handleEditField(
+                                            "name",
+                                            event.target.value
+                                        )
                                     }
-                                    placeholder="Enter product name"
+                                    placeholder="Enter trending name"
                                     required
                                 />
                             </label>
 
-                            <div className="trending-update-two-columns">
-                                <label>
-                                    Price (RWF)
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        step="any"
-                                        value={editingTrending.price}
-                                        onChange={(event) =>
-                                            handleEditField("price", event.target.value)
-                                        }
-                                        placeholder="Enter price"
-                                        required
-                                    />
-                                </label>
-
-                                <label>
-                                    Category
-                                    <select
-                                        value={editingTrending.category}
-                                        onChange={(event) =>
-                                            handleEditField("category", event.target.value)
-                                        }
-                                        required
-                                    >
-                                        <option value="">Select category</option>
-                                        <option value="Fashion">Fashion</option>
-                                        <option value="Accessories">Accessories</option>
-                                        <option value="Prints">Prints</option>
-                                        <option value="Collections">Collections</option>
-                                    </select>
-                                </label>
-                            </div>
-
                             <label>
-                                Availability
-                                <select
-                                    value={editingTrending.availability}
+                                Category
+
+                                <input
+                                    type="text"
+                                    value={editingTrending.category}
                                     onChange={(event) =>
-                                        handleEditField("availability", event.target.value)
+                                        handleEditField(
+                                            "category",
+                                            event.target.value
+                                        )
                                     }
-                                >
-                                    <option value="available">Available</option>
-                                    <option value="sold">Sold</option>
-                                    <option value="reserved">Reserved</option>
-                                </select>
+                                    placeholder="Enter category"
+                                    required
+                                />
                             </label>
 
                             <label>
-                                Product description
+                                Description
+
                                 <textarea
-                                    rows="4"
+                                    rows="5"
                                     value={editingTrending.description}
                                     onChange={(event) =>
-                                        handleEditField("description", event.target.value)
+                                        handleEditField(
+                                            "description",
+                                            event.target.value
+                                        )
                                     }
-                                    placeholder="Write a product description..."
+                                    placeholder="Write a description..."
                                 />
                             </label>
                         </div>
 
+                        {/* MEDIA EDITOR */}
+
                         <div className="trending-media-editor">
                             <div className="trending-media-heading">
                                 <div>
-                                    <h3>Product images and videos</h3>
-                                    <p>Remove existing files or add new media.</p>
+                                    <h3>Images and videos</h3>
+                                    <p>
+                                        Keep existing media, remove files
+                                        or upload new ones.
+                                    </p>
                                 </div>
+
                                 <label className="trending-upload-button">
-                                    <FontAwesomeIcon icon={faCloudArrowUp} />
+                                    <FontAwesomeIcon
+                                        icon={faCloudArrowUp}
+                                    />
                                     Add files
+
                                     <input
                                         type="file"
                                         accept="image/*,video/*"
@@ -1034,18 +1294,36 @@ function ManageTrendings() {
                             </div>
 
                             <div className="trending-edit-media-grid">
+
+                                {/* EXISTING FILES */}
+
                                 {existingFiles.map((file, index) => (
-                                    <div className="trending-edit-media-item" key={`existing-${file.url}-${index}`}>
-                                        {file.type === "video" ||
-                                        /\.(mp4|webm|ogg|mov)(\?|$)/i.test(file.url || "") ? (
-                                            <video src={file.url} muted />
+                                    <div
+                                        className="trending-edit-media-item"
+                                        key={`existing-${file.public_id || file.url}-${index}`}
+                                    >
+                                        {getFileType(file) === "video" ? (
+                                            <video
+                                                src={getFileUrl(file)}
+                                                muted
+                                                controls
+                                            />
                                         ) : (
-                                            <img src={file.url} alt={`Existing media ${index + 1}`} />
+                                            <img
+                                                src={getFileUrl(file)}
+                                                alt={`Existing media ${index + 1}`}
+                                            />
                                         )}
-                                        <span className="trending-media-existing">Existing</span>
+
+                                        <span className="trending-media-existing">
+                                            Existing
+                                        </span>
+
                                         <button
                                             type="button"
-                                            onClick={() => removeExistingFile(index)}
+                                            onClick={() =>
+                                                removeExistingFile(index)
+                                            }
                                             aria-label="Remove existing media"
                                         >
                                             <FontAwesomeIcon icon={faXmark} />
@@ -1053,17 +1331,35 @@ function ManageTrendings() {
                                     </div>
                                 ))}
 
+                                {/* NEW FILES */}
+
                                 {filePreviews.map((preview, index) => (
-                                    <div className="trending-edit-media-item" key={`new-${preview.url}`}>
+                                    <div
+                                        className="trending-edit-media-item"
+                                        key={preview.url}
+                                    >
                                         {preview.type === "video" ? (
-                                            <video src={preview.url} muted />
+                                            <video
+                                                src={preview.url}
+                                                muted
+                                                controls
+                                            />
                                         ) : (
-                                            <img src={preview.url} alt={`New media ${index + 1}`} />
+                                            <img
+                                                src={preview.url}
+                                                alt={`New media ${index + 1}`}
+                                            />
                                         )}
-                                        <span className="trending-media-new">New</span>
+
+                                        <span className="trending-media-new">
+                                            New
+                                        </span>
+
                                         <button
                                             type="button"
-                                            onClick={() => removeSelectedFile(index)}
+                                            onClick={() =>
+                                                removeSelectedFile(index)
+                                            }
                                             aria-label="Remove selected media"
                                         >
                                             <FontAwesomeIcon icon={faXmark} />
@@ -1071,19 +1367,22 @@ function ManageTrendings() {
                                     </div>
                                 ))}
 
-                                {existingFiles.length === 0 && filePreviews.length === 0 && (
-                                    <div className="trending-no-edit-media">
-                                        <FontAwesomeIcon icon={faImage} />
-                                        <span>No media selected</span>
-                                    </div>
-                                )}
+                                {existingFiles.length === 0 &&
+                                    filePreviews.length === 0 && (
+                                        <div className="trending-no-edit-media">
+                                            <FontAwesomeIcon icon={faImage} />
+                                            <span>No media selected</span>
+                                        </div>
+                                    )}
                             </div>
 
                             <p className="trending-media-help">
                                 <FontAwesomeIcon icon={faVideo} />
-                                Supported media: images and videos. Changes are saved with the product.
+                                Supported formats: images and videos.
                             </p>
                         </div>
+
+                        {/* FORM ACTIONS */}
 
                         <div className="trending-update-actions">
                             <button
@@ -1094,6 +1393,7 @@ function ManageTrendings() {
                             >
                                 Cancel
                             </button>
+
                             <button
                                 type="submit"
                                 className="trending-update-save"
@@ -1101,12 +1401,17 @@ function ManageTrendings() {
                             >
                                 {saving ? (
                                     <>
-                                        <FontAwesomeIcon icon={faRotate} spin />
+                                        <FontAwesomeIcon
+                                            icon={faRotate}
+                                            spin
+                                        />
                                         Saving...
                                     </>
                                 ) : (
                                     <>
-                                        <FontAwesomeIcon icon={faPenToSquare} />
+                                        <FontAwesomeIcon
+                                            icon={faPenToSquare}
+                                        />
                                         Save changes
                                     </>
                                 )}

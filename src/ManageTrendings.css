@@ -1022,6 +1022,33 @@
     .trending-modal-actions { flex-direction: column; }
 }
 
+/* SHORT DESCRIPTION ON TRENDING CARDS */
+.trending-admin-description {
+    display: -webkit-box;
+    min-height: 32px;
+    max-height: 32px;
+    overflow: hidden;
+    margin: 0 0 10px;
+    color: #858d83;
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.trending-admin-description.empty {
+    color: #b0b5ad;
+    font-style: italic;
+}
+@media (min-width: 1200px) {
+    .trending-admin-description {
+        -webkit-line-clamp: 2;
+        font-size: 10.5px;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .manage-trendings-page *,
     .manage-trendings-page *::before,
@@ -1031,4 +1058,22 @@
         animation-iteration-count: 1 !important;
         transition-duration: .01ms !important;
     }
+}
+
+
+
+.trending-card-description {
+    display: -webkit-box;
+    min-height: 32px;
+    max-height: 32px;
+    overflow: hidden;
+    margin: 5px 0 10px;
+    color: #858d83;
+    font-size: 10px;
+    line-height: 1.6;
+    font-weight: 400;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    text-overflow: ellipsis;
 }
