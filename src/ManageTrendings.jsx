@@ -35,7 +35,8 @@ import "./ManageTrendings.css";
    HELPERS
 ========================================= */
 
-const getTrendingId = (trending) => trending?._id || trending?.id;
+const getTrendingId = (trending) =>
+    trending?._id || trending?.id;
 
 const getTrendingName = (trending) =>
     trending?.name || "Untitled Trending";
@@ -44,19 +45,25 @@ const getTrendingFiles = (trending) => {
     if (!Array.isArray(trending?.files)) return [];
 
     return trending.files.filter(
-        (file) => file && (typeof file === "string" || file.url)
+        (file) =>
+            file &&
+            (typeof file === "string" || file.url)
     );
 };
 
 const getFileUrl = (file) =>
-    typeof file === "string" ? file : file?.url || "";
+    typeof file === "string"
+        ? file
+        : file?.url || "";
 
 const getFileType = (file) => {
     if (typeof file === "object" && file?.type) {
         return file.type;
     }
 
-    return /\.(mp4|webm|ogg|mov)(\?|$)/i.test(getFileUrl(file))
+    return /\.(mp4|webm|ogg|mov)(\?|$)/i.test(
+        getFileUrl(file)
+    )
         ? "video"
         : "image";
 };
@@ -78,6 +85,26 @@ const formatDate = (date) => {
 };
 
 /* =========================================
+   AUTHENTICATION
+========================================= */
+
+const getAuthConfig = () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        throw new Error(
+            "Authentication token not found. Please log in again."
+        );
+    }
+
+    return {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    };
+};
+
+/* =========================================
    TRENDING MEDIA SLIDESHOW
 ========================================= */
 
@@ -95,7 +122,9 @@ function TrendingCarousel({
     }, [trending?._id]);
 
     useEffect(() => {
-        if (files.length <= 1 || paused) return undefined;
+        if (files.length <= 1 || paused) {
+            return undefined;
+        }
 
         const interval = window.setInterval(() => {
             setCurrentIndex((previous) =>
@@ -135,7 +164,10 @@ function TrendingCarousel({
             role="button"
             tabIndex={0}
             onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
+                if (
+                    event.key === "Enter" ||
+                    event.key === " "
+                ) {
                     event.preventDefault();
                     onView();
                 }
@@ -201,7 +233,9 @@ function TrendingCarousel({
                                 type="button"
                                 key={`${getFileUrl(file)}-${index}`}
                                 className={
-                                    index === currentIndex ? "active" : ""
+                                    index === currentIndex
+                                        ? "active"
+                                        : ""
                                 }
                                 onClick={(event) => {
                                     event.stopPropagation();
@@ -226,9 +260,11 @@ function ManageTrendings() {
     const [loading, setLoading] = useState(true);
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("All");
+    const [selectedCategory, setSelectedCategory] =
+        useState("All");
 
-    const [selectedTrending, setSelectedTrending] = useState(null);
+    const [selectedTrending, setSelectedTrending] =
+        useState(null);
 
     const [error, setError] = useState("");
     const [deletingId, setDeletingId] = useState(null);
@@ -249,10 +285,13 @@ function ManageTrendings() {
        NOTIFICATIONS
     ========================================= */
 
-    const showNotification = useCallback((message, type = "success") => {
-        setNotice(message);
-        setNoticeType(type);
-    }, []);
+    const showNotification = useCallback(
+        (message, type = "success") => {
+            setNotice(message);
+            setNoticeType(type);
+        },
+        []
+    );
 
     useEffect(() => {
         if (!notice) return undefined;
@@ -273,7 +312,10 @@ function ManageTrendings() {
             setLoading(true);
             setError("");
 
-            const response = await api.get("/getTrending?category=all");
+            const response = await api.get(
+                "/getTrending?category=all",
+                getAuthConfig()
+            );
 
             const data =
                 response.data?.trendings ||
@@ -282,7 +324,9 @@ function ManageTrendings() {
                 response.data;
 
             if (!Array.isArray(data)) {
-                throw new Error("Invalid trending data received from server.");
+                throw new Error(
+                    "Invalid trending data received from server."
+                );
             }
 
             setTrendings(data);
@@ -325,13 +369,20 @@ function ManageTrendings() {
         const query = searchTerm.trim().toLowerCase();
 
         return trendings.filter((trending) => {
-            const name = getTrendingName(trending).toLowerCase();
-            const category = (trending.category || "").toLowerCase();
+            const name =
+                getTrendingName(trending).toLowerCase();
+
+            const category =
+                (trending.category || "").toLowerCase();
+
+            const description =
+                (trending.description || "").toLowerCase();
 
             const matchesSearch =
                 !query ||
                 name.includes(query) ||
-                category.includes(query);
+                category.includes(query) ||
+                description.includes(query);
 
             const matchesCategory =
                 selectedCategory === "All" ||
@@ -339,7 +390,11 @@ function ManageTrendings() {
 
             return matchesSearch && matchesCategory;
         });
-    }, [trendings, searchTerm, selectedCategory]);
+    }, [
+        trendings,
+        searchTerm,
+        selectedCategory
+    ]);
 
     /* =========================================
        DELETE TRENDING
@@ -367,23 +422,28 @@ function ManageTrendings() {
             setDeletingId(id);
 
             const response = await api.delete(
-                `/deleteTrending/${id}`
+                `/deleteTrending/${id}`,
+                getAuthConfig()
             );
 
             if (!response.data?.success) {
                 throw new Error(
-                    response.data?.message || "Unable to delete trending entry."
+                    response.data?.message ||
+                    "Unable to delete trending entry."
                 );
             }
 
             setTrendings((current) =>
                 current.filter(
-                    (item) => String(getTrendingId(item)) !== String(id)
+                    (item) =>
+                        String(getTrendingId(item)) !==
+                        String(id)
                 )
             );
 
             setSelectedTrending((current) =>
-                current && String(getTrendingId(current)) === String(id)
+                current &&
+                String(getTrendingId(current)) === String(id)
                     ? null
                     : current
             );
@@ -485,7 +545,6 @@ function ManageTrendings() {
             ...previews
         ]);
 
-        // Allow selecting the same file again.
         event.target.value = "";
     };
 
@@ -548,12 +607,18 @@ function ManageTrendings() {
         if (!editingTrending) return;
 
         if (!editingTrending.name.trim()) {
-            showNotification("Trending name is required.", "error");
+            showNotification(
+                "Trending name is required.",
+                "error"
+            );
             return;
         }
 
         if (!editingTrending.category.trim()) {
-            showNotification("Please select a category.", "error");
+            showNotification(
+                "Please enter a category.",
+                "error"
+            );
             return;
         }
 
@@ -577,20 +642,19 @@ function ManageTrendings() {
                 editingTrending.description || ""
             );
 
-            // Existing media that should remain.
             formData.append(
                 "existingFiles",
                 JSON.stringify(existingFiles)
             );
 
-            // Newly selected media.
             selectedFiles.forEach((file) => {
                 formData.append("files", file);
             });
 
             const response = await api.put(
                 `/updateTrending/${editingTrending._id}`,
-                formData
+                formData,
+                getAuthConfig()
             );
 
             if (!response.data?.success) {
@@ -600,7 +664,6 @@ function ManageTrendings() {
                 );
             }
 
-            // Update the list immediately using the returned document.
             const updatedItem = response.data.updatedItem;
 
             if (updatedItem?._id) {
@@ -662,9 +725,16 @@ function ManageTrendings() {
         window.addEventListener("keydown", handleKeyDown);
 
         return () => {
-            window.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener(
+                "keydown",
+                handleKeyDown
+            );
         };
-    }, [showUpdateForm, selectedTrending, saving]);
+    }, [
+        showUpdateForm,
+        selectedTrending,
+        saving
+    ]);
 
     /* =========================================
        COMPONENT RENDER
@@ -775,7 +845,9 @@ function ManageTrendings() {
                         </div>
 
                         <label className="trending-search">
-                            <FontAwesomeIcon icon={faMagnifyingGlass} />
+                            <FontAwesomeIcon
+                                icon={faMagnifyingGlass}
+                            />
 
                             <input
                                 type="search"
@@ -790,7 +862,9 @@ function ManageTrendings() {
                                 <button
                                     type="button"
                                     aria-label="Clear search"
-                                    onClick={() => setSearchTerm("")}
+                                    onClick={() =>
+                                        setSearchTerm("")
+                                    }
                                 >
                                     <FontAwesomeIcon icon={faXmark} />
                                 </button>
@@ -841,7 +915,9 @@ function ManageTrendings() {
 
                             <h3>Loading trending entries</h3>
 
-                            <p>Please wait while we retrieve your content.</p>
+                            <p>
+                                Please wait while we retrieve your content.
+                            </p>
                         </div>
                     )}
 
@@ -907,8 +983,11 @@ function ManageTrendings() {
                             <div className="trending-admin-grid">
                                 {filteredTrendings.map(
                                     (trending, index) => {
-                                        const id = getTrendingId(trending);
-                                        const files = getTrendingFiles(trending);
+                                        const id =
+                                            getTrendingId(trending);
+
+                                        const files =
+                                            getTrendingFiles(trending);
 
                                         return (
                                             <article
@@ -934,10 +1013,7 @@ function ManageTrendings() {
 
                                                         <span className="trending-card-number">
                                                             #
-                                                            {String(index + 1).padStart(
-                                                                2,
-                                                                "0"
-                                                            )}
+                                                            {String(index + 1).padStart(2, "0")}
                                                         </span>
                                                     </div>
 
@@ -946,10 +1022,10 @@ function ManageTrendings() {
                                                     </h3>
 
                                                     <p className="trending-card-description">
-    {trending.description?.trim()
-        ? trending.description
-        : "No description available."}
-</p>
+                                                        {trending.description?.trim()
+                                                            ? trending.description
+                                                            : "No description available."}
+                                                    </p>
 
                                                     <div className="trending-admin-date">
                                                         <FontAwesomeIcon
@@ -958,9 +1034,7 @@ function ManageTrendings() {
 
                                                         <span>
                                                             Added{" "}
-                                                            {formatDate(
-                                                                trending.createdAt
-                                                            )}
+                                                            {formatDate(trending.createdAt)}
                                                         </span>
                                                     </div>
 
@@ -1037,9 +1111,7 @@ function ManageTrendings() {
                 </div>
             )}
 
-            {/* =========================================
-                VIEW DETAILS MODAL
-            ========================================= */}
+            {/* VIEW DETAILS MODAL */}
 
             {selectedTrending && (
                 <div
@@ -1051,7 +1123,9 @@ function ManageTrendings() {
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="trending-modal-title"
-                        onClick={(event) => event.stopPropagation()}
+                        onClick={(event) =>
+                            event.stopPropagation()
+                        }
                     >
                         <div className="trending-modal-header">
                             <div>
@@ -1063,7 +1137,9 @@ function ManageTrendings() {
 
                             <button
                                 type="button"
-                                onClick={() => setSelectedTrending(null)}
+                                onClick={() =>
+                                    setSelectedTrending(null)
+                                }
                                 aria-label="Close details"
                             >
                                 <FontAwesomeIcon icon={faXmark} />
@@ -1102,10 +1178,12 @@ function ManageTrendings() {
                                     "Uncategorized"}
                             </span>
 
-                            <h3>{getTrendingName(selectedTrending)}</h3>
+                            <h3>
+                                {getTrendingName(selectedTrending)}
+                            </h3>
 
                             <p>
-                                {selectedTrending.description ||
+                                {selectedTrending.description?.trim() ||
                                     "No description available."}
                             </p>
                         </div>
@@ -1144,7 +1222,9 @@ function ManageTrendings() {
                             <button
                                 type="button"
                                 className="trending-modal-close"
-                                onClick={() => setSelectedTrending(null)}
+                                onClick={() =>
+                                    setSelectedTrending(null)
+                                }
                             >
                                 Close
                             </button>
@@ -1179,9 +1259,7 @@ function ManageTrendings() {
                 </div>
             )}
 
-            {/* =========================================
-                UPDATE TRENDING MODAL
-            ========================================= */}
+            {/* UPDATE TRENDING MODAL */}
 
             {showUpdateForm && editingTrending && (
                 <div
@@ -1300,7 +1378,7 @@ function ManageTrendings() {
                                 {existingFiles.map((file, index) => (
                                     <div
                                         className="trending-edit-media-item"
-                                        key={`existing-${file.public_id || file.url}-${index}`}
+                                        key={`existing-${getFileUrl(file)}-${index}`}
                                     >
                                         {getFileType(file) === "video" ? (
                                             <video
