@@ -90,9 +90,9 @@ function ManageOrders() {
     });
 
     const totalOrders = orders.length;
-    const pendingOrders = orders.filter(o => o.status === "Pending").length;
-    const completedOrders = orders.filter(o => o.status === "Delivered").length;
-    const cancelledOrders = orders.filter(o => o.status === "Cancelled").length;
+    const pendingOrders = orders.filter(o => o.orderStatus === "Pending").length;
+    const completedOrders = orders.filter(o => o.orderStatus === "Delivered").length;
+    const cancelledOrders = orders.filter(o => o.orderStatus === "Cancelled").length;
 
     return (
         <div className="Manage-orders-page">
