@@ -694,50 +694,7 @@ function ManageTrendings() {
                     </div>
 
                     {/* FEATURED COLLECTIONS */}
-
-<section className="trending-section">
-
-    <div className="section-heading">
-        <span>Discover something special</span>
-        <h2>Featured Collections</h2>
-        <p>
-            Explore different artistic styles and discover
-            beautiful creations from the Dreamaz collection.
-        </p>
-    </div>
-
-    {loading ? (
-        <Loading
-            loading={true}
-            message="Discovering beautiful featured collections for you..."
-        />
-    ) : error ? (
-        <div className="home-status error">
-            <p>Unable to load featured collections.</p>
-            <button type="button" onClick={fetchProducts}>
-                Try Again
-            </button>
-        </div>
-    ) : trendingGroups.length > 0 ? (
-        <div className="trending-collections">
-            {trendingGroups.map((category, index) => (
-                <TrendingCollection
-                    key={category.name}
-                    category={category}
-                    index={index}
-                    onExplore={goToCategory}
-                />
-            ))}
-        </div>
-    ) : (
-        <Loading
-            loading={false}
-            message="New featured collections will appear here soon."
-        />
-    )}
-
-</section>
-                    {!loading && error && (
+         {!loading && error && (
                         <div className="trending-state trending-error">
                             <div className="trending-state-icon">
                                 <FontAwesomeIcon icon={faBoxOpen} />
