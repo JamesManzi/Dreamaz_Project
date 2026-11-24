@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "./Hero.css";
 import api from "./api";
 import { useMessage } from "./ShowMessage";
-
+import Loading from "./Loading";
 function Hero({ category = "all" }) {
 
     const navigate = useNavigate();
@@ -108,11 +108,30 @@ function Hero({ category = "all" }) {
 
     // 4. Loading condition
 
-    if (loading) {
+    {/* FEATURED COLLECTIONS */}
+    // Loading state
+if (loading) {
+    return (
+        <section className="hero">
+            <Loading
+                loading={true}
+                message="Loading featured artwork..."
+            />
+        </section>
+    );
+}
 
-        return <h2>Loading trending...</h2>;
-
-    }
+// Empty state
+if (files.length === 0) {
+    return (
+        <section className="hero">
+            <Loading
+                loading={false}
+                message="No trending artworks are available right now."
+            />
+        </section>
+    );
+}
 
 
     // 5. Empty condition
