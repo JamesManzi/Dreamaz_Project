@@ -84,16 +84,6 @@ function AdminNavbar() {
             ]
         },
         {
-            title: "COMMUNICATION",
-            links: [
-                {
-                    name: "Messages",
-                    path: "/admin-messages",
-                    icon: faEnvelope
-                }
-            ]
-        },
-        {
             title: "PREFERENCES",
             links: [
                 {
