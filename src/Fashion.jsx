@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -11,34 +12,52 @@ import "./Fashion.css";
 
 const PRODUCTS_PER_PAGE = 8;
 
-/* =================================================================
-   Helpers
-   ================================================================= */
+/* =========================================
+   HELPERS
+========================================= */
+
 const formatPrice = (price) => {
     if (price === undefined || price === null || price === "") {
         return "Price unavailable";
     }
+
     return `${Number(price).toLocaleString()} RWF`;
 };
 
-/* Builds a compact page list like: 1 … 4 5 6 … 12 */
 const getPageNumbers = (current, total) => {
-    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    if (total <= 7) {
+        return Array.from({ length: total }, (_, i) => i + 1);
+    }
 
-    const pages = new Set([1, total, current, current - 1, current + 1]);
-    const sorted = [...pages].filter((p) => p >= 1 && p <= total).sort((a, b) => a - b);
+    const pages = new Set([
+        1,
+        total,
+        current,
+        current - 1,
+        current + 1
+    ]);
+
+    const sorted = [...pages]
+        .filter((p) => p >= 1 && p <= total)
+        .sort((a, b) => a - b);
 
     const result = [];
+
     sorted.forEach((page, i) => {
-        if (i > 0 && page - sorted[i - 1] > 1) result.push("...");
+        if (i > 0 && page - sorted[i - 1] > 1) {
+            result.push("...");
+        }
+
         result.push(page);
     });
+
     return result;
 };
 
-/* =================================================================
-   Icons
-   ================================================================= */
+/* =========================================
+   ICONS
+========================================= */
+
 const ICONS = {
     search: (
         <>
@@ -46,19 +65,23 @@ const ICONS = {
             <path d="M21 21l-4.3-4.3" />
         </>
     ),
+
     up: <path d="M12 19V5M5 12l7-7 7 7" />,
+
     tag: (
         <>
             <path d="M3 12V4h8l10 10-8 8L3 12z" />
             <circle cx="7.5" cy="8.5" r="1.2" />
         </>
     ),
+
     shield: (
         <>
             <path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6l8-3z" />
             <path d="M9 12l2 2 4-4" />
         </>
     ),
+
     truck: (
         <>
             <path d="M2 6h11v10H2zM13 10h4l3 3v3h-7" />
@@ -66,12 +89,14 @@ const ICONS = {
             <circle cx="17" cy="18" r="1.8" />
         </>
     ),
+
     image: (
         <>
             <rect x="3" y="4" width="18" height="16" rx="2" />
             <path d="M3 16l5-5 4 4 3-3 6 6" />
         </>
     ),
+
     empty: (
         <>
             <circle cx="11" cy="11" r="7" />
@@ -96,6 +121,10 @@ const Icon = ({ name, size = 22 }) => (
     </svg>
 );
 
+/* =========================================
+   PERKS
+========================================= */
+
 const PERKS = [
     {
         icon: "tag",
@@ -114,10 +143,17 @@ const PERKS = [
     }
 ];
 
-/* =================================================================
-   Product card (medium)
-   ================================================================= */
-function FashionCard({ fashion, index, adding, onOpen, onAdd }) {
+/* =========================================
+   PRODUCT CARD
+========================================= */
+
+function FashionCard({
+    fashion,
+    index,
+    adding,
+    onOpen,
+    onAdd
+}) {
     const file = fashion.files?.[0];
 
     return (
@@ -129,11 +165,27 @@ function FashionCard({ fashion, index, adding, onOpen, onAdd }) {
             <div
                 className="fashion-product-image"
                 onClick={() => onOpen(fashion._id)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                        onOpen(fashion._id);
+                    }
+                }}
             >
                 {file?.type === "video" ? (
-                    <video src={file.url} muted playsInline preload="metadata" />
+                    <video
+                        src={file.url}
+                        muted
+                        playsInline
+                        preload="metadata"
+                    />
                 ) : file?.url ? (
-                    <img src={file.url} alt={fashion.name} loading="lazy" />
+                    <img
+                        src={file.url}
+                        alt={fashion.name || "Fashion product"}
+                        loading="lazy"
+                    />
                 ) : (
                     <div className="fashion-no-image">
                         <Icon name="image" size={34} />
@@ -142,15 +194,28 @@ function FashionCard({ fashion, index, adding, onOpen, onAdd }) {
             </div>
 
             <div className="fashion-product-info">
-                <h3 title={fashion.name}>{fashion.name}</h3>
-                <p>{fashion.description}</p>
+                <h3 title={fashion.name}>
+                    {fashion.name}
+                </h3>
 
-                <h4>{formatPrice(fashion.price)}</h4>
+                <p>
+                    {fashion.description || "No description available."}
+                </p>
+
+                <h4>
+                    {formatPrice(fashion.price)}
+                </h4>
 
                 <div className="fashion-btns">
-                    <button onClick={() => onOpen(fashion._id)}>View More</button>
+                    <button
+                        type="button"
+                        onClick={() => onOpen(fashion._id)}
+                    >
+                        View More
+                    </button>
 
                     <button
+                        type="button"
                         disabled={adding}
                         onClick={() => onAdd(fashion._id)}
                     >
@@ -162,9 +227,10 @@ function FashionCard({ fashion, index, adding, onOpen, onAdd }) {
     );
 }
 
-/* =================================================================
-   Page
-   ================================================================= */
+/* =========================================
+   FASHION PAGE
+========================================= */
+
 function Fashion() {
     const [fashions, setFashions] = useState([]);
     const [search, setSearch] = useState("");
@@ -179,9 +245,33 @@ function Fashion() {
     const productsRef = useRef(null);
 
     const navigate = useNavigate();
+
     const { showSuccess, showError } = useMessage();
 
-    /* ---------- Fetch ---------- */
+    /* =========================================
+       LOGIN PROMPT
+    ========================================= */
+
+    const askUserToLogin = () => {
+        showError("Please log in to add products to your cart.");
+
+        const shouldLogin = window.confirm(
+            "You need to log in before adding products to your cart.\n\nWould you like to log in now?"
+        );
+
+        if (shouldLogin) {
+            navigate("/login", {
+                state: {
+                    from: window.location.pathname
+                }
+            });
+        }
+    };
+
+    /* =========================================
+       FETCH FASHION PRODUCTS
+    ========================================= */
+
     useEffect(() => {
         const fetchFashion = async () => {
             try {
@@ -193,8 +283,10 @@ function Fashion() {
                     setFashions(res.data.fashionProducts || []);
                 } else {
                     setFashions([]);
+
                     showError(
-                        res.data.message || "Unable to fetch Fashion products"
+                        res.data.message ||
+                        "Unable to fetch Fashion products."
                     );
                 }
             } catch (error) {
@@ -202,7 +294,7 @@ function Fashion() {
 
                 showError(
                     error.response?.data?.message ||
-                        "Unable to fetch Fashion products"
+                    "Unable to fetch Fashion products."
                 );
             } finally {
                 setLoading(false);
@@ -210,33 +302,48 @@ function Fashion() {
         };
 
         fetchFashion();
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    /* ---------- Search + sort ---------- */
+    /* =========================================
+       SEARCH AND SORT
+    ========================================= */
+
     const filteredFashions = useMemo(() => {
         const keyword = search.toLowerCase().trim();
 
-        const result = fashions.filter(
-            (fashion) =>
-                !keyword ||
-                fashion.name?.toLowerCase().includes(keyword) ||
-                fashion.description?.toLowerCase().includes(keyword)
+        const result = fashions.filter((fashion) =>
+            !keyword ||
+            fashion.name?.toLowerCase().includes(keyword) ||
+            fashion.description?.toLowerCase().includes(keyword)
         );
 
         if (sortBy === "low") {
-            result.sort((a, b) => Number(a.price) - Number(b.price));
+            result.sort(
+                (a, b) => Number(a.price) - Number(b.price)
+            );
         } else if (sortBy === "high") {
-            result.sort((a, b) => Number(b.price) - Number(a.price));
+            result.sort(
+                (a, b) => Number(b.price) - Number(a.price)
+            );
         } else if (sortBy === "name") {
-            result.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+            result.sort(
+                (a, b) =>
+                    (a.name || "").localeCompare(b.name || "")
+            );
         }
 
         return result;
     }, [fashions, search, sortBy]);
 
-    /* ---------- Pagination ---------- */
-    const totalPages = Math.ceil(filteredFashions.length / PRODUCTS_PER_PAGE);
+    /* =========================================
+       PAGINATION
+    ========================================= */
+
+    const totalPages = Math.ceil(
+        filteredFashions.length / PRODUCTS_PER_PAGE
+    );
 
     const displayedProducts = filteredFashions.slice(
         (currentPage - 1) * PRODUCTS_PER_PAGE,
@@ -264,15 +371,20 @@ function Fashion() {
         });
     };
 
-    /* ---------- Actions ---------- */
-    const openFashion = (id) => navigate(`/fashion/${id}`);
+    /* =========================================
+       PRODUCT ACTIONS
+    ========================================= */
+
+    const openFashion = (id) => {
+        navigate(`/fashion/${id}`);
+    };
 
     const addToCart = async (productId) => {
+        // Check authentication before making the request.
         const token = localStorage.getItem("token");
 
-        if (!token) {
-            showError("Please log in to add items to your cart.");
-            navigate("/login");
+        if (!token || token === "null" || token === "undefined") {
+            askUserToLogin();
             return;
         }
 
@@ -281,14 +393,24 @@ function Fashion() {
 
             const response = await api.post(
                 "/api/cart/add",
-                { productId, quantity: 1 },
-                { headers: { Authorization: `Bearer ${token}` } }
+                {
+                    productId,
+                    quantity: 1
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
             );
 
             if (response.data.success) {
                 showSuccess("Product added to your cart.");
             } else {
-                showError(response.data.message || "Could not add product.");
+                showError(
+                    response.data.message ||
+                    "Could not add product to your cart."
+                );
             }
         } catch (error) {
             console.error("Add to cart error:", error);
@@ -296,49 +418,71 @@ function Fashion() {
             if (error.response?.status === 401) {
                 localStorage.removeItem("token");
                 localStorage.removeItem("userId");
-                navigate("/login");
+
+                askUserToLogin();
                 return;
             }
 
             showError(
-                error.response?.data?.message || "Failed to add product to cart."
+                error.response?.data?.message ||
+                "Failed to add product to cart."
             );
         } finally {
             setAddingProduct("");
         }
     };
 
-    /* ---------- Scroll progress + back to top ---------- */
+    /* =========================================
+       SCROLL PROGRESS
+    ========================================= */
+
     useEffect(() => {
         let ticking = false;
 
         const onScroll = () => {
             if (ticking) return;
+
             ticking = true;
 
             requestAnimationFrame(() => {
                 const top = window.scrollY;
-                const height =
-                    document.documentElement.scrollHeight - window.innerHeight;
 
-                setScrollProgress(height > 0 ? top / height : 0);
+                const height =
+                    document.documentElement.scrollHeight -
+                    window.innerHeight;
+
+                setScrollProgress(
+                    height > 0 ? top / height : 0
+                );
+
                 setShowTop(top > 600);
+
                 ticking = false;
             });
         };
 
         onScroll();
-        window.addEventListener("scroll", onScroll, { passive: true });
-        return () => window.removeEventListener("scroll", onScroll);
+
+        window.addEventListener("scroll", onScroll, {
+            passive: true
+        });
+
+        return () => {
+            window.removeEventListener("scroll", onScroll);
+        };
     }, []);
 
-    /* ---------- Reveal on scroll ---------- */
+    /* =========================================
+       REVEAL ANIMATIONS
+    ========================================= */
+
     useEffect(() => {
-        if (!("IntersectionObserver" in window)) return undefined;
+        if (!("IntersectionObserver" in window)) return;
 
         const targets = document.querySelectorAll(
-            ".fashion-page .fashion-search-heading, .fashion-page .fashion-toolbar, " +
-                ".fashion-page [data-reveal]"
+            ".fashion-page .fashion-search-heading, " +
+            ".fashion-page .fashion-toolbar, " +
+            ".fashion-page [data-reveal]"
         );
 
         const observer = new IntersectionObserver(
@@ -350,7 +494,10 @@ function Fashion() {
                     }
                 });
             },
-            { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
+            {
+                threshold: 0.12,
+                rootMargin: "0px 0px -40px 0px"
+            }
         );
 
         targets.forEach((el) => {
@@ -363,16 +510,30 @@ function Fashion() {
         return () => observer.disconnect();
     }, [loading, displayedProducts]);
 
+    /* =========================================
+       PAGE UI
+    ========================================= */
+
     return (
         <div className="fashion-page">
+
             <div className="fashion-progress" aria-hidden="true">
-                <span style={{ transform: `scaleX(${scrollProgress})` }} />
+                <span
+                    style={{
+                        transform: `scaleX(${scrollProgress})`
+                    }}
+                />
             </div>
 
             <button
                 type="button"
                 className={`fashion-top ${showTop ? "visible" : ""}`}
-                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                onClick={() =>
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    })
+                }
                 aria-label="Back to top"
             >
                 <Icon name="up" size={20} />
@@ -380,28 +541,39 @@ function Fashion() {
 
             <Navbar />
 
-            {/* REUSABLE FASHION HERO */}
             <section className="fashion-trending">
                 <Hero category="Fashion" />
             </section>
 
             <main className="fashion-content">
-                {/* ---------- Heading + toolbar ---------- */}
-                <section className="fashion-search-section" ref={productsRef}>
+
+                {/* HEADING AND TOOLBAR */}
+
+                <section
+                    className="fashion-search-section"
+                    ref={productsRef}
+                >
                     <div className="fashion-search-heading">
                         <div>
                             <span>DISCOVER OUR COLLECTION</span>
+
                             <h2>Explore Fashion</h2>
-                            <p>Find your favorite styles from our sellers.</p>
+
+                            <p>
+                                Find your favorite styles from our sellers.
+                            </p>
                         </div>
 
                         <div className="fashion-total">
                             {filteredFashions.length}{" "}
-                            {filteredFashions.length === 1 ? "Product" : "Products"}
+                            {filteredFashions.length === 1
+                                ? "Product"
+                                : "Products"}
                         </div>
                     </div>
 
                     <div className="fashion-toolbar">
+
                         <div className="fashion-search">
                             <Icon name="search" size={20} />
 
@@ -409,7 +581,9 @@ function Fashion() {
                                 type="text"
                                 placeholder="Search fashion products..."
                                 value={search}
-                                onChange={(e) => handleSearch(e.target.value)}
+                                onChange={(e) =>
+                                    handleSearch(e.target.value)
+                                }
                                 aria-label="Search fashion products"
                             />
 
@@ -426,7 +600,9 @@ function Fashion() {
 
                         <select
                             value={sortBy}
-                            onChange={(e) => handleSort(e.target.value)}
+                            onChange={(e) =>
+                                handleSort(e.target.value)
+                            }
                             aria-label="Sort products"
                         >
                             <option value="default">Sort: Default</option>
@@ -434,32 +610,47 @@ function Fashion() {
                             <option value="high">Price: High to Low</option>
                             <option value="name">Name: A to Z</option>
                         </select>
+
                     </div>
                 </section>
 
-                {/* ---------- Products ---------- */}
+                {/* PRODUCTS */}
+
                 <section className="fashion-products-section">
+
                     {loading ? (
-                        <div className="fashion-products" aria-busy="true">
+                        <div
+                            className="fashion-products"
+                            aria-busy="true"
+                        >
                             {Array.from({ length: 8 }).map((_, i) => (
-                                <div key={i} className="fashion-skeleton" />
+                                <div
+                                    key={i}
+                                    className="fashion-skeleton"
+                                />
                             ))}
                         </div>
                     ) : displayedProducts.length > 0 ? (
+
                         <div className="fashion-products">
                             {displayedProducts.map((fashion, index) => (
                                 <FashionCard
                                     key={fashion._id}
                                     fashion={fashion}
                                     index={index}
-                                    adding={addingProduct === fashion._id}
+                                    adding={
+                                        addingProduct === fashion._id
+                                    }
                                     onOpen={openFashion}
                                     onAdd={addToCart}
                                 />
                             ))}
                         </div>
+
                     ) : (
+
                         <div className="fashion-empty">
+
                             <div className="fashion-empty-icon">
                                 <Icon name="empty" size={30} />
                             </div>
@@ -477,73 +668,100 @@ function Fashion() {
                             </p>
 
                             {search && (
-                                <button onClick={() => handleSearch("")}>
+                                <button
+                                    onClick={() => handleSearch("")}
+                                >
                                     Clear Search
                                 </button>
                             )}
+
                         </div>
                     )}
 
-                    {/* ---------- Pagination ---------- */}
+                    {/* PAGINATION */}
+
                     {!loading && totalPages > 1 && (
-                        <nav className="fashion-pagination" aria-label="Pagination">
+                        <nav
+                            className="fashion-pagination"
+                            aria-label="Pagination"
+                        >
+
                             <button
-                                onClick={() => goToPage(currentPage - 1)}
+                                onClick={() =>
+                                    goToPage(currentPage - 1)
+                                }
                                 disabled={currentPage === 1}
                             >
                                 ← Previous
                             </button>
 
                             <div className="fashion-page-numbers">
-                                {getPageNumbers(currentPage, totalPages).map(
-                                    (page, i) =>
-                                        page === "..." ? (
-                                            <span key={`gap-${i}`} className="fashion-gap">
-                                                …
-                                            </span>
-                                        ) : (
-                                            <button
-                                                key={page}
-                                                className={
-                                                    currentPage === page
-                                                        ? "current-page"
-                                                        : ""
-                                                }
-                                                aria-current={
-                                                    currentPage === page
-                                                        ? "page"
-                                                        : undefined
-                                                }
-                                                onClick={() => goToPage(page)}
-                                            >
-                                                {page}
-                                            </button>
-                                        )
+                                {getPageNumbers(
+                                    currentPage,
+                                    totalPages
+                                ).map((page, i) =>
+                                    page === "..." ? (
+                                        <span
+                                            key={`gap-${i}`}
+                                            className="fashion-gap"
+                                        >
+                                            …
+                                        </span>
+                                    ) : (
+                                        <button
+                                            key={page}
+                                            className={
+                                                currentPage === page
+                                                    ? "current-page"
+                                                    : ""
+                                            }
+                                            aria-current={
+                                                currentPage === page
+                                                    ? "page"
+                                                    : undefined
+                                            }
+                                            onClick={() =>
+                                                goToPage(page)
+                                            }
+                                        >
+                                            {page}
+                                        </button>
+                                    )
                                 )}
                             </div>
 
                             <button
-                                onClick={() => goToPage(currentPage + 1)}
-                                disabled={currentPage === totalPages}
+                                onClick={() =>
+                                    goToPage(currentPage + 1)
+                                }
+                                disabled={
+                                    currentPage === totalPages
+                                }
                             >
                                 Next →
                             </button>
+
                         </nav>
                     )}
+
                 </section>
 
-                {/* ---------- Perks ---------- */}
+                {/* PERKS */}
+
                 <section className="fashion-perks">
                     {PERKS.map((perk, index) => (
                         <div
                             key={perk.title}
                             className="fashion-perk"
                             data-reveal
-                            style={{ "--delay": `${index * 90}ms` }}
+                            style={{
+                                "--delay": `${index * 90}ms`
+                            }}
                         >
                             <div className="fashion-perk-icon">
                                 <Icon name={perk.icon} size={24} />
                             </div>
+
                             <div>
                                 <h3>{perk.title}</h3>
                                 <p>{perk.text}</p>
@@ -551,9 +769,11 @@ function Fashion() {
                         </div>
                     ))}
                 </section>
+
             </main>
 
             <Footer />
+
         </div>
     );
 }

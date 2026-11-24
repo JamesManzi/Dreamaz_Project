@@ -843,3 +843,52 @@
     .fashion-top { transition: none; }
     .fashion-skeleton { animation: none; }
 }
+
+
+
+/* =====================================
+   ADD TO CART BUTTON IMPROVEMENTS
+===================================== */
+
+.fashion-btns button:last-child {
+    background: var(--brand);
+    color: #fff;
+    border: 1.5px solid var(--brand);
+}
+
+.fashion-btns button:last-child:hover:not(:disabled) {
+    background: var(--brand-dark);
+    border-color: var(--brand-dark);
+    transform: translateY(-2px);
+}
+
+.fashion-btns button:focus-visible {
+    outline: 3px solid rgba(39, 174, 96, 0.3);
+    outline-offset: 3px;
+}
+
+/* Make clickable product images accessible */
+.fashion-product-image:focus-visible {
+    outline: 3px solid var(--brand);
+    outline-offset: -3px;
+}
+
+/* Small screen adjustments */
+@media (max-width: 480px) {
+    .fashion-products {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .fashion-product-image {
+        height: 150px;
+    }
+
+    .fashion-product-info {
+        padding: 10px;
+    }
+
+    .fashion-btns button {
+        font-size: 11px;
+    }
+}
