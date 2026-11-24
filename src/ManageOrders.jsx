@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import AdminNavbar from "./AdminNavbar";
 import api from "./api";
 import "./ManageOrders.css";
-
+import { useNavigate } from "react-router-dom";
 function ManageOrders() {
     const [orders, setOrders] = useState([]);
     const [search, setSearch] = useState("");
@@ -11,21 +11,42 @@ function ManageOrders() {
     const [loading, setLoading] = useState(true);
     const [selectedOrder, setSelectedOrder] = useState(null);
 
+    const navigate=useNavigate();
+
     useEffect(() => {
         fetchOrders();
     }, []);
 
     const fetchOrders = async () => {
-        try {
-            setLoading(true);
-            const res = await api.get("/getAllOrders");
-            setOrders(res.data.orders || res.data);
-        } catch (error) {
-            console.error("Error fetching orders:", error);
-        } finally {
-            setLoading(false);
+    try {
+        setLoading(true);
+
+        const token = localStorage.getItem("token");
+
+        const res = await api.get("/getAllOrders", {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        console.log("Orders:", res.data);
+
+        if (res.data.success) {
+            setOrders(res.data.orders || []);
+        } else {
+            console.log(res.data.message);
         }
-    };
+
+    } catch (error) {
+        console.error(
+            "Fetching Orders Error:",
+            error.response?.status,
+            error.response?.data || error.message
+        );
+    } finally {
+        setLoading(false);
+    }
+};
 
     const updateStatus = async (orderId, status) => {
         try {

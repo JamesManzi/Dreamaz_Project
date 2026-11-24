@@ -17,6 +17,7 @@ function AdminDashboard() {
     const { showSuccess, showError } = useMessage();
     const [pendingOrders,setPendingorders]=useState(0);
     const [deliveredOrders,setDeliveredOrders]=useState(0);
+    const [totalOrders,setTotalOrders]=useState(0);
 
     const navigate = useNavigate();
 
@@ -53,24 +54,31 @@ function AdminDashboard() {
         });
     }, [navigate]);
 
-    const fetchOrders=async()=>{
-        try {
-            const res=await api.get("orderStats",{
-                headers:{
-                    Authorization:`Bearer ${token}`
-                }
-            });
-            if(res.data.success){
-                setPendingorders(res.data.pendingOrders);
-                setDeliveredOrders(res.data.deliveredOrders);
-            }else{
-                showError(res.data.message.error);
+   const token = localStorage.getItem("token");
+
+const fetchOrders = async () => {
+    try {
+        const res = await api.get("/orderStats", {
+            headers: {
+                Authorization: `Bearer ${token}`
             }
-        } catch (error) {
-            console.log("Fetching Orders Error",error);
-            showError("Fetching Orders Error");
+        });
+
+        if (res.data.success) {
+            setTotalOrders(res.data.totalOrders);
+            setPendingorders(res.data.pendingOrders);
+            setDeliveredOrders(res.data.deliveredOrders);
+        } else {
+            showError(res.data.message || "Fetching Orders Failed");
         }
+
+    } catch (error) {
+        console.log("Fetching Orders Error:", error);
+        showError("Fetching Orders Error");
     }
+};
+
+fetchOrders();
 
     return (
         <>
@@ -113,10 +121,10 @@ function AdminDashboard() {
                             <p>Reserved Products</p>
                         </div>
                         <div className="information_card">
-                            <p className="total_carts">
-                                {totalCarts || 0}
+                            <p className="total_orders">
+                                {totalOrders || 0}
                             </p>
-                            <p>Total Carts</p>
+                            <p>Total Orders</p>
                         </div>
                         <div className="information_card">
                             <p className="pending-orders">

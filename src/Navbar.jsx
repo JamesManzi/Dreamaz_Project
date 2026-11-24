@@ -1,25 +1,85 @@
+
+import { useState } from "react";
+import { NavLink } from "react-router-dom";
 import "./Navbar.css";
-import { Link } from "react-router-dom";
-function Navbar(){
-    return(
-        <>
-        <div className="menu-navbar">
+
+function Navbar() {
+    const [menuOpen, setMenuOpen] = useState(false);
+
+    const closeMenu = () => {
+        setMenuOpen(false);
+    };
+
+    const navLinks = [
+        { name: "Home", path: "/" },
+        { name: "Fashion", path: "/fashion" },
+        { name: "Accessories", path: "/accessories" },
+        { name: "Prints", path: "/prints" },
+        { name: "About", path: "/about" }
+    ];
+
+    return (
+        <header className="menu-navbar">
+
+            {/* Logo */}
             <div className="menu-logo">
-                <h1>JACK<span className="logo1">$ON</span></h1>
+                <NavLink to="/" onClick={closeMenu}>
+                    <h1>
+                        JACK<span className="logo1">$ON</span>
+                    </h1>
+                    <span className="logo-tagline">STYLE YOUR IDENTITY</span>
+                </NavLink>
             </div>
-            <div className="menu-navbar-links">
+
+            {/* Desktop and Mobile Navigation */}
+            <nav className={`menu-navbar-links ${menuOpen ? "active" : ""}`}>
                 <ul>
-                        <li><Link to="/">Home</Link></li>
-                        <li><Link to="/fashion">Fashion</Link></li>
-                        <li><Link to="/accessories">Accessories</Link></li>
-                        <li><Link to="/prints">Prints</Link></li>
-                        <li><Link to="/about">About</Link></li>
-                        <li><Link to="/login">Login</Link></li>
-                    </ul>
+                    {navLinks.map((link) => (
+                        <li key={link.path}>
+                            <NavLink
+                                to={link.path}
+                                end={link.path === "/"}
+                                onClick={closeMenu}
+                                className={({ isActive }) =>
+                                    isActive ? "nav-active" : ""
+                                }
+                            >
+                                {link.name}
+                            </NavLink>
+                        </li>
+                    ))}
+
+                    <li className="mobile-login">
+                        <NavLink to="/login" onClick={closeMenu}>
+                            Login
+                        </NavLink>
+                    </li>
+                </ul>
+            </nav>
+
+            {/* Right Actions */}
+            <div className="navbar-actions">
+                <NavLink to="/login" className="navbar-login">
+                    Login <span>↗</span>
+                </NavLink>
             </div>
-        </div>
-        </>
-    )
+
+            {/* Mobile Menu Button */}
+            <button
+                className={`menu-toggle ${menuOpen ? "open" : ""}`}
+                onClick={() => setMenuOpen(!menuOpen)}
+                aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
+                aria-expanded={menuOpen}
+                aria-controls="mobile-navigation"
+                type="button"
+            >
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+        </header>
+    );
 }
 
 export default Navbar;
