@@ -23,7 +23,10 @@ function ManageOrders() {
 
         const token = localStorage.getItem("token");
 
-        const res = await api.get("/getAllOrders", {
+        if(!token){
+            navigate("/login");
+        }
+         const res = await api.get("/getAllOrders", {
             headers: {
                 Authorization: `Bearer ${token}`
             }
