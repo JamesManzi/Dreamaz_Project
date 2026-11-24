@@ -502,7 +502,7 @@ function Dashboard() {
 
                             <button
                                 className="dash-btn dash-btn-ghost"
-                                onClick={() => navigate("/buyerOrders")}
+                                onClick={() => navigate("/orders")}
                             >
                                 <Icon name="package" />
                                 My Orders
@@ -572,7 +572,7 @@ function Dashboard() {
                     <button
                         type="button"
                         className="dashboard-action-card"
-                        onClick={() => navigate("/buyerOrders")}
+                        onClick={() => navigate("/orders")}
                     >
                         <div className="dashboard-action-icon">
                             <Icon name="package" />
