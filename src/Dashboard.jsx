@@ -483,7 +483,7 @@ function Dashboard() {
                             {getGreeting()}
                         </span>
 
-                        <h1>Welcome back, {firstName}!</h1>
+                        <h1>Welcome back, {user.username}!</h1>
 
                         <p>
                             Discover amazing products, explore new
@@ -591,7 +591,7 @@ function Dashboard() {
                     <button
                         type="button"
                         className="dashboard-action-card"
-                        onClick={() => navigate("/profile")}
+                        onClick={() => navigate("/buyerProfile")}
                     >
                         <div className="dashboard-action-icon">
                             <Icon name="user" />
