@@ -1,5 +1,10 @@
-
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState
+} from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import Navbar from "./Navbar";
@@ -14,38 +19,108 @@ import "./Home.css";
 ========================================================= */
 
 const getImage = (product) => {
-    if (product.image) return product.image;
-    if (product.imageUrl) return product.imageUrl;
+    if (!product) return null;
 
-    if (product.files?.length) {
-        const first = product.files[0];
-        return typeof first === "string"
-            ? first
-            : first?.url || first?.secure_url || null;
-    }
+    if (typeof product.image === "string") return product.image;
+    if (typeof product.imageUrl === "string") return product.imageUrl;
 
-    if (product.images?.length) {
-        const first = product.images[0];
-        return typeof first === "string"
-            ? first
-            : first?.url || first?.secure_url || null;
+    const files = product.files || product.images || [];
+
+    if (Array.isArray(files) && files.length > 0) {
+        const first = files[0];
+
+        if (typeof first === "string") return first;
+
+        return (
+            first?.url ||
+            first?.secure_url ||
+            first?.path ||
+            null
+        );
     }
 
     return null;
 };
 
 const getTitle = (product) =>
-    product.name || product.title || "Untitled Artwork";
+    product?.name ||
+    product?.title ||
+    "Untitled Artwork";
 
-const formatPrice = (price) => {
-    if (price === undefined || price === null || price === "") {
-        return "Price unavailable";
+const getPrice = (price) => {
+    if (
+        price === undefined ||
+        price === null ||
+        price === ""
+    ) {
+        return null;
     }
 
-    return `${Number(price).toLocaleString("en-US")} RWF`;
+    const value = Number(price);
+
+    return Number.isFinite(value) ? value : null;
+};
+
+const formatPrice = (price) => {
+    const value = getPrice(price);
+
+    if (value === null) return "Price unavailable";
+
+    return `${value.toLocaleString("en-US")} RWF`;
 };
 
 const getToken = () => localStorage.getItem("token");
+
+const getCategoryDescription = (category) => {
+    const key = String(category || "").trim().toLowerCase();
+
+    const descriptions = {
+        painting:
+            "Bring color, creativity and personality into your space with expressive paintings from our collection.",
+
+        paintings:
+            "Discover expressive paintings and unique artwork created to add character to your home or workspace.",
+
+        prints:
+            "Explore creative art prints that transform ordinary spaces into inspiring environments.",
+
+        photography:
+            "Discover photography capturing beautiful moments, places and perspectives.",
+
+        digital:
+            "Explore modern digital creations featuring fresh ideas, creative styles and imaginative designs.",
+
+        "digital art":
+            "Discover original digital artwork with unique styles and modern creative expression.",
+
+        drawing:
+            "Explore detailed drawings and illustrations made with creativity, skill and passion.",
+
+        sculpture:
+            "Discover distinctive sculptures and decorative pieces that bring art into three-dimensional spaces.",
+
+        abstract:
+            "Explore expressive abstract artwork featuring distinctive colors, shapes and ideas.",
+
+        fashion:
+            "Discover creative fashion pieces that combine artistic expression and personal style."
+    };
+
+    return (
+        descriptions[key] ||
+        `Explore our ${category} collection and discover creative pieces selected to inspire your space and style.`
+    );
+};
+
+const getProductDate = (product) => {
+    const date = new Date(
+        product?.createdAt ||
+        product?.updatedAt ||
+        0
+    ).getTime();
+
+    return Number.isFinite(date) ? date : 0;
+};
 
 /* =========================================================
    ICONS
@@ -55,30 +130,35 @@ const ICONS = {
     search: (
         <>
             <circle cx="11" cy="11" r="7" />
-            <path d="M21 21l-4.3-4.3" />
+            <path d="m20 20-4-4" />
         </>
     ),
 
-    arrow: <path d="M5 12h14M13 6l6 6-6 6" />,
+    arrow: (
+        <>
+            <path d="M5 12h14" />
+            <path d="m13 6 6 6-6 6" />
+        </>
+    ),
 
     cart: (
         <>
             <circle cx="9" cy="21" r="1" />
             <circle cx="20" cy="21" r="1" />
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+            <path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6" />
         </>
     ),
 
-    up: <path d="M12 19V5M5 12l7-7 7 7" />,
+    up: <path d="M12 19V5m-7 7 7-7 7 7" />,
 
     frame: (
         <>
             <rect x="3" y="4" width="18" height="16" rx="2" />
-            <path d="M3 16l5-5 4 4 3-3 6 6" />
+            <path d="m3 16 5-5 4 4 3-3 6 6" />
         </>
     ),
 
-    close: <path d="M18 6 6 18M6 6l12 12" />,
+    close: <path d="m18 6-12 12M6 6l12 12" />,
 
     check: <path d="m5 12 4 4L19 6" />,
 
@@ -93,8 +173,8 @@ const ICONS = {
 
     shield: (
         <>
-            <path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6l8-3z" />
-            <path d="M9 12l2 2 4-4" />
+            <path d="m12 3 8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6l8-3z" />
+            <path d="m9 12 2 2 4-4" />
         </>
     ),
 
@@ -106,21 +186,23 @@ const ICONS = {
     )
 };
 
-const Icon = ({ name, size = 20 }) => (
-    <svg
-        viewBox="0 0 24 24"
-        width={size}
-        height={size}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-    >
-        {ICONS[name]}
-    </svg>
-);
+function Icon({ name, size = 20 }) {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            width={size}
+            height={size}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+        >
+            {ICONS[name]}
+        </svg>
+    );
+}
 
 /* =========================================================
    STATIC CONTENT
@@ -144,7 +226,7 @@ const FEATURES = [
     },
     {
         icon: "shield",
-        title: "Secure Shopping",
+        title: "Simple Shopping",
         text: "Create an account, manage your cart and follow your orders."
     }
 ];
@@ -174,20 +256,28 @@ function CountUp({ end, duration = 1400 }) {
 
     useEffect(() => {
         const element = ref.current;
+
         if (!element) return;
 
-        let raf;
+        if (!("IntersectionObserver" in window)) {
+            setValue(end);
+            return;
+        }
+
+        let animationFrame;
+        let started = false;
 
         const observer = new IntersectionObserver(([entry]) => {
-            if (!entry.isIntersecting) return;
+            if (!entry.isIntersecting || started) return;
 
+            started = true;
             observer.disconnect();
 
-            const start = performance.now();
+            const startTime = performance.now();
 
-            const tick = (now) => {
+            const animate = (now) => {
                 const progress = Math.min(
-                    (now - start) / duration,
+                    (now - startTime) / duration,
                     1
                 );
 
@@ -196,18 +286,18 @@ function CountUp({ end, duration = 1400 }) {
                 setValue(Math.round(end * eased));
 
                 if (progress < 1) {
-                    raf = requestAnimationFrame(tick);
+                    animationFrame = requestAnimationFrame(animate);
                 }
             };
 
-            raf = requestAnimationFrame(tick);
+            animationFrame = requestAnimationFrame(animate);
         });
 
         observer.observe(element);
 
         return () => {
             observer.disconnect();
-            cancelAnimationFrame(raf);
+            cancelAnimationFrame(animationFrame);
         };
     }, [end, duration]);
 
@@ -226,7 +316,6 @@ function ProductCard({
 }) {
     const image = getImage(product);
     const title = getTitle(product);
-
     const isAdding = addingId === product._id;
 
     return (
@@ -247,7 +336,7 @@ function ProductCard({
                     />
                 ) : (
                     <div className="no-art-image">
-                        <Icon name="frame" size={38} />
+                        <Icon name="frame" size={36} />
                         <span>No image available</span>
                     </div>
                 )}
@@ -286,7 +375,7 @@ function ProductCard({
                         {isAdding ? (
                             <span className="button-loader" />
                         ) : (
-                            <Icon name="cart" size={17} />
+                            <Icon name="cart" size={16} />
                         )}
 
                         {isAdding ? "Adding..." : "Add to Cart"}
@@ -294,6 +383,99 @@ function ProductCard({
                 </div>
             </div>
         </article>
+    );
+}
+
+/* =========================================================
+   FEATURED COLLECTION ROW
+========================================================= */
+
+function TrendingCollection({
+    category,
+    index,
+    onExplore
+}) {
+    const products = category.products || [];
+
+    if (!products.length) return null;
+
+    return (
+        <div
+            className={`trending-row ${
+                index % 2 !== 0 ? "reverse" : ""
+            }`}
+            data-reveal
+            style={{ "--delay": `${index * 100}ms` }}
+        >
+            <div className="trending-description">
+                <span className="trending-label">
+                    <span className="trending-dot" />
+                    Featured Collection
+                </span>
+
+                <span className="trending-content-number">
+                    COLLECTION {String(index + 1).padStart(2, "0")}
+                </span>
+
+                <h3>{category.name}</h3>
+
+                <p>{category.description}</p>
+
+                <div className="trending-content-meta">
+                    <span>
+                        {category.count}{" "}
+                        {category.count === 1 ? "Artwork" : "Artworks"}
+                    </span>
+                </div>
+
+                <button
+                    type="button"
+                    className="trending-explore-btn"
+                    onClick={() => onExplore(category.name)}
+                >
+                    Explore Collection
+                    <Icon name="arrow" size={18} />
+                </button>
+            </div>
+
+            <div className="trending-products">
+                {products.map((product, productIndex) => {
+                    const image = getImage(product);
+                    const title = getTitle(product);
+
+                    return (
+                        <Link
+                            key={product._id}
+                            to={`/products/${product._id}`}
+                            className="trending-product-card"
+                            data-reveal
+                            style={{
+                                "--delay": `${productIndex * 80}ms`
+                            }}
+                        >
+                            <div className="trending-product-image">
+                                {image ? (
+                                    <img
+                                        src={image}
+                                        alt={title}
+                                        loading="lazy"
+                                    />
+                                ) : (
+                                    <div className="no-art-image">
+                                        <Icon name="frame" size={30} />
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="trending-product-info">
+                                <h4 title={title}>{title}</h4>
+                                <span>{formatPrice(product.price)}</span>
+                            </div>
+                        </Link>
+                    );
+                })}
+            </div>
+        </div>
     );
 }
 
@@ -341,7 +523,7 @@ function CategoryCard({
 }
 
 /* =========================================================
-   LOADING SKELETON
+   SKELETON
 ========================================================= */
 
 function SkeletonGrid() {
@@ -362,7 +544,6 @@ function Home() {
     const navigate = useNavigate();
 
     const [products, setProducts] = useState([]);
-
     const [search, setSearch] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [sortBy, setSortBy] = useState("default");
@@ -371,7 +552,6 @@ function Home() {
     const [error, setError] = useState("");
 
     const [addingId, setAddingId] = useState(null);
-
     const [notice, setNotice] = useState(null);
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
@@ -382,15 +562,19 @@ function Home() {
        NOTIFICATIONS
     ===================================================== */
 
-    const showNotice = (message, type = "success") => {
+    const showNotice = useCallback((message, type = "success") => {
         setNotice({ message, type });
+    }, []);
 
-        window.clearTimeout(showNotice.timer);
+    useEffect(() => {
+        if (!notice) return;
 
-        showNotice.timer = window.setTimeout(() => {
+        const timeout = window.setTimeout(() => {
             setNotice(null);
         }, 3500);
-    };
+
+        return () => window.clearTimeout(timeout);
+    }, [notice]);
 
     /* =====================================================
        FETCH PRODUCTS
@@ -405,7 +589,9 @@ function Home() {
 
             const allProducts = Array.isArray(res.data)
                 ? res.data
-                : res.data?.products || [];
+                : Array.isArray(res.data?.products)
+                    ? res.data.products
+                    : [];
 
             setProducts(allProducts);
         } catch (err) {
@@ -431,7 +617,6 @@ function Home() {
     const handleAddToCart = async (product) => {
         const token = getToken();
 
-        // Ask visitor to log in
         if (!token) {
             setShowLoginPrompt(true);
             return;
@@ -441,17 +626,6 @@ function Home() {
 
         try {
             setAddingId(product._id);
-
-            /*
-             * Expected backend payload:
-             * {
-             *   productId: product._id,
-             *   quantity: 1
-             * }
-             *
-             * Change the endpoint/payload if your cart
-             * backend uses a different structure.
-             */
 
             const res = await api.post(
                 "/addToCart",
@@ -478,7 +652,6 @@ function Home() {
                 res.data?.message || "Artwork added to your cart!",
                 "success"
             );
-
         } catch (err) {
             console.error("Add to cart error:", err);
 
@@ -499,17 +672,23 @@ function Home() {
     };
 
     /* =====================================================
-       CATEGORIES
+       CATEGORY DATA
     ===================================================== */
 
     const categoryData = useMemo(() => {
         const map = new Map();
 
         products.forEach((product) => {
-            if (!product.category) return;
+            const categoryName = String(
+                product.category || ""
+            ).trim();
 
-            const entry = map.get(product.category) || {
-                name: product.category,
+            if (!categoryName) return;
+
+            const normalizedKey = categoryName.toLowerCase();
+
+            const entry = map.get(normalizedKey) || {
+                name: categoryName,
                 count: 0,
                 image: null
             };
@@ -520,10 +699,12 @@ function Home() {
                 entry.image = getImage(product);
             }
 
-            map.set(product.category, entry);
+            map.set(normalizedKey, entry);
         });
 
-        return [...map.values()];
+        return [...map.values()].sort((a, b) =>
+            a.name.localeCompare(b.name)
+        );
     }, [products]);
 
     const categories = useMemo(
@@ -542,6 +723,32 @@ function Home() {
     }, [products, categoryData]);
 
     /* =====================================================
+       FEATURED COLLECTIONS
+    ===================================================== */
+
+    const trendingGroups = useMemo(() => {
+        return categoryData
+            .map((category) => {
+                const categoryProducts = products
+                    .filter(
+                        (product) =>
+                            String(product.category || "").toLowerCase() ===
+                            category.name.toLowerCase()
+                    )
+                    .sort(
+                        (a, b) => getProductDate(b) - getProductDate(a)
+                    );
+
+                return {
+                    ...category,
+                    description: getCategoryDescription(category.name),
+                    products: categoryProducts.slice(0, 4)
+                };
+            })
+            .filter((category) => category.products.length > 0);
+    }, [products, categoryData]);
+
+    /* =====================================================
        SEARCH, FILTER AND SORT
     ===================================================== */
 
@@ -549,26 +756,39 @@ function Home() {
         const term = search.trim().toLowerCase();
 
         const result = products.filter((product) => {
+            const title = getTitle(product).toLowerCase();
+            const description = String(
+                product.description || ""
+            ).toLowerCase();
+            const category = String(
+                product.category || ""
+            ).toLowerCase();
+
             const matchesSearch =
                 !term ||
-                getTitle(product).toLowerCase().includes(term) ||
-                (product.description || "").toLowerCase().includes(term) ||
-                (product.category || "").toLowerCase().includes(term);
+                title.includes(term) ||
+                description.includes(term) ||
+                category.includes(term);
 
             const matchesCategory =
                 selectedCategory === "All" ||
-                product.category === selectedCategory;
+                String(product.category || "").toLowerCase() ===
+                    selectedCategory.toLowerCase();
 
             return matchesSearch && matchesCategory;
         });
 
         if (sortBy === "low") {
             result.sort(
-                (a, b) => Number(a.price) - Number(b.price)
+                (a, b) =>
+                    (getPrice(a.price) ?? Infinity) -
+                    (getPrice(b.price) ?? Infinity)
             );
         } else if (sortBy === "high") {
             result.sort(
-                (a, b) => Number(b.price) - Number(a.price)
+                (a, b) =>
+                    (getPrice(b.price) ?? -Infinity) -
+                    (getPrice(a.price) ?? -Infinity)
             );
         } else if (sortBy === "name") {
             result.sort((a, b) =>
@@ -591,24 +811,27 @@ function Home() {
     const goToCategory = (category) => {
         setSelectedCategory(category);
 
-        document
-            .getElementById("all-artworks")
-            ?.scrollIntoView({ behavior: "smooth" });
+        window.setTimeout(() => {
+            document
+                .getElementById("all-artworks")
+                ?.scrollIntoView({ behavior: "smooth" });
+        }, 50);
     };
 
     /* =====================================================
-       SCROLL PROGRESS
+       SCROLL PROGRESS AND BACK TO TOP
     ===================================================== */
 
     useEffect(() => {
         let ticking = false;
+        let frameId;
 
         const onScroll = () => {
             if (ticking) return;
 
             ticking = true;
 
-            requestAnimationFrame(() => {
+            frameId = requestAnimationFrame(() => {
                 const top = window.scrollY;
 
                 const height =
@@ -616,11 +839,10 @@ function Home() {
                     window.innerHeight;
 
                 setScrollProgress(
-                    height > 0 ? top / height : 0
+                    height > 0 ? Math.min(top / height, 1) : 0
                 );
 
                 setShowTop(top > 600);
-
                 ticking = false;
             });
         };
@@ -631,24 +853,34 @@ function Home() {
             passive: true
         });
 
+        window.addEventListener("resize", onScroll);
+
         return () => {
             window.removeEventListener("scroll", onScroll);
+            window.removeEventListener("resize", onScroll);
+            cancelAnimationFrame(frameId);
         };
     }, []);
 
     /* =====================================================
-       REVEAL ANIMATIONS
+       SCROLL REVEAL ANIMATIONS
     ===================================================== */
 
     useEffect(() => {
-        if (!("IntersectionObserver" in window)) return;
-
         const targets = document.querySelectorAll(
             ".home-page .section-heading, " +
             ".home-page .art-toolbar, " +
             ".home-page .category-filters, " +
             ".home-page [data-reveal]"
         );
+
+        if (!("IntersectionObserver" in window)) {
+            targets.forEach((element) => {
+                element.classList.add("is-visible");
+            });
+
+            return;
+        }
 
         const observer = new IntersectionObserver(
             (entries) => {
@@ -660,20 +892,27 @@ function Home() {
                 });
             },
             {
-                threshold: 0.12,
-                rootMargin: "0px 0px -40px 0px"
+                threshold: 0.08,
+                rootMargin: "0px 0px -30px 0px"
             }
         );
 
         targets.forEach((element) => {
+            element.classList.add("reveal");
+
             if (!element.classList.contains("is-visible")) {
-                element.classList.add("reveal");
                 observer.observe(element);
             }
         });
 
         return () => observer.disconnect();
-    }, [loading, error, filteredProducts, categoryData]);
+    }, [
+        loading,
+        error,
+        filteredProducts,
+        categoryData,
+        trendingGroups
+    ]);
 
     /* =====================================================
        RENDER
@@ -681,6 +920,8 @@ function Home() {
 
     return (
         <>
+            {/* SCROLL PROGRESS */}
+
             <div className="scroll-progress" aria-hidden="true">
                 <span
                     style={{
@@ -688,6 +929,8 @@ function Home() {
                     }}
                 />
             </div>
+
+            {/* BACK TO TOP */}
 
             <button
                 type="button"
@@ -703,7 +946,8 @@ function Home() {
                 <Icon name="up" size={20} />
             </button>
 
-            {/* Notification */}
+            {/* NOTIFICATION */}
+
             {notice && (
                 <div
                     className={`home-notice ${notice.type}`}
@@ -713,6 +957,7 @@ function Home() {
                         name={notice.type === "success" ? "check" : "close"}
                         size={19}
                     />
+
                     <span>{notice.message}</span>
 
                     <button
@@ -725,7 +970,8 @@ function Home() {
                 </div>
             )}
 
-            {/* Login prompt */}
+            {/* LOGIN PROMPT */}
+
             {showLoginPrompt && (
                 <div
                     className="login-modal-overlay"
@@ -788,6 +1034,8 @@ function Home() {
                 </div>
             )}
 
+            {/* HEADER */}
+
             <header className="home-header">
                 <Navbar />
 
@@ -801,48 +1049,16 @@ function Home() {
             <main className="home-page">
 
                 {/* HERO */}
+
                 <section className="home-hero">
                     <div className="hero-content">
                         <Hero category="all" />
                     </div>
                 </section>
 
-                {/* STATS */}
-                {!loading && !error && products.length > 0 && (
-                    <section className="stats-band" data-reveal>
-                        <div className="stats-grid">
-                            <div className="stat-item">
-                                <strong className="stat-value">
-                                    <CountUp end={products.length} />
-                                </strong>
-                                <span className="stat-label">
-                                    Artworks Available
-                                </span>
-                            </div>
+                {/* SHOP BY CATEGORY */}
 
-                            <div className="stat-item">
-                                <strong className="stat-value">
-                                    <CountUp end={categoryData.length} />
-                                </strong>
-                                <span className="stat-label">
-                                    Categories
-                                </span>
-                            </div>
-
-                            <div className="stat-item">
-                                <strong className="stat-value">
-                                    RWF
-                                </strong>
-                                <span className="stat-label">
-                                    Local Pricing
-                                </span>
-                            </div>
-                        </div>
-                    </section>
-                )}
-
-                {/* CATEGORIES */}
-                {!loading && categoryData.length > 0 && (
+                {!loading && !error && categoryData.length > 0 && (
                     <section className="category-section">
                         <div className="section-heading">
                             <span>Find your style</span>
@@ -867,7 +1083,34 @@ function Home() {
                     </section>
                 )}
 
+                {/* FEATURED COLLECTIONS */}
+
+                {!loading && !error && trendingGroups.length > 0 && (
+                    <section className="trending-section">
+                        <div className="section-heading">
+                            <span>Discover something special</span>
+                            <h2>Featured Collections</h2>
+                            <p>
+                                Explore different artistic styles and discover
+                                beautiful creations from the Dreamaz collection.
+                            </p>
+                        </div>
+
+                        <div className="trending-collections">
+                            {trendingGroups.map((category, index) => (
+                                <TrendingCollection
+                                    key={category.name}
+                                    category={category}
+                                    index={index}
+                                    onExplore={goToCategory}
+                                />
+                            ))}
+                        </div>
+                    </section>
+                )}
+
                 {/* ALL ARTWORKS */}
+
                 <section
                     className="home-section all-artworks"
                     id="all-artworks"
@@ -881,6 +1124,7 @@ function Home() {
                     </div>
 
                     {/* SEARCH AND SORT */}
+
                     <div className="art-toolbar">
                         <div className="art-search">
                             <Icon name="search" size={20} />
@@ -922,6 +1166,7 @@ function Home() {
                     </div>
 
                     {/* CATEGORY FILTERS */}
+
                     <div
                         className="category-filters"
                         role="tablist"
@@ -945,6 +1190,7 @@ function Home() {
                                 }
                             >
                                 {category}
+
                                 <small>
                                     {categoryCounts[category] || 0}
                                 </small>
@@ -952,7 +1198,8 @@ function Home() {
                         ))}
                     </div>
 
-                    {/* PRODUCT RESULTS */}
+                    {/* RESULTS */}
+
                     {loading ? (
                         <SkeletonGrid />
                     ) : error ? (
@@ -960,7 +1207,10 @@ function Home() {
                             <h3>Something went wrong</h3>
                             <p>{error}</p>
 
-                            <button onClick={fetchProducts}>
+                            <button
+                                type="button"
+                                onClick={fetchProducts}
+                            >
                                 Try Again
                             </button>
                         </div>
@@ -979,7 +1229,10 @@ function Home() {
                             </p>
 
                             {hasActiveFilters && (
-                                <button onClick={clearFilters}>
+                                <button
+                                    type="button"
+                                    onClick={clearFilters}
+                                >
                                     Clear Filters
                                 </button>
                             )}
@@ -988,7 +1241,9 @@ function Home() {
                         <>
                             <p className="results-count">
                                 Showing{" "}
-                                <strong>{filteredProducts.length}</strong>{" "}
+                                <strong>
+                                    {filteredProducts.length}
+                                </strong>{" "}
                                 {filteredProducts.length === 1
                                     ? "artwork"
                                     : "artworks"}
@@ -1010,6 +1265,7 @@ function Home() {
                 </section>
 
                 {/* WHY DREAMAZ */}
+
                 <section className="info-section">
                     <div className="section-heading center">
                         <span>Why Dreamaz</span>
@@ -1041,6 +1297,7 @@ function Home() {
                 </section>
 
                 {/* HOW IT WORKS */}
+
                 <section className="info-section">
                     <div className="section-heading center">
                         <span>How it works</span>
@@ -1068,7 +1325,8 @@ function Home() {
                     </div>
                 </section>
 
-                {/* CTA */}
+                {/* CALL TO ACTION */}
+
                 <section className="cta-banner" data-reveal>
                     <div className="cta-inner">
                         <div>
@@ -1099,6 +1357,7 @@ function Home() {
                         </div>
                     </div>
                 </section>
+
             </main>
 
             <Footer />

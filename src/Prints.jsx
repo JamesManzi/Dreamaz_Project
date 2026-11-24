@@ -56,6 +56,31 @@ const getPageNumbers = (current, total) => {
     return result;
 };
 
+const getPrintFiles = (item) => {
+    return Array.isArray(item?.files)
+        ? item.files.filter((file) => file?.url)
+        : [];
+};
+
+const getPrintCollectionName = (item) => {
+    const possibleNames = [
+        item?.collection,
+        item?.category,
+        item?.subCategory,
+        item?.productCategory,
+        item?.style
+    ];
+
+    const name = possibleNames.find(
+        (value) =>
+            typeof value === "string" &&
+            value.trim() &&
+            value.trim().toLowerCase() !== "prints"
+    );
+
+    return name ? name.trim() : "";
+};
+
 /* =================================================================
    Icons
 ================================================================= */
@@ -156,10 +181,7 @@ function PrintCarousel({ item, onOpen }) {
     const [activeIndex, setActiveIndex] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
 
-    const media = Array.isArray(item.files)
-        ? item.files.filter((file) => file?.url)
-        : [];
-
+    const media = getPrintFiles(item);
     const mediaCount = media.length;
 
     useEffect(() => {
@@ -263,7 +285,10 @@ function PrintCarousel({ item, onOpen }) {
                                 key={`${file.url}-${index}`}
                                 type="button"
                                 className={activeIndex === index ? "active" : ""}
-                                onClick={() => setActiveIndex(index)}
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    setActiveIndex(index);
+                                }}
                                 aria-label={`Show media ${index + 1}`}
                             />
                         ))}
@@ -331,6 +356,54 @@ function PrintCard({ item, index, adding, onOpen, onAdd }) {
 }
 
 /* =================================================================
+   Featured print collection card
+================================================================= */
+
+function FeaturedPrintCard({ item, onOpen }) {
+    const media = getPrintFiles(item);
+    const firstMedia = media[0];
+
+    return (
+        <button
+            type="button"
+            className="prints-featured-card"
+            onClick={() => onOpen(item._id)}
+        >
+            <div className="prints-featured-image">
+                {firstMedia?.type === "video" ? (
+                    <video
+                        src={firstMedia.url}
+                        muted
+                        playsInline
+                        preload="metadata"
+                    />
+                ) : firstMedia?.url ? (
+                    <img
+                        src={firstMedia.url}
+                        alt={item.name || "Featured print"}
+                        loading="lazy"
+                    />
+                ) : (
+                    <div className="prints-featured-no-image">
+                        <Icon name="image" size={32} />
+                        <span>No image available</span>
+                    </div>
+                )}
+
+                <span className="prints-featured-view">
+                    View Print
+                </span>
+            </div>
+
+            <div className="prints-featured-info">
+                <h3>{item.name || "Untitled Print"}</h3>
+                <span>{formatPrice(item.price)}</span>
+            </div>
+        </button>
+    );
+}
+
+/* =================================================================
    Prints page
 ================================================================= */
 
@@ -384,6 +457,63 @@ function Prints() {
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    /* ---------- Featured collections ---------- */
+
+    const printCollections = useMemo(() => {
+        if (!prints.length) return [];
+
+        const grouped = new Map();
+
+        prints.forEach((item) => {
+            const collectionName = getPrintCollectionName(item);
+
+            if (collectionName) {
+                if (!grouped.has(collectionName)) {
+                    grouped.set(collectionName, []);
+                }
+
+                grouped.get(collectionName).push(item);
+            }
+        });
+
+        // Use actual collection/category names when available.
+        if (grouped.size > 1) {
+            return Array.from(grouped.entries()).map(
+                ([title, products]) => ({
+                    title,
+                    description: `Explore our ${title.toLowerCase()} print collection.`,
+                    products: products.slice(0, 4)
+                })
+            );
+        }
+
+        // If there is only one collection, show it as one featured section.
+        if (grouped.size === 1) {
+            const [title, products] = Array.from(grouped.entries())[0];
+
+            if (products.length >= 2) {
+                return [{
+                    title,
+                    description: `Discover creative designs from our ${title.toLowerCase()} collection.`,
+                    products: products.slice(0, 4)
+                }];
+            }
+        }
+
+        // Fallback when products do not have meaningful collection names.
+        const collections = [];
+
+        for (let index = 0; index < prints.length; index += 4) {
+            collections.push({
+                title: `Featured Prints ${collections.length + 1}`,
+                description: "Discover creative artwork and designs selected from our print collection.",
+                products: prints.slice(index, index + 4)
+            });
+        }
+
+        return collections;
+    }, [prints]);
 
     /* ---------- Search and sort ---------- */
 
@@ -505,6 +635,15 @@ function Prints() {
         }
     };
 
+    /* ---------- Scroll to products ---------- */
+
+    const explorePrints = () => {
+        productsRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    };
+
     /* ---------- Scroll progress and back to top ---------- */
 
     useEffect(() => {
@@ -543,13 +682,19 @@ function Prints() {
     /* ---------- Reveal on scroll ---------- */
 
     useEffect(() => {
-        if (!("IntersectionObserver" in window)) return undefined;
-
         const targets = document.querySelectorAll(
             ".prints-page .prints-heading, " +
             ".prints-page .prints-toolbar, " +
             ".prints-page [data-reveal]"
         );
+
+        if (!("IntersectionObserver" in window)) {
+            targets.forEach((element) => {
+                element.classList.add("is-visible");
+            });
+
+            return undefined;
+        }
 
         const observer = new IntersectionObserver(
             (entries) => {
@@ -574,7 +719,7 @@ function Prints() {
         });
 
         return () => observer.disconnect();
-    }, [loading, displayedPrints]);
+    }, [loading, displayedPrints, printCollections]);
 
     /* ---------- Render ---------- */
 
@@ -613,6 +758,85 @@ function Prints() {
                 <section className="prints-trending">
                     <Hero category="Prints" />
                 </section>
+
+                {/* Featured print collections */}
+
+                {!loading && printCollections.length > 0 && (
+                    <section className="prints-highlights">
+                        <div className="prints-highlights-heading">
+                            <div>
+                                <span>DISCOVER OUR ARTWORK</span>
+                                <h2>Prints Trending</h2>
+                                <p>
+                                    Explore creative designs and artwork
+                                    for your home, office and personal space.
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={explorePrints}
+                            >
+                                Explore All Prints
+                                <Icon name="right" size={18} />
+                            </button>
+                        </div>
+
+                        <div className="prints-trend-collections">
+                            {printCollections.map((collection, index) => (
+                                <article
+                                    key={`${collection.title}-${index}`}
+                                    className={`prints-trend-row ${
+                                        index % 2 !== 0 ? "reverse" : ""
+                                    }`}
+                                    data-reveal
+                                >
+                                    <div className="prints-trend-description">
+                                        <span className="prints-trend-number">
+                                            0{index + 1}
+                                        </span>
+
+                                        <span className="prints-trend-label">
+                                            FEATURED COLLECTION
+                                        </span>
+
+                                        <h3>{collection.title}</h3>
+
+                                        <p>
+                                            {collection.description}
+                                        </p>
+
+                                        <span className="prints-trend-count">
+                                            {collection.products.length}{" "}
+                                            {collection.products.length === 1
+                                                ? "Featured Design"
+                                                : "Featured Designs"}
+                                        </span>
+
+                                        <button
+                                            type="button"
+                                            onClick={explorePrints}
+                                            className="prints-trend-explore"
+                                        >
+                                            Explore Collection
+                                            <Icon name="right" size={17} />
+                                        </button>
+                                    </div>
+
+                                    <div className="prints-trend-products">
+                                        {collection.products.map((item) => (
+                                            <FeaturedPrintCard
+                                                key={item._id}
+                                                item={item}
+                                                onOpen={openPrint}
+                                            />
+                                        ))}
+                                    </div>
+                                </article>
+                            ))}
+                        </div>
+                    </section>
+                )}
 
                 {/* Products */}
 

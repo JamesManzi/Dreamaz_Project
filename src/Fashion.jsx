@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -11,6 +10,7 @@ import { useMessage } from "./ShowMessage";
 import "./Fashion.css";
 
 const PRODUCTS_PER_PAGE = 8;
+const TRENDING_PRODUCTS_PER_COLLECTION = 4;
 
 /* =========================================
    HELPERS
@@ -61,7 +61,7 @@ const getPageNumbers = (current, total) => {
 };
 
 const getProductFiles = (fashion) => {
-    if (!Array.isArray(fashion.files)) return [];
+    if (!Array.isArray(fashion?.files)) return [];
 
     return fashion.files
         .map((file) => {
@@ -74,9 +74,57 @@ const getProductFiles = (fashion) => {
                 };
             }
 
-            return file;
+            if (!file?.url) return null;
+
+            return {
+                ...file,
+                type:
+                    file.type ||
+                    (/\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(file.url)
+                        ? "video"
+                        : "image")
+            };
         })
         .filter((file) => file?.url);
+};
+
+const getFashionCategory = (fashion) => {
+    const possibleCategories = [
+        fashion?.subCategory,
+        fashion?.category,
+        fashion?.productCategory,
+        fashion?.type,
+        fashion?.style
+    ];
+
+    const category = possibleCategories.find(
+        (value) =>
+            typeof value === "string" &&
+            value.trim() &&
+            value.trim().toLowerCase() !== "fashion"
+    );
+
+    return category ? category.trim() : "Fashion";
+};
+
+const getFashionDescription = (category) => {
+    const descriptions = {
+        men: "Explore clothing and accessories selected for everyday looks and special occasions.",
+        women: "Discover outfits and accessories to help you express your personal style.",
+        shoes: "Find footwear for casual days, work, events, and everything in between.",
+        footwear: "Explore footwear for everyday comfort and different occasions.",
+        accessories: "Complete your look with accessories that add personality to your style.",
+        bags: "Discover bags for daily use, work, travel, and special occasions.",
+        clothing: "Explore clothing options for different styles, seasons, and occasions.",
+        dresses: "Browse dress styles suitable for casual outings and special events.",
+        shirts: "Find shirts for everyday wear, work, and smart-casual outfits.",
+        trousers: "Explore trousers and bottoms for different occasions and personal styles."
+    };
+
+    return (
+        descriptions[category.toLowerCase()] ||
+        `Explore ${category.toLowerCase()} styles and discover fashion items listed by our sellers.`
+    );
 };
 
 /* =========================================
@@ -172,6 +220,198 @@ const PERKS = [
 ];
 
 /* =========================================
+   FASHION COLLECTIONS
+========================================= */
+
+function FashionHighlights({ fashions, onOpen }) {
+    const collections = useMemo(() => {
+        if (!fashions.length) return [];
+
+        const groups = new Map();
+
+        fashions.forEach((fashion) => {
+            const category = getFashionCategory(fashion);
+
+            if (!groups.has(category)) {
+                groups.set(category, []);
+            }
+
+            groups.get(category).push(fashion);
+        });
+
+        let result = [...groups.entries()].map(
+            ([category, products]) => ({
+                title: category === "Fashion"
+                    ? "Featured Fashion"
+                    : category,
+                description: category === "Fashion"
+                    ? "Explore selected fashion items from our marketplace."
+                    : getFashionDescription(category),
+                products: products.slice(
+                    0,
+                    TRENDING_PRODUCTS_PER_COLLECTION
+                )
+            })
+        );
+
+        /*
+         * If the backend only returns one general Fashion category,
+         * divide the products into different style edits so visitors
+         * can discover more products as they scroll.
+         */
+        if (result.length === 1 && fashions.length > 4) {
+            const chunks = [];
+
+            for (
+                let index = 0;
+                index < fashions.length;
+                index += TRENDING_PRODUCTS_PER_COLLECTION
+            ) {
+                chunks.push(
+                    fashions.slice(
+                        index,
+                        index + TRENDING_PRODUCTS_PER_COLLECTION
+                    )
+                );
+            }
+
+            result = chunks.map((products, index) => ({
+                title:
+                    index === 0
+                        ? "Featured Styles"
+                        : `Style Edit ${index + 1}`,
+                description:
+                    index === 0
+                        ? "Discover a selection of fashion items from our sellers."
+                        : "Keep exploring more styles and find something that matches your look.",
+                products
+            }));
+        }
+
+        return result
+            .filter((collection) => collection.products.length > 0)
+            .slice(0, 6);
+    }, [fashions]);
+
+    if (!collections.length) return null;
+
+    return (
+        <section className="fashion-highlights">
+            <div className="fashion-highlights-heading" data-reveal>
+                <div>
+                    <span>STYLE DISCOVERY</span>
+                    <h2>Fashion Highlights</h2>
+                    <p>
+                        Explore different collections and discover styles
+                        from our marketplace.
+                    </p>
+                </div>
+
+                <span className="fashion-highlights-count">
+                    {collections.length} Collections
+                </span>
+            </div>
+
+            <div className="fashion-trending-list">
+                {collections.map((collection, index) => (
+                    <article
+                        className={`fashion-trend-row ${
+                            index % 2 === 1 ? "reverse" : ""
+                        }`}
+                        key={`${collection.title}-${index}`}
+                        data-reveal
+                        style={{
+                            "--delay": `${(index % 3) * 100}ms`
+                        }}
+                    >
+                        <div className="fashion-trend-description">
+                            <span className="fashion-trend-number">
+                                COLLECTION {String(index + 1).padStart(2, "0")}
+                            </span>
+
+                            <h3>{collection.title}</h3>
+
+                            <p>{collection.description}</p>
+
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    document
+                                        .getElementById("fashion-products")
+                                        ?.scrollIntoView({
+                                            behavior: "smooth",
+                                            block: "start"
+                                        });
+                                }}
+                            >
+                                Explore Collection
+                                <span aria-hidden="true">→</span>
+                            </button>
+                        </div>
+
+                        <div className="fashion-trend-products">
+                            {collection.products.map((fashion) => {
+                                const media = getProductFiles(fashion);
+                                const firstMedia = media[0];
+
+                                return (
+                                    <button
+                                        type="button"
+                                        className="fashion-trend-card"
+                                        key={fashion._id}
+                                        onClick={() => onOpen(fashion._id)}
+                                    >
+                                        <div className="fashion-trend-image">
+                                            {firstMedia?.type === "video" ? (
+                                                <video
+                                                    src={firstMedia.url}
+                                                    muted
+                                                    autoPlay
+                                                    loop
+                                                    playsInline
+                                                    preload="metadata"
+                                                />
+                                            ) : firstMedia?.url ? (
+                                                <img
+                                                    src={firstMedia.url}
+                                                    alt={
+                                                        fashion.name ||
+                                                        "Fashion product"
+                                                    }
+                                                    loading="lazy"
+                                                />
+                                            ) : (
+                                                <div className="fashion-trend-no-image">
+                                                    <Icon
+                                                        name="image"
+                                                        size={28}
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="fashion-trend-card-info">
+                                            <h4>
+                                                {fashion.name ||
+                                                    "Fashion Product"}
+                                            </h4>
+
+                                            <span>
+                                                {formatPrice(fashion.price)}
+                                            </span>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </article>
+                ))}
+            </div>
+        </section>
+    );
+}
+
+/* =========================================
    PRODUCT MEDIA CAROUSEL
 ========================================= */
 
@@ -179,7 +419,7 @@ function ProductCarousel({ files, productName, onOpen }) {
     const [activeIndex, setActiveIndex] = useState(0);
     const [paused, setPaused] = useState(false);
 
-    const media = files.length > 0 ? files : [];
+    const media = files || [];
 
     useEffect(() => {
         setActiveIndex(0);
@@ -189,9 +429,7 @@ function ProductCarousel({ files, productName, onOpen }) {
         if (paused || media.length <= 1) return;
 
         const timer = window.setInterval(() => {
-            setActiveIndex((current) =>
-                (current + 1) % media.length
-            );
+            setActiveIndex((current) => (current + 1) % media.length);
         }, 4000);
 
         return () => window.clearInterval(timer);
@@ -200,17 +438,15 @@ function ProductCarousel({ files, productName, onOpen }) {
     const previous = (event) => {
         event.stopPropagation();
 
-        setActiveIndex((current) =>
-            (current - 1 + media.length) % media.length
+        setActiveIndex(
+            (current) => (current - 1 + media.length) % media.length
         );
     };
 
     const next = (event) => {
         event.stopPropagation();
 
-        setActiveIndex((current) =>
-            (current + 1) % media.length
-        );
+        setActiveIndex((current) => (current + 1) % media.length);
     };
 
     const currentFile = media[activeIndex];
@@ -252,9 +488,7 @@ function ProductCarousel({ files, productName, onOpen }) {
                 )}
             </button>
 
-            <span className="fashion-category-badge">
-                Fashion
-            </span>
+            <span className="fashion-category-badge">Fashion</span>
 
             {media.length > 1 && (
                 <>
@@ -338,25 +572,28 @@ function FashionCard({
             />
 
             <div className="fashion-home-card-body">
-
                 <div className="fashion-card-topline">
                     <span className="fashion-card-category">
                         Fashion
                     </span>
 
-                    {availability && (
-                        <span
-                            className={`fashion-stock-badge ${
-                                isUnavailable ? "unavailable" : "available"
-                            }`}
-                        >
-                            {typeof availability === "boolean"
-                                ? availability
-                                    ? "Available"
-                                    : "Unavailable"
-                                : availability}
-                        </span>
-                    )}
+                    {availability !== undefined &&
+                        availability !== null &&
+                        availability !== "" && (
+                            <span
+                                className={`fashion-stock-badge ${
+                                    isUnavailable
+                                        ? "unavailable"
+                                        : "available"
+                                }`}
+                            >
+                                {typeof availability === "boolean"
+                                    ? availability
+                                        ? "Available"
+                                        : "Unavailable"
+                                    : availability}
+                            </span>
+                        )}
                 </div>
 
                 <h3 title={fashion.name}>
@@ -654,13 +891,19 @@ function Fashion() {
     ========================================= */
 
     useEffect(() => {
-        if (!("IntersectionObserver" in window)) return;
-
         const targets = document.querySelectorAll(
             ".fashion-page .fashion-search-heading, " +
             ".fashion-page .fashion-toolbar, " +
             ".fashion-page [data-reveal]"
         );
+
+        if (!("IntersectionObserver" in window)) {
+            targets.forEach((element) => {
+                element.classList.add("is-visible");
+            });
+
+            return;
+        }
 
         const observer = new IntersectionObserver(
             (entries) => {
@@ -685,7 +928,7 @@ function Fashion() {
         });
 
         return () => observer.disconnect();
-    }, [loading, displayedProducts]);
+    }, [loading, fashions, displayedProducts]);
 
     /* =========================================
        PAGE UI
@@ -693,7 +936,6 @@ function Fashion() {
 
     return (
         <div className="fashion-page">
-
             <div className="fashion-progress" aria-hidden="true">
                 <span
                     style={{
@@ -723,12 +965,21 @@ function Fashion() {
             </section>
 
             <main className="fashion-content">
+                {/* FASHION COLLECTIONS THAT REVEAL ON SCROLL */}
+
+                {!loading && fashions.length > 0 && (
+                    <FashionHighlights
+                        fashions={fashions}
+                        onOpen={openFashion}
+                    />
+                )}
 
                 {/* HEADING AND TOOLBAR */}
 
                 <section
                     className="fashion-search-section"
                     ref={productsRef}
+                    id="fashion-products"
                 >
                     <div className="fashion-search-heading">
                         <div>
@@ -792,7 +1043,6 @@ function Fashion() {
                 {/* PRODUCTS */}
 
                 <section className="fashion-products-section">
-
                     {loading ? (
                         <div
                             className="fashion-products"
@@ -940,7 +1190,6 @@ function Fashion() {
                         </div>
                     ))}
                 </section>
-
             </main>
 
             <Footer />

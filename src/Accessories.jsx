@@ -12,9 +12,9 @@ import "./Accessories.css";
 
 const PRODUCTS_PER_PAGE = 8;
 
-/* =================================================================
+/* ================================================================
    HELPERS
-================================================================= */
+================================================================ */
 
 const formatPrice = (price) => {
     if (price === undefined || price === null || price === "") {
@@ -48,10 +48,7 @@ const getPageNumbers = (current, total) => {
     const result = [];
 
     sorted.forEach((page, index) => {
-        if (
-            index > 0 &&
-            page - sorted[index - 1] > 1
-        ) {
+        if (index > 0 && page - sorted[index - 1] > 1) {
             result.push("...");
         }
 
@@ -61,9 +58,36 @@ const getPageNumbers = (current, total) => {
     return result;
 };
 
-/* =================================================================
+const getProductMedia = (item) =>
+    Array.isArray(item.files)
+        ? item.files.filter((file) => file?.url)
+        : [];
+
+const getCollectionCategory = (item) => {
+    const value =
+        item.category ||
+        item.subCategory ||
+        item.productCategory ||
+        item.type ||
+        item.style;
+
+    if (typeof value !== "string") return "";
+
+    const normalized = value.trim();
+
+    if (
+        !normalized ||
+        normalized.toLowerCase() === "accessories"
+    ) {
+        return "";
+    }
+
+    return normalized;
+};
+
+/* ================================================================
    ICONS
-================================================================= */
+================================================================ */
 
 const ICONS = {
     search: (
@@ -131,9 +155,9 @@ const Icon = ({ name, size = 22 }) => (
     </svg>
 );
 
-/* =================================================================
+/* ================================================================
    PERKS
-================================================================= */
+================================================================ */
 
 const PERKS = [
     {
@@ -153,18 +177,15 @@ const PERKS = [
     }
 ];
 
-/* =================================================================
+/* ================================================================
    PRODUCT MEDIA CAROUSEL
-================================================================= */
+================================================================ */
 
 function AccessoryCarousel({ item, onOpen }) {
     const [activeIndex, setActiveIndex] = useState(0);
     const [paused, setPaused] = useState(false);
 
-    const media = Array.isArray(item.files)
-        ? item.files.filter((file) => file?.url)
-        : [];
-
+    const media = getProductMedia(item);
     const totalMedia = media.length;
 
     useEffect(() => {
@@ -270,9 +291,7 @@ function AccessoryCarousel({ item, onOpen }) {
                             <button
                                 key={index}
                                 type="button"
-                                className={
-                                    activeIndex === index ? "active" : ""
-                                }
+                                className={activeIndex === index ? "active" : ""}
                                 onClick={() => setActiveIndex(index)}
                                 aria-label={`Show image ${index + 1}`}
                             />
@@ -288,9 +307,9 @@ function AccessoryCarousel({ item, onOpen }) {
     );
 }
 
-/* =================================================================
-   HOME-STYLE ACCESSORY CARD
-================================================================= */
+/* ================================================================
+   ACCESSORY CARD
+================================================================ */
 
 function AccessoryCard({
     item,
@@ -346,9 +365,178 @@ function AccessoryCard({
     );
 }
 
-/* =================================================================
+/* ================================================================
+   ACCESSORIES HIGHLIGHTS
+================================================================ */
+
+function AccessoriesHighlights({
+    accessories,
+    onOpen,
+    onExplore
+}) {
+    const collections = useMemo(() => {
+        const groups = new Map();
+
+        accessories.forEach((item) => {
+            const category = getCollectionCategory(item);
+
+            if (!category) return;
+
+            if (!groups.has(category)) {
+                groups.set(category, []);
+            }
+
+            groups.get(category).push(item);
+        });
+
+        if (groups.size > 1) {
+            return Array.from(groups.entries()).map(
+                ([title, products]) => ({
+                    title,
+                    products: products.slice(0, 4),
+                    description: `Explore our ${title.toLowerCase()} accessories collection.`
+                })
+            );
+        }
+
+        const products = accessories;
+
+        if (products.length === 0) return [];
+
+        if (products.length <= 4) {
+            return [{
+                title: "Featured Accessories",
+                products,
+                description: "Discover accessories selected from our collection."
+            }];
+        }
+
+        const chunks = [];
+
+        for (let i = 0; i < products.length; i += 4) {
+            chunks.push({
+                title: `Style Edit ${chunks.length + 1}`,
+                products: products.slice(i, i + 4),
+                description: "Explore more accessories and find the perfect finishing touch."
+            });
+        }
+
+        return chunks;
+    }, [accessories]);
+
+    if (collections.length === 0) return null;
+
+    return (
+        <section className="accessories-highlights">
+            <div className="accessories-highlights-heading" data-reveal>
+                <div>
+                    <span>DISCOVER YOUR STYLE</span>
+                    <h2>Accessories Highlights</h2>
+                    <p>
+                        Explore selected pieces and discover something
+                        special for your everyday look.
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    onClick={onExplore}
+                >
+                    Explore All Accessories
+                    <Icon name="right" size={17} />
+                </button>
+            </div>
+
+            <div className="accessories-trending-list">
+                {collections.map((collection, index) => (
+                    <article
+                        key={collection.title}
+                        className={`accessories-trend-row ${index % 2 ? "reverse" : ""}`}
+                        data-reveal
+                        style={{ "--delay": `${index * 100}ms` }}
+                    >
+                        <div className="accessories-trend-description">
+                            <span className="accessories-trend-number">
+                                {String(index + 1).padStart(2, "0")}
+                            </span>
+
+                            <span className="accessories-trend-label">
+                                ACCESSORY COLLECTION
+                            </span>
+
+                            <h3>{collection.title}</h3>
+
+                            <p>{collection.description}</p>
+
+                            <span className="accessories-trend-count">
+                                {collection.products.length}{" "}
+                                {collection.products.length === 1
+                                    ? "Product"
+                                    : "Products"}
+                            </span>
+
+                            <button
+                                type="button"
+                                onClick={onExplore}
+                            >
+                                View Collection
+                                <Icon name="right" size={16} />
+                            </button>
+                        </div>
+
+                        <div className="accessories-trend-products">
+                            {collection.products.map((item) => {
+                                const media = getProductMedia(item);
+                                const firstMedia = media[0];
+
+                                return (
+                                    <button
+                                        type="button"
+                                        key={item._id}
+                                        className="accessories-trend-card"
+                                        onClick={() => onOpen(item._id)}
+                                    >
+                                        <div className="accessories-trend-image">
+                                            {firstMedia?.type === "video" ? (
+                                                <video
+                                                    src={firstMedia.url}
+                                                    muted
+                                                    autoPlay
+                                                    loop
+                                                    playsInline
+                                                    preload="metadata"
+                                                />
+                                            ) : firstMedia?.url ? (
+                                                <img
+                                                    src={firstMedia.url}
+                                                    alt={item.name || "Accessory"}
+                                                    loading="lazy"
+                                                />
+                                            ) : (
+                                                <div className="accessories-trend-no-image">
+                                                    <Icon name="image" size={30} />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="accessories-trend-card-info">
+                                            <h4>{item.name || "Accessory"}</h4>
+                                            <span>{formatPrice(item.price)}</span>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </article>
+                ))}
+            </div>
+        </section>
+    );
+}
+
+/* ================================================================
    ACCESSORIES PAGE
-================================================================= */
+================================================================ */
 
 function Accessories() {
     const [accessories, setAccessories] = useState([]);
@@ -463,6 +651,13 @@ function Accessories() {
         });
     };
 
+    const exploreProducts = () => {
+        productsRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    };
+
     /* ---------- Product actions ---------- */
 
     const openAccessory = (id) => {
@@ -474,7 +669,6 @@ function Accessories() {
 
         if (!token) {
             showError("Please log in to add items to your cart.");
-
             navigate("/login");
             return;
         }
@@ -523,17 +717,18 @@ function Accessories() {
         }
     };
 
-    /* ---------- Scroll progress and back to top ---------- */
+    /* ---------- Scroll progress ---------- */
 
     useEffect(() => {
         let ticking = false;
+        let frameId;
 
         const onScroll = () => {
             if (ticking) return;
 
             ticking = true;
 
-            requestAnimationFrame(() => {
+            frameId = requestAnimationFrame(() => {
                 const top = window.scrollY;
 
                 const height =
@@ -545,7 +740,6 @@ function Accessories() {
                 );
 
                 setShowTop(top > 600);
-
                 ticking = false;
             });
         };
@@ -558,19 +752,28 @@ function Accessories() {
 
         return () => {
             window.removeEventListener("scroll", onScroll);
+            cancelAnimationFrame(frameId);
         };
     }, []);
 
     /* ---------- Reveal animations ---------- */
 
     useEffect(() => {
-        if (!("IntersectionObserver" in window)) return undefined;
-
         const targets = document.querySelectorAll(
             ".accessories-page .accessories-section-heading, " +
+            ".accessories-page .accessories-highlights-heading, " +
+            ".accessories-page .accessories-trend-row, " +
             ".accessories-page .accessories-toolbar, " +
             ".accessories-page [data-reveal]"
         );
+
+        if (!("IntersectionObserver" in window)) {
+            targets.forEach((element) => {
+                element.classList.add("is-visible");
+            });
+
+            return undefined;
+        }
 
         const observer = new IntersectionObserver(
             (entries) => {
@@ -595,7 +798,7 @@ function Accessories() {
         });
 
         return () => observer.disconnect();
-    }, [loading, displayedAccessories]);
+    }, [loading, displayedAccessories, accessories]);
 
     /* ---------- Render ---------- */
 
@@ -635,6 +838,16 @@ function Accessories() {
                 <section className="accessories-trending">
                     <Hero category="Accessories" />
                 </section>
+
+                {/* ACCESSORIES HIGHLIGHTS */}
+
+                {!loading && accessories.length > 0 && (
+                    <AccessoriesHighlights
+                        accessories={accessories}
+                        onOpen={openAccessory}
+                        onExplore={exploreProducts}
+                    />
+                )}
 
                 {/* PRODUCTS */}
 
@@ -695,21 +908,10 @@ function Accessories() {
                             }
                             aria-label="Sort accessories"
                         >
-                            <option value="default">
-                                Sort: Default
-                            </option>
-
-                            <option value="low">
-                                Price: Low to High
-                            </option>
-
-                            <option value="high">
-                                Price: High to Low
-                            </option>
-
-                            <option value="name">
-                                Name: A to Z
-                            </option>
+                            <option value="default">Sort: Default</option>
+                            <option value="low">Price: Low to High</option>
+                            <option value="high">Price: High to Low</option>
+                            <option value="name">Name: A to Z</option>
                         </select>
                     </div>
 
@@ -784,9 +986,7 @@ function Accessories() {
                         >
                             <button
                                 disabled={currentPage === 1}
-                                onClick={() =>
-                                    goToPage(currentPage - 1)
-                                }
+                                onClick={() => goToPage(currentPage - 1)}
                             >
                                 ← Previous
                             </button>
@@ -824,9 +1024,7 @@ function Accessories() {
 
                             <button
                                 disabled={currentPage === totalPages}
-                                onClick={() =>
-                                    goToPage(currentPage + 1)
-                                }
+                                onClick={() => goToPage(currentPage + 1)}
                             >
                                 Next →
                             </button>
@@ -846,10 +1044,7 @@ function Accessories() {
                                 }}
                             >
                                 <div className="accessories-perk-icon">
-                                    <Icon
-                                        name={perk.icon}
-                                        size={24}
-                                    />
+                                    <Icon name={perk.icon} size={24} />
                                 </div>
 
                                 <div>

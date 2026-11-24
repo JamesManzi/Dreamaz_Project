@@ -1,773 +1,860 @@
+
+import { useEffect, useState } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import { useState, useEffect, useMemo, useRef } from "react";
 import api from "./api";
 import "./About.css";
-import "./AboutAnimations.css";
 
-const MARQUEE_WORDS = [
-    "Art",
-    "Creativity",
-    "Expression",
-    "Storytelling",
-    "Originality",
-    "Imagination"
-];
+/* =========================================================
+   IMAGE HELPERS
+   Uses the same image structure as Home.jsx
+========================================================= */
 
-const INITIAL_FORM = {
-    name: "",
-    email: "",
-    phone: "",
-    subject: "",
-    message: ""
+const getImage = (product) => {
+    if (!product) return null;
+
+    if (typeof product.image === "string") return product.image;
+    if (typeof product.imageUrl === "string") return product.imageUrl;
+
+    const files = product.files || product.images || [];
+
+    if (Array.isArray(files) && files.length > 0) {
+        const first = files[0];
+
+        if (typeof first === "string") return first;
+
+        return (
+            first?.url ||
+            first?.secure_url ||
+            first?.path ||
+            null
+        );
+    }
+
+    return null;
 };
 
-function About() {
-    const [formData, setFormData] = useState(INITIAL_FORM);
+const getVideo = (product) => {
+    if (!Array.isArray(product?.files)) return null;
 
+    const video = product.files.find(
+        (file) =>
+            file?.type === "video" &&
+            (file?.url || file?.secure_url || file?.path)
+    );
+
+    return (
+        video?.url ||
+        video?.secure_url ||
+        video?.path ||
+        null
+    );
+};
+
+/* =========================================================
+   ABOUT PAGE
+========================================================= */
+
+const About = () => {
     const [products, setProducts] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState("All");
-    const [loadingProducts, setLoadingProducts] = useState(true);
-    const [loading, setLoading] = useState(false);
-    const [feedback, setFeedback] = useState({
-        message: "",
-        type: ""
+    const [loading, setLoading] = useState(true);
+    const [sending, setSending] = useState(false);
+
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: ""
+    });
+
+    const [formMessage, setFormMessage] = useState({
+        type: "",
+        text: ""
     });
 
     const [scrollProgress, setScrollProgress] = useState(0);
-    const [showTop, setShowTop] = useState(false);
+    const [showTopButton, setShowTopButton] = useState(false);
 
-    const pageRef = useRef(null);
+    /* =====================================================
+       HERO IMAGE DATA
+    ===================================================== */
 
-    // Replace these with your real business contact details.
-    const businessEmail = "your-email@example.com";
-    const businessPhone = "+250 7XX XXX XXX";
+    const heroProducts = products
+        .filter((product) => getImage(product))
+        .slice(0, 3);
 
-    /* ---------- Fetch trending artwork ---------- */
+    /* =====================================================
+       FETCH PRODUCTS
+       Same endpoint and response structure as Home.jsx
+    ===================================================== */
+
     useEffect(() => {
+        let isMounted = true;
+
         const fetchTrending = async () => {
             try {
-                const response = await api.get("/getTrending");
+                setLoading(true);
 
-                if (response.data.success) {
-                    setProducts(response.data.trending || []);
-                } else {
-                    setProducts([]);
+                const res = await api.get("/loadProducts");
+
+                const allProducts = Array.isArray(res.data)
+                    ? res.data
+                    : Array.isArray(res.data?.products)
+                        ? res.data.products
+                        : [];
+
+                const sortedProducts = [...allProducts].sort(
+                    (a, b) => {
+                        const dateA = new Date(
+                            a.createdAt || a.updatedAt || 0
+                        ).getTime();
+
+                        const dateB = new Date(
+                            b.createdAt || b.updatedAt || 0
+                        ).getTime();
+
+                        return dateB - dateA;
+                    }
+                );
+
+                if (isMounted) {
+                    setProducts(sortedProducts.slice(0, 8));
                 }
             } catch (error) {
                 console.error(
-                    "Unable to load artwork:",
+                    "Fetching Trending Artwork Error:",
                     error.response?.data || error.message
                 );
-                setProducts([]);
+
+                if (isMounted) {
+                    setProducts([]);
+                }
             } finally {
-                setLoadingProducts(false);
+                if (isMounted) {
+                    setLoading(false);
+                }
             }
         };
 
         fetchTrending();
+
+        return () => {
+            isMounted = false;
+        };
     }, []);
 
-    /* ---------- Categories ---------- */
-    const categories = useMemo(() => {
-        return [
-            "All",
-            ...new Set(
-                products.map((product) => product.category).filter(Boolean)
-            )
-        ];
-    }, [products]);
+    /* =====================================================
+       SCROLL PROGRESS AND BACK TO TOP
+    ===================================================== */
 
-    /* ---------- Newest artwork first ---------- */
-    const trendingProducts = useMemo(() => {
-        return [...products]
-            .sort(
-                (a, b) =>
-                    new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
-            )
-            .filter(
-                (product) =>
-                    selectedCategory === "All" ||
-                    product.category === selectedCategory
-            )
-            .slice(0, 8);
-    }, [products, selectedCategory]);
-
-    const getImage = (product) =>
-        product.files?.find((file) => file.type === "image" && file.url)
-            ?.url || "";
-
-    const getVideo = (product) =>
-        product.files?.find((file) => file.type === "video" && file.url)
-            ?.url || "";
-
-    const heroVideo = useMemo(() => {
-        for (const product of products) {
-            const video = product.files?.find(
-                (file) => file.type === "video" && file.url
-            );
-
-            if (video) return video.url;
-        }
-
-        return "";
-    }, [products]);
-
-    const getName = (product) => product.name || "Untitled Artwork";
-
-    /* ---------- Scroll progress, back-to-top, hero parallax ---------- */
     useEffect(() => {
         let ticking = false;
 
-        const onScroll = () => {
+        const handleScroll = () => {
             if (ticking) return;
+
             ticking = true;
 
-            requestAnimationFrame(() => {
-                const top = window.scrollY;
-                const height =
-                    document.documentElement.scrollHeight - window.innerHeight;
+            window.requestAnimationFrame(() => {
+                const scrollableHeight =
+                    document.documentElement.scrollHeight -
+                    window.innerHeight;
 
-                setScrollProgress(height > 0 ? top / height : 0);
-                setShowTop(top > 600);
+                const progress =
+                    scrollableHeight > 0
+                        ? (window.scrollY / scrollableHeight) * 100
+                        : 0;
 
-                // Parallax only while the hero is on screen
-                if (pageRef.current && top < 1000) {
-                    pageRef.current.style.setProperty(
-                        "--parallax",
-                        `${top * 0.25}px`
-                    );
-                    pageRef.current.style.setProperty(
-                        "--hero-fade",
-                        `${Math.max(0, 1 - top / 650)}`
-                    );
-                }
+                setScrollProgress(
+                    Math.min(100, Math.max(0, progress))
+                );
+
+                setShowTopButton(window.scrollY > 450);
 
                 ticking = false;
             });
         };
 
-        onScroll();
-        window.addEventListener("scroll", onScroll, { passive: true });
-        return () => window.removeEventListener("scroll", onScroll);
+        window.addEventListener("scroll", handleScroll, {
+            passive: true
+        });
+
+        handleScroll();
+
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+        };
     }, []);
 
-    /* ---------- Reveal on scroll ---------- */
-    useEffect(() => {
-        if (!("IntersectionObserver" in window)) return undefined;
+    /* =====================================================
+       SCROLL REVEAL ANIMATIONS
+    ===================================================== */
 
-        const targets = document.querySelectorAll(
+    useEffect(() => {
+        const elements = document.querySelectorAll(
             ".dreamaz-about [data-reveal]"
         );
 
+        if (!("IntersectionObserver" in window)) {
+            elements.forEach((element) => {
+                element.classList.add("is-visible");
+            });
+
+            return;
+        }
+
         const observer = new IntersectionObserver(
-            (entries) => {
+            (entries, currentObserver) => {
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add("is-visible");
-                        observer.unobserve(entry.target);
+                        currentObserver.unobserve(entry.target);
                     }
                 });
             },
-            { threshold: 0.15, rootMargin: "0px 0px -50px 0px" }
+            {
+                threshold: 0.08,
+                rootMargin: "0px 0px -35px 0px"
+            }
         );
 
-        targets.forEach((el) => {
-            if (!el.classList.contains("is-visible")) {
-                el.classList.add("reveal");
-                observer.observe(el);
-            }
+        elements.forEach((element) => {
+            element.classList.add("reveal");
+            observer.observe(element);
         });
 
         return () => observer.disconnect();
-    }, [loadingProducts, trendingProducts]);
+    }, [products, loading]);
 
-    /* ---------- Contact form ---------- */
+    /* =====================================================
+       CONTACT FORM
+    ===================================================== */
+
     const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+        const { name, value } = e.target;
+
+        setFormData((previous) => ({
+            ...previous,
+            [name]: value
+        }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        setLoading(true);
-        setFeedback({ message: "", type: "" });
+        if (sending) return;
+
+        setSending(true);
+
+        setFormMessage({
+            type: "",
+            text: ""
+        });
 
         try {
-            const response = await api.post("/sendContactMessage", formData);
+            const res = await api.post(
+                "/sendContactMessage",
+                formData
+            );
 
-            if (response.data.success) {
-                setFeedback({
-                    message: "Your message has been sent successfully!",
-                    type: "success"
+            if (res.data?.success) {
+                setFormMessage({
+                    type: "success",
+                    text:
+                        res.data.message ||
+                        "Your message has been sent successfully. Thank you for contacting us!"
                 });
 
-                setFormData(INITIAL_FORM);
+                setFormData({
+                    name: "",
+                    email: "",
+                    phone: "",
+                    subject: "",
+                    message: ""
+                });
             } else {
-                setFeedback({
-                    message:
-                        response.data.message || "Unable to send your message.",
-                    type: "error"
+                setFormMessage({
+                    type: "error",
+                    text:
+                        res.data?.message ||
+                        "We could not send your message. Please try again."
                 });
             }
         } catch (error) {
-            setFeedback({
-                message:
+            console.error(
+                "Sending Contact Message Error:",
+                error.response?.data || error.message
+            );
+
+            setFormMessage({
+                type: "error",
+                text:
                     error.response?.data?.message ||
-                    "Something went wrong. Please try again later.",
-                type: "error"
+                    "Something went wrong. Please try again later."
             });
         } finally {
-            setLoading(false);
+            setSending(false);
         }
     };
 
+    /* =====================================================
+       SCROLL ACTIONS
+    ===================================================== */
+
+    const scrollToTrending = () => {
+        document
+            .getElementById("trending-artwork")
+            ?.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+    };
+
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    };
+
+    /* =====================================================
+       RENDER
+    ===================================================== */
+
     return (
-        <>
+        <div className="dreamaz-about">
+
+            {/* NAVBAR */}
+
             <Navbar />
 
-            <main className="dreamaz-about" ref={pageRef}>
-                {/* Scroll progress + back to top */}
-                <div className="dreamaz-progress" aria-hidden="true">
-                    <span style={{ transform: `scaleX(${scrollProgress})` }} />
-                </div>
+            {/* SCROLL PROGRESS */}
 
-                <button
-                    type="button"
-                    className={`dreamaz-top ${showTop ? "visible" : ""}`}
-                    onClick={() =>
-                        window.scrollTo({ top: 0, behavior: "smooth" })
-                    }
-                    aria-label="Back to top"
-                >
-                    <svg
-                        viewBox="0 0 24 24"
-                        width="20"
-                        height="20"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                    >
-                        <path d="M12 19V5M5 12l7-7 7 7" />
-                    </svg>
-                </button>
+            <div
+                className="dreamaz-scroll-progress"
+                style={{ width: `${scrollProgress}%` }}
+                aria-hidden="true"
+            />
 
-                {/* HERO SECTION WITH VIDEO ANIMATION */}
-                <section className="dreamaz-about-hero">
-                    <div className="dreamaz-hero-video">
-                        {heroVideo ? (
-                            <video
-                                key={heroVideo}
-                                src={heroVideo}
-                                autoPlay
-                                muted
-                                loop
-                                playsInline
-                                preload="auto"
-                            />
-                        ) : (
-                            <div className="dreamaz-hero-fallback"></div>
-                        )}
-                    </div>
+            {/* =================================================
+                HERO SECTION WITH TRENDING IMAGES
+            ================================================= */}
 
-                    <div className="dreamaz-hero-overlay"></div>
+            <section className="dreamaz-trending-hero">
+                <div className="dreamaz-trending-hero-overlay" />
 
-                    <div className="dreamaz-about-hero-content">
-                        <span>WELCOME TO DREAMAZ INK</span>
+                <div className="dreamaz-trending-hero-layout">
 
-                        <h1>Art That Tells A Story.</h1>
+                    {/* LEFT: HERO TEXT */}
 
-                        <p>
-                            Discover creativity, imagination, and unique
-                            artistic expressions. Every piece of art has a
-                            story worth sharing.
-                        </p>
-
-                        <a href="#about-contact" className="dreamaz-hero-btn">
-                            Get In Touch <span>→</span>
-                        </a>
-                    </div>
-
-                    <div className="dreamaz-hero-decoration">
-                        <span>ART</span>
-                        <span>CREATIVITY</span>
-                        <span>EXPRESSION</span>
-                    </div>
-
-                    <div className="dreamaz-hero-scroll">
-                        <span></span>
-                        SCROLL TO EXPLORE
-                    </div>
-                </section>
-
-                {/* MARQUEE BAND */}
-                <div className="dreamaz-marquee" aria-hidden="true">
-                    <div className="dreamaz-marquee-track">
-                        {[...MARQUEE_WORDS, ...MARQUEE_WORDS, ...MARQUEE_WORDS, ...MARQUEE_WORDS].map(
-                            (word, index) => (
-                                <span key={`${word}-${index}`}>
-                                    {word}
-                                    <i>✦</i>
-                                </span>
-                            )
-                        )}
-                    </div>
-                </div>
-
-                {/* ABOUT INFORMATION */}
-                <section className="dreamaz-about-content">
-                    <div className="dreamaz-about-image" data-reveal="left">
-                        <div className="dreamaz-art-placeholder">
-                            <span>THE WORLD OF ART</span>
-                            <h2>Creativity Without Limits</h2>
-                            <div className="dreamaz-art-decoration">✦</div>
-                        </div>
-                    </div>
-
-                    <div className="dreamaz-about-text">
-                        <span
-                            className="dreamaz-section-label"
-                            data-reveal="right"
-                        >
-                            WHO WE ARE
+                    <div className="dreamaz-trending-hero-content">
+                        <span className="dreamaz-trending-eyebrow">
+                            WELCOME TO DREAMAZ INK
                         </span>
 
-                        <h2 data-reveal="right" style={{ "--delay": "80ms" }}>
-                            More Than Art. It's An Expression.
-                        </h2>
+                        <h1>
+                            Explore Our
+                            <span> Trending Artworks.</span>
+                        </h1>
 
-                        <p data-reveal="right" style={{ "--delay": "160ms" }}>
-                            Dreamaz Ink is a creative art brand built around
-                            imagination, originality, and artistic
-                            expression. We believe art is more than
-                            decoration; it is a powerful way to communicate
-                            ideas, emotions, and personal identity.
+                        <p>
+                            Discover inspiring artworks, creative
+                            designs, and unique pieces that bring
+                            imagination to life. Explore the latest
+                            creations from Dreamaz Ink.
                         </p>
 
-                        <p data-reveal="right" style={{ "--delay": "240ms" }}>
-                            Our goal is to connect people with creative
-                            artwork that inspires them, adds personality to
-                            their spaces, and makes every experience more
-                            meaningful.
-                        </p>
-
-                        <p data-reveal="right" style={{ "--delay": "320ms" }}>
-                            Through creativity and passion, we aim to make
-                            art accessible to people who appreciate unique
-                            designs and meaningful artistic experiences.
-                        </p>
-
-                        <a
-                            href="#trending-artwork"
-                            className="dreamaz-text-link"
-                            data-reveal="right"
-                            style={{ "--delay": "400ms" }}
+                        <button
+                            type="button"
+                            className="dreamaz-trending-hero-button"
+                            onClick={scrollToTrending}
                         >
-                            Discover Our Artwork <span>→</span>
-                        </a>
-                    </div>
-                </section>
+                            Explore Trending Artworks
+                            <span aria-hidden="true">↗</span>
+                        </button>
 
-                {/* MISSION, VISION AND VALUES */}
-                <section className="dreamaz-mission-section">
-                    <div
-                        className="dreamaz-info-card"
-                        data-reveal="up"
-                        style={{ "--delay": "0ms" }}
-                    >
-                        <div className="dreamaz-info-icon">✦</div>
-                        <h3>Our Mission</h3>
-                        <p>
-                            To create and share meaningful artwork that
-                            inspires creativity, expresses individuality, and
-                            connects people through art.
-                        </p>
+                        <div className="dreamaz-trending-count">
+                            <strong>
+                                {loading ? "—" : products.length}
+                            </strong>
+
+                            <span>Featured Artworks</span>
+                        </div>
                     </div>
 
-                    <div
-                        className="dreamaz-info-card"
-                        data-reveal="up"
-                        style={{ "--delay": "120ms" }}
-                    >
-                        <div className="dreamaz-info-icon">◎</div>
-                        <h3>Our Vision</h3>
-                        <p>
-                            To become a recognized creative brand known for
-                            originality, quality, innovation, and artistic
-                            storytelling.
-                        </p>
-                    </div>
+                    {/* RIGHT: ARTWORK IMAGE GALLERY */}
 
-                    <div
-                        className="dreamaz-info-card"
-                        data-reveal="up"
-                        style={{ "--delay": "240ms" }}
-                    >
-                        <div className="dreamaz-info-icon">♡</div>
-                        <h3>Our Values</h3>
-                        <p>
-                            Creativity, originality, customer satisfaction,
-                            quality, and the belief that every story deserves
-                            to be expressed.
-                        </p>
-                    </div>
-                </section>
+                    <div className="dreamaz-hero-gallery">
 
-                {/* TRENDING ARTWORK */}
-                <section
-                    className="dreamaz-trending-section"
-                    id="trending-artwork"
+                        {loading ? (
+                            <div className="dreamaz-hero-gallery-loading">
+                                <div className="dreamaz-loading-spinner" />
+
+                                <span>
+                                    Loading artworks...
+                                </span>
+                            </div>
+                        ) : heroProducts.length > 0 ? (
+                            <>
+                                {/* MAIN ARTWORK */}
+
+                                <div className="dreamaz-hero-main-image">
+                                    <img
+                                        src={getImage(heroProducts[0])}
+                                        alt={
+                                            heroProducts[0].name ||
+                                            "Featured Dreamaz artwork"
+                                        }
+                                        fetchPriority="high"
+                                    />
+
+                                    <div className="dreamaz-hero-image-caption">
+                                        <span>FEATURED ARTWORK</span>
+
+                                        <h3>
+                                            {heroProducts[0].name ||
+                                                "Creative Expression"}
+                                        </h3>
+                                    </div>
+                                </div>
+
+                                {/* SMALLER ARTWORKS */}
+
+                                <div className="dreamaz-hero-side-images">
+                                    {heroProducts.slice(1, 3).map(
+                                        (product, index) => (
+                                            <div
+                                                className="dreamaz-hero-small-image"
+                                                key={product._id || index}
+                                            >
+                                                <img
+                                                    src={getImage(product)}
+                                                    alt={
+                                                        product.name ||
+                                                        "Dreamaz artwork"
+                                                    }
+                                                    loading="lazy"
+                                                />
+
+                                                <span>
+                                                    {product.category ||
+                                                        "Artwork"}
+                                                </span>
+                                            </div>
+                                        )
+                                    )}
+                                </div>
+                            </>
+                        ) : (
+                            <div className="dreamaz-hero-gallery-empty">
+                                <span>DI</span>
+                                <p>Our creative collection</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                <div className="dreamaz-trending-hero-bottom">
+                    <span>CREATIVITY. EXPRESSION. ART.</span>
+                    <span>SCROLL TO EXPLORE ↓</span>
+                </div>
+            </section>
+
+            {/* =================================================
+                TRENDING ARTWORK COLLECTION
+            ================================================= */}
+
+            <section
+                className="dreamaz-trending-section"
+                id="trending-artwork"
+            >
+                <div
+                    className="dreamaz-trending-intro"
+                    data-reveal
                 >
-                    <div className="dreamaz-trending-heading" data-reveal="up">
-                        <div>
-                            <span className="dreamaz-section-label">
-                                DISCOVER CREATIVITY
-                            </span>
+                    <span className="dreamaz-section-eyebrow">
+                        DISCOVER OUR COLLECTION
+                    </span>
 
-                            <h2>Trending Artwork</h2>
+                    <h2>
+                        Trending <span>Artwork</span>
+                    </h2>
 
-                            <p>
-                                Explore artwork people are discovering and
-                                loving across Dreamaz Ink.
-                            </p>
-                        </div>
+                    <p>
+                        Explore our latest featured creations.
+                        Each artwork brings a unique perspective,
+                        creative expression, and visual experience.
+                    </p>
+                </div>
 
-                        <span className="dreamaz-trending-symbol">✳</span>
+                {loading ? (
+                    <div className="dreamaz-artwork-loading">
+                        <div className="dreamaz-loading-spinner" />
+
+                        <p>
+                            Discovering amazing artwork...
+                        </p>
                     </div>
+                ) : products.length > 0 ? (
+                    <div className="dreamaz-artwork-stories">
+                        {products.map((product, index) => {
+                            const image = getImage(product);
+                            const video = getVideo(product);
 
-                    {/* CATEGORY FILTERS */}
-                    <div
-                        className="dreamaz-category-filters"
-                        data-reveal="up"
-                        style={{ "--delay": "100ms" }}
-                    >
-                        {categories.map((category) => (
-                            <button
-                                key={category}
-                                className={
-                                    selectedCategory === category ? "active" : ""
-                                }
-                                onClick={() => setSelectedCategory(category)}
-                            >
-                                {category}
-                            </button>
-                        ))}
-                    </div>
+                            return (
+                                <article
+                                    className={`dreamaz-artwork-story ${
+                                        index % 2 !== 0 ? "reverse" : ""
+                                    }`}
+                                    key={product._id || index}
+                                >
+                                    {/* ARTWORK MEDIA */}
 
-                    {loadingProducts ? (
-                        <div className="dreamaz-art-loading">
-                            <div className="dreamaz-loader"></div>
-                            Loading trending artwork...
-                        </div>
-                    ) : trendingProducts.length > 0 ? (
-                        <div className="dreamaz-trending-grid">
-                            {trendingProducts.map((product, index) => {
-                                const image = getImage(product);
-                                const video = getVideo(product);
-
-                                return (
-                                    <article
-                                        className="dreamaz-art-card"
-                                        key={product._id || index}
-                                        data-reveal="zoom"
-                                        style={{
-                                            "--delay": `${(index % 4) * 90}ms`
-                                        }}
+                                    <div
+                                        className="dreamaz-story-media"
+                                        data-reveal={
+                                            index % 2 === 0
+                                                ? "left"
+                                                : "right"
+                                        }
                                     >
-                                        <div className="dreamaz-art-card-image">
+                                        <div className="dreamaz-story-media-frame">
                                             {image ? (
                                                 <img
                                                     src={image}
-                                                    alt={getName(product)}
+                                                    alt={
+                                                        product.name ||
+                                                        "Dreamaz Ink artwork"
+                                                    }
                                                     loading="lazy"
                                                 />
                                             ) : video ? (
                                                 <video
                                                     src={video}
-                                                    autoPlay
                                                     muted
                                                     loop
+                                                    autoPlay
                                                     playsInline
                                                     preload="metadata"
                                                 />
                                             ) : (
-                                                <div className="dreamaz-no-image">
-                                                    <span>✦</span>
-                                                    Artwork
+                                                <div className="dreamaz-story-placeholder">
+                                                    <span>DI</span>
+
+                                                    <p>
+                                                        Artwork Preview
+                                                    </p>
                                                 </div>
                                             )}
 
-                                            <span className="dreamaz-trending-badge">
-                                                ✦ Trending
+                                            <span className="dreamaz-story-number">
+                                                {String(index + 1).padStart(
+                                                    2,
+                                                    "0"
+                                                )}
                                             </span>
                                         </div>
+                                    </div>
 
-                                        <div className="dreamaz-art-card-info">
-                                            <span className="dreamaz-art-category">
-                                                {product.category || "Artwork"}
-                                            </span>
+                                    {/* ARTWORK DESCRIPTION */}
 
-                                            <h3>{getName(product)}</h3>
-
-                                            {product.description && (
-                                                <p>{product.description}</p>
-                                            )}
-                                        </div>
-                                    </article>
-                                );
-                            })}
-                        </div>
-                    ) : (
-                        <div className="dreamaz-empty-artwork" data-reveal="up">
-                            <span>✦</span>
-                            <h3>New Creativity Is Coming!</h3>
-                            <p>
-                                There is no trending artwork to display in
-                                this category yet.
-                            </p>
-                        </div>
-                    )}
-                </section>
-
-                {/* WHY CHOOSE US */}
-                <section className="dreamaz-why-section">
-                    <div className="dreamaz-why-heading" data-reveal="up">
-                        <span className="dreamaz-section-label">
-                            THE DREAMAZ EXPERIENCE
-                        </span>
-
-                        <h2>Why Choose Dreamaz Ink?</h2>
-
-                        <p>
-                            We believe creativity should inspire, connect, and
-                            make a difference.
-                        </p>
-                    </div>
-
-                    <div className="dreamaz-why-grid">
-                        <div data-reveal="up" style={{ "--delay": "0ms" }}>
-                            <span>01</span>
-                            <h3>Unique Creativity</h3>
-                            <p>
-                                Discover artwork that expresses originality
-                                and individuality.
-                            </p>
-                        </div>
-
-                        <div data-reveal="up" style={{ "--delay": "140ms" }}>
-                            <span>02</span>
-                            <h3>Art For Everyone</h3>
-                            <p>
-                                Explore different artistic styles,
-                                categories, and creative ideas.
-                            </p>
-                        </div>
-
-                        <div data-reveal="up" style={{ "--delay": "280ms" }}>
-                            <span>03</span>
-                            <h3>Creative Community</h3>
-                            <p>
-                                Connect with creativity and discover inspiring
-                                artistic expressions.
-                            </p>
-                        </div>
-                    </div>
-                </section>
-
-                {/* CONTACT SECTION */}
-                <section className="dreamaz-contact-section" id="about-contact">
-                    <div className="dreamaz-contact-heading" data-reveal="up">
-                        <span className="dreamaz-section-label">
-                            GET IN TOUCH
-                        </span>
-
-                        <h2>Let's Talk About Your Ideas</h2>
-
-                        <p>
-                            Have a question, project idea, or special request?
-                            We'd love to hear from you.
-                        </p>
-                    </div>
-
-                    <div className="dreamaz-contact-layout">
-                        {/* CONTACT INFORMATION */}
-                        <div
-                            className="dreamaz-contact-information"
-                            data-reveal="left"
-                        >
-                            <h3>Contact Information</h3>
-
-                            <p>
-                                Reach out to us through any of the following
-                                channels.
-                            </p>
-
-                            <div className="dreamaz-contact-item">
-                                <span className="dreamaz-contact-icon">✉</span>
-
-                                <div>
-                                    <h4>Email Address</h4>
-                                    <a href={`mailto:${businessEmail}`}>
-                                        {businessEmail}
-                                    </a>
-                                </div>
-                            </div>
-
-                            <div className="dreamaz-contact-item">
-                                <span className="dreamaz-contact-icon">☎</span>
-
-                                <div>
-                                    <h4>Phone Number</h4>
-                                    <a
-                                        href={`tel:${businessPhone.replace(/\s/g, "")}`}
+                                    <div
+                                        className="dreamaz-story-content"
+                                        data-reveal={
+                                            index % 2 === 0
+                                                ? "right"
+                                                : "left"
+                                        }
                                     >
-                                        {businessPhone}
+                                        <span className="dreamaz-story-label">
+                                            FEATURED ARTWORK /{" "}
+                                            {String(index + 1).padStart(
+                                                2,
+                                                "0"
+                                            )}
+                                        </span>
+
+                                        <h3>
+                                            {product.name ||
+                                                product.title ||
+                                                "A Unique Creation"}
+                                        </h3>
+
+                                        {product.category && (
+                                            <span className="dreamaz-story-category">
+                                                {product.category}
+                                            </span>
+                                        )}
+
+                                        <p>
+                                            {product.description ||
+                                                "Discover the creativity and inspiration behind this unique artwork. Every detail contributes to a visual experience that makes this creation special."}
+                                        </p>
+
+                                        <div className="dreamaz-story-bottom">
+                                            <span>
+                                                DREAMAZ INK
+                                            </span>
+
+                                            <span>
+                                                ART THAT TELLS A STORY
+                                            </span>
+                                        </div>
+                                    </div>
+                                </article>
+                            );
+                        })}
+                    </div>
+                ) : (
+                    <div className="dreamaz-no-artwork">
+                        <span className="dreamaz-no-artwork-icon">
+                            ✦
+                        </span>
+
+                        <h3>Artwork Coming Soon</h3>
+
+                        <p>
+                            We are preparing something creative for you.
+                            Please check back soon.
+                        </p>
+                    </div>
+                )}
+            </section>
+
+            {/* =================================================
+                CONTACT SECTION
+            ================================================= */}
+
+            <section
+                className="dreamaz-contact-section"
+                id="contact"
+            >
+                <div className="dreamaz-contact-container">
+
+                    {/* CONTACT INFORMATION */}
+
+                    <div
+                        className="dreamaz-contact-info"
+                        data-reveal="left"
+                    >
+                        <span className="dreamaz-section-eyebrow">
+                            LET'S CONNECT
+                        </span>
+
+                        <h2>
+                            Have Something
+                            <span> In Mind?</span>
+                        </h2>
+
+                        <p className="dreamaz-contact-description">
+                            Have a question, an idea, or want to work
+                            with us? We would love to hear from you.
+                            Send us a message and let's start a
+                            conversation.
+                        </p>
+
+                        <div className="dreamaz-contact-details">
+
+                            <div className="dreamaz-contact-detail">
+                                <div className="dreamaz-contact-icon">
+                                    ✉
+                                </div>
+
+                                <div>
+                                    <span>Email Us</span>
+
+                                    <a href="mailto:your-email@example.com">
+                                        your-email@example.com
                                     </a>
                                 </div>
                             </div>
 
-                            <div className="dreamaz-contact-note">
-                                We welcome questions, collaborations, custom
-                                artwork requests, and business inquiries.
+                            <div className="dreamaz-contact-detail">
+                                <div className="dreamaz-contact-icon">
+                                    ☎
+                                </div>
+
+                                <div>
+                                    <span>Call Us</span>
+
+                                    <a href="tel:+250000000000">
+                                        +250 000 000 000
+                                    </a>
+                                </div>
                             </div>
                         </div>
 
-                        {/* CONTACT FORM */}
-                        <div
-                            className="dreamaz-contact-form-container"
-                            data-reveal="right"
-                        >
-                            <h3>Send Us a Message</h3>
+                        <div className="dreamaz-contact-note">
+                            <span>✦</span>
 
                             <p>
-                                Complete the form below and our team will get
+                                Every great collaboration starts with
+                                a conversation.
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* CONTACT FORM */}
+
+                    <div
+                        className="dreamaz-contact-form-wrapper"
+                        data-reveal="right"
+                    >
+                        <div className="dreamaz-contact-form-heading">
+                            <span>GET IN TOUCH</span>
+
+                            <h3>Send Us A Message</h3>
+
+                            <p>
+                                Fill in the form below and we will get
                                 back to you.
                             </p>
+                        </div>
 
-                            {feedback.message && (
-                                <div
-                                    className={`dreamaz-feedback ${feedback.type}`}
-                                    role={
-                                        feedback.type === "error"
-                                            ? "alert"
-                                            : "status"
-                                    }
-                                >
-                                    {feedback.message}
-                                </div>
-                            )}
+                        {formMessage.text && (
+                            <div
+                                className={`dreamaz-form-message ${formMessage.type}`}
+                                role="status"
+                            >
+                                {formMessage.text}
+                            </div>
+                        )}
 
-                            <form onSubmit={handleSubmit}>
-                                <div className="dreamaz-form-row">
-                                    <div className="dreamaz-form-group">
-                                        <label htmlFor="contact-name">
-                                            Your Name
-                                        </label>
-
-                                        <input
-                                            id="contact-name"
-                                            type="text"
-                                            name="name"
-                                            placeholder="Enter your name"
-                                            autoComplete="name"
-                                            value={formData.name}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                    </div>
-
-                                    <div className="dreamaz-form-group">
-                                        <label htmlFor="contact-email">
-                                            Email Address
-                                        </label>
-
-                                        <input
-                                            id="contact-email"
-                                            type="email"
-                                            name="email"
-                                            placeholder="Enter your email"
-                                            autoComplete="email"
-                                            value={formData.email}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="dreamaz-form-row">
-                                    <div className="dreamaz-form-group">
-                                        <label htmlFor="contact-phone">
-                                            Phone Number
-                                        </label>
-
-                                        <input
-                                            id="contact-phone"
-                                            type="tel"
-                                            name="phone"
-                                            placeholder="Enter your phone number"
-                                            autoComplete="tel"
-                                            value={formData.phone}
-                                            onChange={handleChange}
-                                        />
-                                    </div>
-
-                                    <div className="dreamaz-form-group">
-                                        <label htmlFor="contact-subject">
-                                            Subject
-                                        </label>
-
-                                        <input
-                                            id="contact-subject"
-                                            type="text"
-                                            name="subject"
-                                            placeholder="What is your inquiry about?"
-                                            value={formData.subject}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                    </div>
-                                </div>
+                        <form
+                            className="dreamaz-contact-form"
+                            onSubmit={handleSubmit}
+                        >
+                            <div className="dreamaz-form-row">
 
                                 <div className="dreamaz-form-group">
-                                    <label htmlFor="contact-message">
-                                        Your Message
+                                    <label htmlFor="contact-name">
+                                        Full Name
                                     </label>
 
-                                    <textarea
-                                        id="contact-message"
-                                        name="message"
-                                        placeholder="Write your message here..."
-                                        rows="6"
-                                        value={formData.message}
+                                    <input
+                                        id="contact-name"
+                                        type="text"
+                                        name="name"
+                                        placeholder="Enter your name"
+                                        value={formData.name}
                                         onChange={handleChange}
+                                        autoComplete="name"
                                         required
                                     />
                                 </div>
 
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className="dreamaz-send-btn"
-                                >
-                                    {loading ? "Sending..." : "Send Message"}
+                                <div className="dreamaz-form-group">
+                                    <label htmlFor="contact-email">
+                                        Email Address
+                                    </label>
 
-                                    {!loading && <span> →</span>}
-                                </button>
-                            </form>
-                        </div>
+                                    <input
+                                        id="contact-email"
+                                        type="email"
+                                        name="email"
+                                        placeholder="Enter your email"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        autoComplete="email"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="dreamaz-form-row">
+
+                                <div className="dreamaz-form-group">
+                                    <label htmlFor="contact-phone">
+                                        Phone Number
+                                    </label>
+
+                                    <input
+                                        id="contact-phone"
+                                        type="tel"
+                                        name="phone"
+                                        placeholder="Enter your phone number"
+                                        value={formData.phone}
+                                        onChange={handleChange}
+                                        autoComplete="tel"
+                                    />
+                                </div>
+
+                                <div className="dreamaz-form-group">
+                                    <label htmlFor="contact-subject">
+                                        Subject
+                                    </label>
+
+                                    <input
+                                        id="contact-subject"
+                                        type="text"
+                                        name="subject"
+                                        placeholder="What is this about?"
+                                        value={formData.subject}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="dreamaz-form-group">
+                                <label htmlFor="contact-message">
+                                    Your Message
+                                </label>
+
+                                <textarea
+                                    id="contact-message"
+                                    name="message"
+                                    placeholder="Write your message here..."
+                                    rows="6"
+                                    value={formData.message}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                className="dreamaz-contact-submit"
+                                disabled={sending}
+                            >
+                                {sending ? (
+                                    <>
+                                        <span className="dreamaz-button-spinner" />
+                                        Sending...
+                                    </>
+                                ) : (
+                                    <>
+                                        Send Message
+                                        <span aria-hidden="true">
+                                            ↗
+                                        </span>
+                                    </>
+                                )}
+                            </button>
+                        </form>
                     </div>
-                </section>
-            </main>
+                </div>
+            </section>
+
+            {/* BACK TO TOP */}
+
+            {showTopButton && (
+                <button
+                    type="button"
+                    className="dreamaz-back-to-top"
+                    onClick={scrollToTop}
+                    aria-label="Back to top"
+                >
+                    ↑
+                </button>
+            )}
+
+            {/* FOOTER */}
 
             <Footer />
-        </>
+        </div>
     );
-}
+};
 
 export default About;
