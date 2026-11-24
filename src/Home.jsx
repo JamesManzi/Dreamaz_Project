@@ -11,7 +11,7 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import Hero from "./Hero";
 import api from "./api";
-
+import Loading from "./Loading";
 import "./Home.css";
 
 /* =========================================================
@@ -522,23 +522,7 @@ function CategoryCard({
     );
 }
 
-/* =========================================================
-   SKELETON
-========================================================= */
 
-function SkeletonGrid() {
-    return (
-        <div className="art-grid" aria-busy="true">
-            {Array.from({ length: 8 }).map((_, index) => (
-                <div key={index} className="art-skeleton" />
-            ))}
-        </div>
-    );
-}
-
-/* =========================================================
-   HOME PAGE
-========================================================= */
 
 function Home() {
     const navigate = useNavigate();
@@ -1198,70 +1182,61 @@ function Home() {
                         ))}
                     </div>
 
-                    {/* RESULTS */}
+                   
+{/* RESULTS */}
 
-                    {loading ? (
-                        <SkeletonGrid />
-                    ) : error ? (
-                        <div className="home-status error" role="alert">
-                            <h3>Something went wrong</h3>
-                            <p>{error}</p>
+{loading ? (
+    <Loading
+        loading={true}
+        message="Please wait while we load beautiful artworks for you."
+    />
+) : error ? (
+    <div className="home-status error" role="alert">
+        <h3>Something went wrong</h3>
+        <p>{error}</p>
 
-                            <button
-                                type="button"
-                                onClick={fetchProducts}
-                            >
-                                Try Again
-                            </button>
-                        </div>
-                    ) : filteredProducts.length === 0 ? (
-                        <div className="empty-artworks">
-                            <h3>
-                                {products.length === 0
-                                    ? "No artworks available yet"
-                                    : "No artworks found"}
-                            </h3>
+        <button type="button" onClick={fetchProducts}>
+            Try Again
+        </button>
+    </div>
+) : filteredProducts.length === 0 ? (
+    <div className="empty-artworks">
+        <Loading
+            loading={false}
+            message={
+                products.length === 0
+                    ? "Please check back soon for new arrivals."
+                    : "Try another search term or category."
+            }
+        />
 
-                            <p>
-                                {products.length === 0
-                                    ? "Please check back soon for new arrivals."
-                                    : "Try another search or category."}
-                            </p>
+        {hasActiveFilters && (
+            <button type="button" onClick={clearFilters}>
+                Clear Filters
+            </button>
+        )}
+    </div>
+) : (
+    <>
+        <p className="results-count">
+            Showing <strong>{filteredProducts.length}</strong>{" "}
+            {filteredProducts.length === 1 ? "artwork" : "artworks"}
+        </p>
 
-                            {hasActiveFilters && (
-                                <button
-                                    type="button"
-                                    onClick={clearFilters}
-                                >
-                                    Clear Filters
-                                </button>
-                            )}
-                        </div>
-                    ) : (
-                        <>
-                            <p className="results-count">
-                                Showing{" "}
-                                <strong>
-                                    {filteredProducts.length}
-                                </strong>{" "}
-                                {filteredProducts.length === 1
-                                    ? "artwork"
-                                    : "artworks"}
-                            </p>
+        <div className="art-grid">
+            {filteredProducts.map((product, index) => (
+                <ProductCard
+                    key={product._id}
+                    product={product}
+                    index={index}
+                    onAddToCart={handleAddToCart}
+                    addingId={addingId}
+                />
+            ))}
+        </div>
+    </>
+)}
 
-                            <div className="art-grid">
-                                {filteredProducts.map((product, index) => (
-                                    <ProductCard
-                                        key={product._id}
-                                        product={product}
-                                        index={index}
-                                        onAddToCart={handleAddToCart}
-                                        addingId={addingId}
-                                    />
-                                ))}
-                            </div>
-                        </>
-                    )}
                 </section>
 
                 {/* WHY DREAMAZ */}

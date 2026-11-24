@@ -7,9 +7,8 @@ import Footer from "./Footer";
 import DashboardNavbar from "./DashboardNavbar";
 import api from "./api";
 import { useMessage } from "./ShowMessage";
-
 import "./Dashboard.css";
-
+import Loading from "./Loading";
 /* =========================================================
    ICON COMPONENT
 ========================================================= */
@@ -430,34 +429,24 @@ function Dashboard() {
        LOADING SCREEN
     ===================================================== */
 
-    if (loading) {
-        return (
-            <>
-                <Navbar />
+    /* =====================================================
+   LOADING SCREEN
+===================================================== */
 
-                <div className="client-dashboard">
-                    <div className="dash-skeleton dash-skeleton-hero" />
+if (loading) {
+    return (
+        <>
+            <Navbar />
 
-                    <div className="dash-skeleton-row">
-                        <div className="dash-skeleton dash-skeleton-card" />
-                        <div className="dash-skeleton dash-skeleton-card" />
-                        <div className="dash-skeleton dash-skeleton-card" />
-                    </div>
+            <Loading
+                loading={true}
+                message="Please wait while we prepare your dashboard."
+            />
 
-                    <div className="dashboard-product-grid">
-                        {[1, 2, 3, 4, 5, 6].map((item) => (
-                            <div
-                                key={item}
-                                className="dash-skeleton dash-skeleton-product"
-                            />
-                        ))}
-                    </div>
-                </div>
-
-                <Footer />
-            </>
-        );
-    }
+            <Footer />
+        </>
+    );
+}
 
     const firstName =
         user?.firstName ||
@@ -483,7 +472,22 @@ function Dashboard() {
                             {getGreeting()}
                         </span>
 
-                        <h1>Welcome back, {user.username}!</h1>
+                        <h1
+    style={{
+        fontSize: "clamp(24px, 3vw, 32px)",
+        fontWeight: 800,
+        color: "white",
+        letterSpacing: "-0.8px",
+        lineHeight: 1.3,
+        margin: "0 0 8px",
+        fontFamily: "Inter, sans-serif"
+    }}
+>
+    Welcome back,{" "}
+    <span style={{ color: "#27ae60" }}>
+        {user.username}
+    </span>
+</h1>
 
                         <p>
                             Discover amazing products, explore new
